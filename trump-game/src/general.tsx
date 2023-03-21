@@ -20,7 +20,6 @@ export class Card{
 }
 
 export class Deck{
-    //private deck : Card[];
 
 }
 
@@ -60,6 +59,6 @@ export class Table{
     protected players : Player[];
     constructor(players : Player[]){
         this.players = players;
-        
+
     }
 }
