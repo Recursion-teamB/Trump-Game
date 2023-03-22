@@ -26,7 +26,7 @@ export class Deck{
 export class Player{
     protected name : string;
     protected type : string;
-    protected hand : Card[];
+    protected hand : Card[] = [];
     protected score : number;
 
     constructor(name : string, type : string){
@@ -56,9 +56,5 @@ export class Player{
 }
 
 export class Table{
-    protected players : Player[];
-    constructor(players : Player[]){
-        this.players = players;
-
-    }
+    protected players : Player[] = [];
 }
