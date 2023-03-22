@@ -5,7 +5,7 @@ export class BlackJackPlayer extends Player{
 
     constructor(name : string, type : string, latch : number){
         super(name, type);
-        this.score = 30000;
+        this.score = 40000;
         this.latch = latch;
     }
 
@@ -37,7 +37,7 @@ export class BlackJackTable extends Table{
     constructor(player: BlackJackPlayer){
         super();
         // 仮置き
-        this.players = [new BlackJackPlayer("CPU1", "CPU", 30000), player, new BlackJackPlayer("CPU2", "CPU", 30000)];
+        this.players = [new BlackJackPlayer("CPU1", "CPU", 40000), player, new BlackJackPlayer("CPU2", "CPU", 30000)];
     }
 
     public betTurn() : void{
