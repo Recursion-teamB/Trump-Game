@@ -1,4 +1,4 @@
-import {Deck, Player} from './general'
+import {Card, Deck, Player} from './general'
 
 export class BlackJackPlayer extends Player{
     private latch : number;
@@ -26,6 +26,17 @@ export class BlackJackPlayer extends Player{
         this.chips += chip;
         return this.chips;
     }
+
+    // CardかCard[]を引数としthis.handに追加する。
+    public setHand(card : Card): void;
+    public setHand(cards : Card[]): void;
+    public setHand(card : Card | Card[]) : void{
+        if(Array.isArray(card)){
+            this.hand.concat(card);
+        }
+        else this.hand.push(card);
+    }
+
     // 掛け金をかける。cost <= this.chipsならばthis.chipsが入力分減り、this.latchにセットされる。cost > this.chipsなら何も処理されない。
     public bet(cost: number) : void{
         if(this.chips >= cost){
@@ -69,7 +80,7 @@ export class BlackJackPlayer extends Player{
 }
 
 export class BlackJackTable {
-    private house : Player = new Player("House", "House");
+    private house : BlackJackPlayer = new BlackJackPlayer("House", "House");
     private roundNumber : number = 1;
     private turnNumber : number = 0; // 1に変更の可能性あり
     private phase : string = "betting"; // betting, dear, playerPhase, dealerPhaseなどに1roundの中で適宜変更される。不要なら削除もあり。
@@ -89,6 +100,10 @@ export class BlackJackTable {
 
     public getPlayers() : BlackJackPlayer[] {
         return this.players;
+    }
+
+    public getHouse() : BlackJackPlayer {
+        return this.house;
     }
 
     // ゲームの参加者が掛け金をベットするときの処理。CPUはランダムに、人間のplayerは入力を受け取って掛け金を決める。
@@ -111,5 +126,15 @@ export class BlackJackTable {
             current.bet(bet)
         }
     }
+    // public dealerPhase() : void{
+    //     while(this.house.calcScore() <= 16){
+    //         // 2秒遅れてhit
+    //         /* setTimeout(() => {
+    //             commmand.hit(this.house) hit仮置き
+    //             renderDealerBet()
+    //         }, 2000);
+    //         */
+    //     }
+    // }
 }
 
