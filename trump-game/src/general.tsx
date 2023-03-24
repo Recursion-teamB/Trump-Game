@@ -56,12 +56,10 @@ export class Player{
     protected name : string;
     protected type : string;
     protected hand : Card[];
-    protected score : number;
 
     constructor(name : string, type : string){
         this.name = name;
         this.type = type;
-        this.score = 0;
         this.hand = [];
     }
 
@@ -73,15 +71,6 @@ export class Player{
     }
     public getType() : string{
         return this.type;
-    }
-    public getScore() : number{
-        return this.score;
-    }
-    public setScore(score : number) : void{
-        this.score = score;
-    }
-    public addScore(score : number) : void{
-        this.score += score;
     }
 }
 
