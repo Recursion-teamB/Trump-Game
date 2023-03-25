@@ -66,3 +66,8 @@ test("シャッフル後のデッキはランダムな順序である", () => {
   const shuffledDeckOrder = deck.getDeck().map(card =>  card.getSuit() + card.getNumber()).join(',');
   expect(shuffledDeckOrder).not.toBe(initialDeckOrder);
 });
+
+test("画像の割り当て", () => {
+  const card = new Card("♠︎", "10");
+  expect(card.getImg()).toBe("./src/s10.png");
+})
