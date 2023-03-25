@@ -1,4 +1,4 @@
-import {Card, Deck, Player, Table} from './general'
+import {Card, Deck, Player} from './general'
 
 export class BlackJackPlayer extends Player{
     private latch : number;
@@ -6,7 +6,6 @@ export class BlackJackPlayer extends Player{
 
     constructor(name : string, type : string){
         super(name, type);
-        this.score = 0;
         this.latch = 0;
         this.chips = 40000;
     }
@@ -35,20 +34,51 @@ export class BlackJackPlayer extends Player{
             this.setLatch(cost);
         }
     }
+    public calcScore() : number{
+        let currentScore : number = 0;
+        let hasAce : boolean = false;
+        for(let card of this.hand){
+            let cardValue = card.getValue();
+            //とりあえずAceは1として後で調整
+            if(cardValue === 1){
+                hasAce = true;
+            }
+            currentScore += cardValue;
+        }
+        //Aceが手札にあり、かつ現在の合計値が11未満の場合はAceを11と扱う
+        if(hasAce && currentScore < 11){
+            currentScore += 10;
+        }
+        return currentScore; 
+    }
+
+    //プレイヤーのカードの合計値が22の場合バスト
+    public isBust() : boolean{
+        let totalValue : number = 0;
+        for(let card of this.hand){
+            let cardValue = card.getValue();
+            //cardValueの上限を10に制御 -> JQKが10になるように制御
+            totalValue += Math.min(cardValue, 10);
+            //合計値が22以上で即座にbust
+            if(totalValue >= 22) return true;
+        }
+        return false;
+    }
 }
 
-export class BlackJackTable extends Table{
+export class BlackJackTable {
     private house : Player = new Player("House", "House");
     private roundNumber : number = 1;
     private turnNumber : number = 0; // 1に変更の可能性あり
     private phase : string = "betting"; // betting, dear, playerPhase, dealerPhaseなどに1roundの中で適宜変更される。不要なら削除もあり。
     private bets : number[] = [0, 0, 0]; // 仮置き
     protected players : BlackJackPlayer[];
+    private deck : Deck;
 
     constructor(player: BlackJackPlayer){
-        super();
         // 仮置き
         this.players = [new BlackJackPlayer("CPU1", "CPU"), player, new BlackJackPlayer("CPU2", "CPU")];
+        this.deck = new Deck();
     }
 
     public getBets() : number[] {
