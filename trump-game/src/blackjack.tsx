@@ -41,7 +41,8 @@ export class BlackJackPlayer extends Player{
         let currentScore : number = 0;
         let hasAce : boolean = false;
         for(let card of this.hand){
-            let cardValue = card.getValue();
+            //CardValueの上限を10に設定
+            let cardValue = Math.min(card.getValue(), 10);
             //とりあえずAceは1として後で調整
             if(cardValue === 1){
                 hasAce = true;
