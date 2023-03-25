@@ -56,7 +56,6 @@ export class Player{
     protected name : string;
     protected type : string;
     protected hand : Card[];
-
     constructor(name : string, type : string){
         this.name = name;
         this.type = type;
