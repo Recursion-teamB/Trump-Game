@@ -67,6 +67,8 @@ export class BlackJackPlayer extends Player{
         }
         return false;
     }
+    //プレイヤーがゲーム続行可能か判断する
+    //持ち金が0より大きければ（bet可能であれば）続行可能
     public isContinuous() : boolean{
         return this.chips > 0;
     }    
