@@ -22,6 +22,12 @@ export class BlackJackPlayer extends Player{
         this.chips += chip;
         return this.chips;
     }
+    public getCost() : number{
+        return this.cost;
+    }
+    public setCost(cost : number) : void{
+        this.cost = cost
+    }
 
     public getCost() : number{
         return this.cost;
@@ -198,7 +204,6 @@ export class BlackJackTable {
     
     public judgeWinOrLose() : string[]{
         return ["win","win","win"]
-
     }
 }
 
