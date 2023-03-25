@@ -5,6 +5,7 @@ export class BlackJackPlayer extends Player{
     private cost : number;
     private action : string;
 
+
     constructor(name : string, type : string){
         super(name, type);
         this.chips = 40000;
@@ -22,6 +23,7 @@ export class BlackJackPlayer extends Player{
         this.chips += chip;
         return this.chips;
     }
+
     public getCost() : number{
         return this.cost;
     }
