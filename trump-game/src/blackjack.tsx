@@ -3,11 +3,17 @@ import {Card, Deck, Player} from './general'
 export class BlackJackPlayer extends Player{
     private latch : number;
     private chips : number;
+    private cost : number;
+    private bust : boolean;
+    private isSurrender : boolean;
 
     constructor(name : string, type : string){
         super(name, type);
         this.latch = 0;
         this.chips = 40000;
+        this.cost = 0;
+        this.bust = false;
+        this.isSurrender = false;
     }
 
     public getLatch() : number{
@@ -26,12 +32,19 @@ export class BlackJackPlayer extends Player{
         this.chips += chip;
         return this.chips;
     }
+    public getCost() : number{
+        return this.cost;
+    }
+    public setCost(cost : number) : void{
+        this.cost = cost
+    }
 
     // 掛け金をかける。cost <= this.chipsならばthis.chipsが入力分減り、this.latchにセットされる。cost > this.chipsなら何も処理されない。
     public bet(cost: number) : void{
         if(this.chips >= cost){
-            this.setChips(this.getChips()-cost);
-            this.setLatch(cost);
+            this.setCost(cost)
+            this.setChips(this.getChips()-this.getCost());
+            this.setLatch(this.getCost());
         }
     }
     //プレイヤーの手札の合計を計算するメソッド
@@ -66,6 +79,24 @@ export class BlackJackPlayer extends Player{
             if(totalValue >= 22) return true;
         }
         return false;
+    }
+    public hit(deck : Deck) :void{
+        this.hand.push(deck.draw())
+        this.bust = this.isBust()
+    }
+    public stand() : void{
+        
+    }
+    public double(deck : Deck) : void{
+        this.hand.push(deck.draw())
+        this.addChips(0 - this.getCost())
+        this.setCost(this.getCost() * 2)
+        this.bust = this.isBust()
+    }
+    public surrender() :void{
+        this.isSurrender = true;
+        this.addChips(this.getCost()/2)
+        this.setCost(0)
     }
 }
 
@@ -111,6 +142,9 @@ export class BlackJackTable {
             this.bets[i] = bet;
             current.bet(bet)
         }
+    }
+    public judgeWinOrLose() : string[]{ 
+        return ["win","win","win"]
     }
 }
 
