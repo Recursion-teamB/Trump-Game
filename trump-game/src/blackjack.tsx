@@ -55,7 +55,7 @@ export class BlackJackPlayer extends Player{
         }
         return currentScore; 
     }
-    //プレイヤーのカードの合計値が22の場合バスト
+    //プレイヤーのカードの合計値が22以上の場合バスト
     public isBust() : boolean{
         let totalValue : number = 0;
         for(let card of this.hand){
