@@ -78,7 +78,7 @@ export class BlackJackTable{
     private house : Player = new Player("House", "House");
     private roundNumber : number = 1;
     private turnNumber : number = 0; // 1に変更の可能性あり
-    private phase : string = "betting"; // betting, dear, playerPhase, dealerPhaseなどに1roundの中で適宜変更される。不要なら削除もあり。
+    private phase : string = "betting"; // betting, deal, playerPhase, dealerPhaseなどに1roundの中で適宜変更される。不要なら削除もあり。
     private bets : number[] = [0, 0, 0]; // 仮置き
     protected players : BlackJackPlayer[];
     private deck : Deck;

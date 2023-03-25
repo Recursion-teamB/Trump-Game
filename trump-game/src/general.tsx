@@ -71,14 +71,8 @@ export class Player{
     public getType() : string{
         return this.type;
     }
+    //テストコードのみで使用
+    public setHand(cardsForTest : Card[]){
+        this.hand = cardsForTest;
+    }
 }
-
-// export class Table{
-//     protected players : Player[];
-//     protected deck : Deck;
-
-//     constructor(players : Player[]){
-//         this.players = players;
-//         this.deck = new Deck();
-//     }
-// }
