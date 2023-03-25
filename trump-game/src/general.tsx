@@ -1,8 +1,6 @@
 export class Card{
     private suit : string;
     private number : string;
-    private static valueList : string[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
-    private static suitList : string[] = ["♠︎", "♦︎", "♥︎", "♣︎"];
 
     constructor(suit : string, number : string){
         this.suit = suit;
@@ -15,25 +13,29 @@ export class Card{
     public getNumber() : string{
         return this.number;
     }
-    public getValue() : number{
-        return Card.valueList.indexOf(this.number) + 1;
-    }
-    public static getValueList() : string[]{
-        return Card.valueList;
-    }
-    public static getSuitList() : string[]{
-        return Card.suitList;
+    //カードのnumberを数字で返す
+    public getRank() : number{
+        return Deck.getValueList().indexOf(this.number) + 1;
     }
 }
 
 export class Deck{
     private deck : Card[] = [];
+    private static valueList : string[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+    private static suitList : string[] = ["♠︎", "♦︎", "♥︎", "♣︎"];
     constructor(){
-        for(let suit in Card.getSuitList()){
-            for(let value in Card.getValueList()){
-                this.deck.push(new Card(suit, value));
+        this.deck = this.createDeck();
+    }   
+
+    //52枚のカードをデッキに入れるメソッド
+    public createDeck() : Card[]{
+        let tempDeck : Card[] = [];
+        for(let suit in Deck.suitList){
+            for(let value in Deck.valueList){
+                tempDeck.push(new Card(suit, value));
             }
-        }    
+        }
+        return tempDeck;    
     }
     //デッキの一番後ろからカードを1枚引く
     public draw() : Card{
@@ -41,7 +43,7 @@ export class Deck{
         this.deck.pop();
         return drawnCard;
     }
-
+    //デッキをランダムな順序に変更
     public shuffle() : void{
         for(let index = this.deck.length - 1; index > 0; index--){
             let randomIndex = Math.floor(Math.random() * (index + 1));
@@ -49,6 +51,15 @@ export class Deck{
             this.deck[index] = this.deck[randomIndex];
             this.deck[randomIndex] = temp;
         }
+    }
+    public static getValueList() : string[]{
+        return Deck.valueList;
+    }
+    public static getSuitList() : string[]{
+        return Deck.suitList;
+    }
+    public getDeck() : Card[]{
+        return this.deck;
     }
 }
 
@@ -72,14 +83,8 @@ export class Player{
     public getType() : string{
         return this.type;
     }
+    //テストのみで使用すること
+    public setHand(cardsForTest : Card[]) : void{
+        this.hand = cardsForTest;
+    }
 }
-
-// export class Table{
-//     protected players : Player[];
-//     protected deck : Deck;
-
-//     constructor(players : Player[]){
-//         this.players = players;
-//         this.deck = new Deck();
-//     }
-// }

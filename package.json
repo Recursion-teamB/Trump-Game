@@ -1,4 +1,9 @@
 {
+  "name": "trump-game",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "jest --config trump-game/jest.config.js"
+  },
   "license": "UNLICENSED",
   "dependencies": {
     "cordova": "^11.1.0",
@@ -11,3 +16,4 @@
     "ts-jest": "^29.0.5"
   }
 }
+
