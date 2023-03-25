@@ -74,12 +74,12 @@ export class Player{
     }
 }
 
-export class Table{
-    protected players : Player[];
-    protected deck : Deck;
+// export class Table{
+//     protected players : Player[];
+//     protected deck : Deck;
 
-    constructor(players : Player[]){
-        this.players = players;
-        this.deck = new Deck();
-    }
-}
+//     constructor(players : Player[]){
+//         this.players = players;
+//         this.deck = new Deck();
+//     }
+// }
