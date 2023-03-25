@@ -1,4 +1,4 @@
-import {Deck, Player} from './general'
+import {Card, Deck, Player} from './general'
 
 export class BlackJackPlayer extends Player{
     private latch : number;
@@ -33,6 +33,22 @@ export class BlackJackPlayer extends Player{
             this.setChips(this.getChips()-cost);
             this.setLatch(cost);
         }
+    }
+    //プレイヤーのカードの合計値が22の場合バスト
+    public isBust() : boolean{
+        let totalValue : number = 0;
+        for(let h in this.hand){
+            if(h === "J" || h === "Q" || h === "K"){
+                totalValue += 10;
+            }
+            else if(h === "A"){
+                totalValue += 1;
+            }
+            else{
+                totalValue += parseInt(h);
+            }
+        }
+        return totalValue >= 22;
     }
 }
 
