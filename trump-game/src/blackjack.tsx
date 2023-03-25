@@ -34,21 +34,37 @@ export class BlackJackPlayer extends Player{
             this.setLatch(cost);
         }
     }
+    //プレイヤーの手札の合計を計算するメソッド
+    //JQKは10として加算
+    //Aceは1, 11の都合の良い方で加算
+    public calcScore() : number{
+        let currentScore : number = 0;
+        let hasAce : boolean = false;
+        for(let card of this.hand){
+            let cardValue = card.getValue();
+            //とりあえずAceは1として後で調整
+            if(cardValue === 1){
+                hasAce = true;
+            }
+            currentScore += cardValue;
+        }
+        //Aceが手札にあり、かつ現在の合計値が11未満の場合はAceを11と扱う
+        if(hasAce && currentScore < 11){
+            currentScore += 10;
+        }
+        return currentScore; 
+    }
     //プレイヤーのカードの合計値が22の場合バスト
     public isBust() : boolean{
         let totalValue : number = 0;
-        for(let h in this.hand){
-            if(h === "J" || h === "Q" || h === "K"){
-                totalValue += 10;
-            }
-            else if(h === "A"){
-                totalValue += 1;
-            }
-            else{
-                totalValue += parseInt(h);
-            }
+        for(let card of this.hand){
+            let cardValue = card.getValue();
+            //cardValueの上限を10に制御 -> JQKが10になるように制御
+            totalValue += Math.min(cardValue, 10);
+            //合計値が22以上で即座にbust
+            if(totalValue >= 22) return true;
         }
-        return totalValue >= 22;
+        return false;
     }
 }
 
