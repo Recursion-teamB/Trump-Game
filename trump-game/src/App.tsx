@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, {useState } from 'react';
 import './App.css';
-import game from './phaser';
 
 function App() {
   const [isButtonClicked, setIsButtonClicked] = useState(false);
