@@ -28,7 +28,7 @@ export const StartBlackJackScreen = () => {
                     <h5>dealer</h5>
                 </div>
                 <div className='d-flex justify-content-center align-items-center'>
-                    <img src={back} className="card-size"></img>
+                    <img src={back} className="card-size" alt='backimg'></img>
                 </div>
                 <div className='d-flex justify-content-between col-12'>
                     {blackjackTable.getPlayers().map(p => 
