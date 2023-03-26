@@ -63,7 +63,7 @@ export class BlackJackPlayer extends Player{
         if(hasAce && currentScore <= 11){
             currentScore += 10;
         }
-        return currentScore; 
+        return currentScore;
     }
     //プレイヤーのカードの合計値が22以上の場合バスト
     public isBust() : boolean{
