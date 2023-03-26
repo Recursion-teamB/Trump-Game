@@ -26,7 +26,6 @@ export class BlackJackPlayer extends Player{
         this.chips += chip;
         return this.chips;
     }
-
     // 掛け金をかける。cost <= this.chipsならばthis.chipsが入力分減り、this.latchにセットされる。cost > this.chipsなら何も処理されない。
     public bet(cost: number) : void{
         if(this.chips >= cost){
@@ -42,15 +41,15 @@ export class BlackJackPlayer extends Player{
         let hasAce : boolean = false;
         for(let card of this.hand){
             //CardValueの上限を10に設定
-            let cardValue = Math.min(card.getValue(), 10);
+            let cardValue = Math.min(card.getRank(), 10);
             //とりあえずAceは1として後で調整
             if(cardValue === 1){
                 hasAce = true;
             }
             currentScore += cardValue;
         }
-        //Aceが手札にあり、かつ現在の合計値が11未満の場合はAceを11と扱う
-        if(hasAce && currentScore < 11){
+        //Aceが手札にあり、かつ現在の合計値が11以下の場合はAceを11と扱う
+        if(hasAce && currentScore <= 11){
             currentScore += 10;
         }
         return currentScore; 
@@ -59,7 +58,7 @@ export class BlackJackPlayer extends Player{
     public isBust() : boolean{
         let totalValue : number = 0;
         for(let card of this.hand){
-            let cardValue = card.getValue();
+            let cardValue = card.getRank();
             //cardValueの上限を10に制御 -> JQKが10になるように制御
             totalValue += Math.min(cardValue, 10);
             //合計値が22以上で即座にbust
