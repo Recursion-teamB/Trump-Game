@@ -1,0 +1,15 @@
+.bj-background{
+    background-color: #5BD77E;
+    height: 100vh;
+}
+.btn-place{
+    height: 10vh;
+}
+.bj-table{
+    height: 90vh;
+}
+.card-size{
+    height: 4.4rem;
+    width: 2.75rem;
+    border: 1px solid black;
+}
