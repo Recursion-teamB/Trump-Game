@@ -34,7 +34,7 @@ type State = {
   value: number;
 };
 
-export const SelectLevelScreen = () => {
+const SelectLevelScreen = () => {
   const [state, setState] = useState<State>({ value: 3 });
   const [selectedLevel, setSelectedLevel] = useState<string>("normal");
 
@@ -127,6 +127,7 @@ export const SelectLevelScreen = () => {
 };
 
 export default App;
+export {App, SelectLevelScreen};
 
 
 
