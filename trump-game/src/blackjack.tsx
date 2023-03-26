@@ -26,7 +26,6 @@ export class BlackJackPlayer extends Player{
         this.chips += chip;
         return this.chips;
     }
-
     // 掛け金をかける。cost <= this.chipsならばthis.chipsが入力分減り、this.latchにセットされる。cost > this.chipsなら何も処理されない。
     public bet(cost: number) : void{
         if(this.chips >= cost){
