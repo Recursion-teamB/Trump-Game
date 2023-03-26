@@ -29,24 +29,24 @@ export class Deck{
     private static suitList : string[] = ["♠︎", "♦︎", "♥︎", "♣︎"];
     private static imgMap : { [key: string]: string[] } = {
         "♠︎" : [
-            "./src/s1.png", "./src/s2.png", "./src/s3.png", "./src/s4.png", "./src/s5.png",
-            "./src/s6.png", "./src/s7.png", "./src/s8.png", "./src/s9.png", "./src/s10.png",
-            "./src/s11.png", "./src/s12.png", "./src/s13.png"
+            "./card_img/s1.png", "./card_img/s2.png", "./card_img/s3.png", "./card_img/s4.png", "./card_img/s5.png",
+            "./card_img/s6.png", "./card_img/s7.png", "./card_img/s8.png", "./card_img/s9.png", "./card_img/s10.png",
+            "./card_img/s11.png", "./card_img/s12.png", "./card_img/s13.png"
         ],
         "♦︎" : [
-            "./src/d1.png", "./src/d2.png", "./src/d3.png", "./src/d4.png", "./src/d5.png",
-            "./src/d6.png", "./src/d7.png", "./src/d8.png", "./src/d9.png", "./src/d10.png",
-            "./src/d11.png", "./src/d12.png", "./src/d13.png"
+            "./card_img/d1.png", "./card_img/d2.png", "./card_img/d3.png", "./card_img/d4.png", "./card_img/d5.png",
+            "./card_img/d6.png", "./card_img/d7.png", "./card_img/d8.png", "./card_img/d9.png", "./card_img/d10.png",
+            "./card_img/d11.png", "./card_img/d12.png", "./card_img/d13.png"
         ],
         "♥︎" : [
-            "./src/h1.png", "./src/h2.png", "./src/h3.png", "./src/h4.png", "./src/h5.png",
-            "./src/h6.png", "./src/h7.png", "./src/h8.png", "./src/h9.png", "./src/h10.png",
-            "./src/h11.png", "./src/h12.png", "./src/h13.png"
+            "./card_img/h1.png", "./card_img/h2.png", "./card_img/h3.png", "./card_img/h4.png", "./card_img/h5.png",
+            "./card_img/h6.png", "./card_img/h7.png", "./card_img/h8.png", "./card_img/h9.png", "./card_img/h10.png",
+            "./card_img/h11.png", "./card_img/h12.png", "./card_img/h13.png"
         ],
         "♣︎" : [
-            "./src/c1.png", "./src/c2.png", "./src/c3.png", "./src/c4.png", "./src/c5.png",
-            "./src/c6.png", "./src/c7.png", "./src/c8.png", "./src/c9.png", "./src/c10.png",
-            "./src/c11.png", "./src/c12.png", "./src/c13.png"
+            "./card_img/c1.png", "./card_img/c2.png", "./card_img/c3.png", "./card_img/c4.png", "./card_img/c5.png",
+            "./card_img/c6.png", "./card_img/c7.png", "./card_img/c8.png", "./card_img/c9.png", "./card_img/c10.png",
+            "./card_img/c11.png", "./card_img/c12.png", "./card_img/c13.png"
         ]
     }
     constructor(){
