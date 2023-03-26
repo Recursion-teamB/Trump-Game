@@ -19,6 +19,7 @@ function App() {
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <button style={{ padding: '10px', margin: '10px' }} onClick={handleClick}>Black Jack</button>
               </div>
+              <img src={process.env.PUBLIC_URL + '/card_img/s1.png'} alt='' style={{ width: '250px', height: '400px'}}></img>
             </div>
         </div>
       )}
