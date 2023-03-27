@@ -29,13 +29,6 @@ export class BlackJackPlayer extends Player{
         this.cost = cost
     }
 
-    public getCost() : number{
-        return this.cost;
-    }
-    public setCost(cost : number) : void{
-        this.cost = cost
-    }
-
     public getAction() : string{
         return this.action
     }
