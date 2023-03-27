@@ -127,6 +127,7 @@ export class BlackJackTable {
         }
     }
 
+    // commandが実装され次第完成させる今は未完成
     public dealerPhase() : void{
         while(this.house.calcScore() <= 16){
             // 2秒遅れてhit
