@@ -69,6 +69,9 @@ export class Player{
     public getHand() : Card[]{
         return this.hand;
     }
+    public addHand(card : Card) : void{
+        this.hand.push(card);
+    }
     public getType() : string{
         return this.type;
     }

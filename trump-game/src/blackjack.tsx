@@ -4,16 +4,14 @@ export class BlackJackPlayer extends Player{
     private latch : number;
     private chips : number;
     private cost : number;
-    private bust : boolean;
-    private isSurrender : boolean;
+    private action : string;
 
     constructor(name : string, type : string){
         super(name, type);
         this.latch = 0;
         this.chips = 40000;
         this.cost = 0;
-        this.bust = false;
-        this.isSurrender = false;
+        this.action = "hit";
     }
 
     public getLatch() : number{
@@ -38,7 +36,12 @@ export class BlackJackPlayer extends Player{
     public setCost(cost : number) : void{
         this.cost = cost
     }
-
+    public getAction() : string{
+        return this.action
+    }
+    public setAction(action :string) : void{
+        this.action = action
+    }
     // 掛け金をかける。cost <= this.chipsならばthis.chipsが入力分減り、this.latchにセットされる。cost > this.chipsなら何も処理されない。
     public bet(cost: number) : void{
         if(this.chips >= cost){
@@ -80,23 +83,49 @@ export class BlackJackPlayer extends Player{
         }
         return false;
     }
+
+    //action = hitのときのみ呼び出す
+    //actionのデフォルトはhitでhit,stand,double,surrenderによって書き換えられる.
     public hit(deck : Deck) :void{
-        this.hand.push(deck.draw())
-        this.bust = this.isBust()
+        if(this.getAction() != "hit"){
+            return;
+        }
+        this.addHand(deck.draw());
+        if(this.isBust()){
+            this.setAction("bust");
+        }
     }
     public stand() : void{
-        
+        if(this.getAction() != "hit"){
+            return;
+        }
+        this.setAction("stand")
     }
-    public double(deck : Deck) : void{
-        this.hand.push(deck.draw())
-        this.addChips(0 - this.getCost())
-        this.setCost(this.getCost() * 2)
-        this.bust = this.isBust()
+    //ほかのコマンドはコマンド選択画面をおした瞬間に起こるが, double()はdouble選択->掛金選択後に起こる.
+    //掛金は0 < betMoney < this.getCost()
+    public double(deck : Deck, betMoney : number) : void{
+        if(this.getAction() != "hit"){
+            return;
+        }
+        if(betMoney > 0 && betMoney <= this.cost){
+            this.addChips(0 - betMoney)
+            this.setCost(this.getCost() + betMoney)
+            this.addHand(deck.draw())
+            if(this.isBust()){
+                this.setAction("bust");
+            }else{
+                //this.setAction("stand")でもいいかも
+                this.setAction("double")
+            }
+        }
     }
     public surrender() :void{
-        this.isSurrender = true;
+        if(this.getAction() != "hit"){
+            return;
+        }
         this.addChips(this.getCost()/2)
         this.setCost(0)
+        this.setAction("surrender")
     }
 }
 
@@ -115,6 +144,9 @@ export class BlackJackTable {
         this.deck = new Deck();
     }
 
+    public getDeck() : Deck{
+        return this.deck;
+    }
     public getBets() : number[] {
         return this.bets;
     }
@@ -142,9 +174,6 @@ export class BlackJackTable {
             this.bets[i] = bet;
             current.bet(bet)
         }
-    }
-    public judgeWinOrLose() : string[]{ 
-        return ["win","win","win"]
     }
 }
 
