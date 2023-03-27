@@ -5,12 +5,12 @@ export class BlackJackPlayer extends Player{
     private cost : number;
     private action : string;
 
-
     constructor(name : string, type : string){
         super(name, type);
         this.chips = 40000;
         this.cost = 0;
         this.action = "";
+
     }
 
     public getChips() : number{
@@ -90,7 +90,7 @@ export class BlackJackPlayer extends Player{
         return false;
     }
 
-    //スコアが21未満のときかつactionの値がhitまたはstandのときにコマンド選択可能.
+    //action = hitのときのみ呼び出す
     //actionのデフォルトはhitでhit,stand,double,surrenderによって書き換えられる.
     public hit(deck : Deck) :void{
         if(this.getAction() !== ("" || "hit") || this.calcScore() > 20){
@@ -120,7 +120,8 @@ export class BlackJackPlayer extends Player{
             if(this.isBust()){
                 this.setAction("bust");
             }else{
-                this.setAction("stand")
+                //this.setAction("stand")でもいいかも
+                this.setAction("double")
             }
         }
     }
