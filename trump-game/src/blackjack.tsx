@@ -116,7 +116,6 @@ export class BlackJackPlayer extends Player{
             return;
         }
         this.addChips(this.getCost()/2)
-        this.setCost(0)
         this.setAction("surrender")
     }
 }
