@@ -30,6 +30,13 @@ export class BlackJackPlayer extends Player{
         this.cost = cost
     }
 
+    public getAction() : string{
+        return this.action
+    }
+    public setAction(action :string) : void{
+        this.action = action
+    }
+
     // CardかCard[]を引数としthis.handに追加する。
     public setHand(card : Card): void;
     public setHand(cards : Card[]): void;
@@ -40,14 +47,7 @@ export class BlackJackPlayer extends Player{
         else this.hand.push(card);
     }
 
-    public getAction() : string{
-        return this.action
-    }
-    public setAction(action :string) : void{
-        this.action = action
-    }
-
-    // 掛け金をかける。cost <= this.chipsならばthis.chipsが入力分減り、this.latchにセットされる。cost > this.chipsなら何も処理されない。
+    // 掛け金をかける。cost <= this.chipsならばthis.chipsが入力分減り、this.costにセットされる。cost > this.chipsなら何も処理されない。
     public bet(cost: number) : void{
         if(this.chips >= cost){
             this.setCost(cost)
@@ -92,7 +92,7 @@ export class BlackJackPlayer extends Player{
     //スコアが21未満のときかつactionの値がhitまたはstandのときにコマンド選択可能.
     //actionのデフォルトはhitでhit,stand,double,surrenderによって書き換えられる.
     public hit(deck : Deck) :void{
-        if(this.getAction() != ("" || "hit") || this.calcScore() > 20){
+        if(this.getAction() !== ("" || "hit") || this.calcScore() > 20){
             return;
         }
         this.addHand(deck.draw());
@@ -101,7 +101,7 @@ export class BlackJackPlayer extends Player{
         }
     }
     public stand() : void{
-        if(this.getAction() != ("" || "hit") || this.calcScore() > 20){
+        if(this.getAction() !== ("" || "hit") || this.calcScore() > 20){
             return;
         }
         this.setAction("stand")
@@ -109,7 +109,7 @@ export class BlackJackPlayer extends Player{
     //ほかのコマンドはコマンド選択画面をおした瞬間に起こるが, double()はdouble選択->掛金選択後に起こる.
     //掛金は0 < betMoney < this.getCost()
     public double(deck : Deck, betMoney : number) : void{
-        if(this.getAction() != ("") || this.calcScore() > 20){
+        if(this.getAction() !== ("") || this.calcScore() > 20){
             return;
         }
         if(betMoney > 0 && betMoney <= this.getCost()){
@@ -124,7 +124,7 @@ export class BlackJackPlayer extends Player{
         }
     }
     public surrender() :void{
-        if(this.getAction() != ("") || this.calcScore() > 20){
+        if(this.getAction() !== ("") || this.calcScore() > 20){
             return;
         }
         this.addChips(this.getCost()/2)
@@ -136,7 +136,7 @@ export class BlackJackTable {
     private house : BlackJackPlayer = new BlackJackPlayer("House", "House");
     private roundNumber : number = 1;
     private turnNumber : number = 0; // 1に変更の可能性あり
-    private phase : string = "betting"; // betting, deal, playerPhase, dealerPhaseなどに1roundの中で適宜変更される。不要なら削除もあり。
+    private phase : string = "betting"; // betting, dear, playerPhase, dealerPhaseなどに1roundの中で適宜変更される。不要なら削除もあり。
     private bets : number[] = [0, 0, 0]; // 仮置き
     protected players : BlackJackPlayer[];
     private deck : Deck;

@@ -39,7 +39,7 @@ test("standコマンドのテスト",() => {
   }
 })
 
-test("douleコマンドのテスト",()=>{
+test("doubleコマンドのテスト",()=>{
   table.betPhase();
   let preHandsLen = player.getHand().length
   let preChips = player.getChips()
