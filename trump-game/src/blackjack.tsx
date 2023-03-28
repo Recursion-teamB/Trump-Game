@@ -1,25 +1,17 @@
 import {Deck, Player} from './general'
 
 export class BlackJackPlayer extends Player{
-    private latch : number;
     private chips : number;
     private cost : number;
     private action : string;
 
     constructor(name : string, type : string){
         super(name, type);
-        this.latch = 0;
         this.chips = 40000;
         this.cost = 0;
-        this.action = "hit";
+        this.action = "";
     }
 
-    public getLatch() : number{
-        return this.latch;
-    }
-    public setLatch(value : number) : void{
-        this.latch = value;
-    }
     public getChips() : number{
         return this.chips;
     }
@@ -44,12 +36,11 @@ export class BlackJackPlayer extends Player{
         this.action = action
     }
     
-    // 掛け金をかける。cost <= this.chipsならばthis.chipsが入力分減り、this.latchにセットされる。cost > this.chipsなら何も処理されない。
+    // 掛け金をかける。cost <= this.chipsならばthis.chipsが入力分減り、this.costにセットされる。cost > this.chipsなら何も処理されない。
     public bet(cost: number) : void{
         if(this.chips >= cost){
             this.setCost(cost)
             this.setChips(this.getChips()-this.getCost());
-            this.setLatch(this.getCost());
         }
     }
     //プレイヤーの手札の合計を計算するメソッド
@@ -86,10 +77,10 @@ export class BlackJackPlayer extends Player{
         return false;
     }
 
-    //action = hitのときのみ呼び出す
+    //スコアが21未満のときかつactionの値がhitまたはstandのときにコマンド選択可能.
     //actionのデフォルトはhitでhit,stand,double,surrenderによって書き換えられる.
     public hit(deck : Deck) :void{
-        if(this.getAction() != "hit"){
+        if(this.getAction() != ("" || "hit") || this.calcScore() > 20){
             return;
         }
         this.addHand(deck.draw());
@@ -98,7 +89,7 @@ export class BlackJackPlayer extends Player{
         }
     }
     public stand() : void{
-        if(this.getAction() != "hit"){
+        if(this.getAction() != ("" || "hit") || this.calcScore() > 20){
             return;
         }
         this.setAction("stand")
@@ -106,23 +97,22 @@ export class BlackJackPlayer extends Player{
     //ほかのコマンドはコマンド選択画面をおした瞬間に起こるが, double()はdouble選択->掛金選択後に起こる.
     //掛金は0 < betMoney < this.getCost()
     public double(deck : Deck, betMoney : number) : void{
-        if(this.getAction() != "hit"){
+        if(this.getAction() != ("") || this.calcScore() > 20){
             return;
         }
-        if(betMoney > 0 && betMoney <= this.cost){
+        if(betMoney > 0 && betMoney <= this.getCost()){
             this.addChips(0 - betMoney)
             this.setCost(this.getCost() + betMoney)
             this.addHand(deck.draw())
             if(this.isBust()){
                 this.setAction("bust");
             }else{
-                //this.setAction("stand")でもいいかも
-                this.setAction("double")
+                this.setAction("stand")
             }
         }
     }
     public surrender() :void{
-        if(this.getAction() != "hit"){
+        if(this.getAction() != ("") || this.calcScore() > 20){
             return;
         }
         this.addChips(this.getCost()/2)
@@ -158,7 +148,7 @@ export class BlackJackTable {
     }
 
     // ゲームの参加者が掛け金をベットするときの処理。CPUはランダムに、人間のplayerは入力を受け取って掛け金を決める。
-    // this.betsの値と各参加者のchipが掛け金分減り、latchが掛け金と同値になる。
+    // this.betsの値と各参加者のchipが掛け金分減り、costが掛け金と同値になる。
     // chipsが0以下なら順番がスルーされる。
     public betPhase() : void{
         for(let i : number = 0; i < this.players.length; ++i){
