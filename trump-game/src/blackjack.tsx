@@ -37,16 +37,6 @@ export class BlackJackPlayer extends Player{
         this.action = action
     }
 
-    // CardかCard[]を引数としthis.handに追加する。
-    public setHand(card : Card): void;
-    public setHand(cards : Card[]): void;
-    public setHand(card : Card | Card[]) : void{
-        if(Array.isArray(card)){
-            this.hand.concat(card);
-        }
-        else this.hand.push(card);
-    }
-
     // 掛け金をかける。cost <= this.chipsならばthis.chipsが入力分減り、this.costにセットされる。cost > this.chipsなら何も処理されない。
     public bet(cost: number) : void{
         if(this.chips >= cost){
