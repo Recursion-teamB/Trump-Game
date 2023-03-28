@@ -1,7 +1,6 @@
 import { Card, Deck } from './general';
 import {BlackJackPlayer, BlackJackTable} from './blackjack';
 
-
 let player : BlackJackPlayer = new BlackJackPlayer("jack", "player");
 let table : BlackJackTable = new BlackJackTable(player);
 let deck : Deck = new Deck();
@@ -40,7 +39,7 @@ test("standコマンドのテスト",() => {
   }
 })
 
-test("douleコマンドのテスト",()=>{
+test("doubleコマンドのテスト",()=>{
   table.betPhase();
   let preHandsLen = player.getHand().length
   let preChips = player.getChips()
@@ -75,7 +74,7 @@ test('カードの合計を計算する(Aceが1の場合)', () => {
   expect(result).toBe(18);
 })
 
-test('カードの合計を計算する（Aceが11の場合）', () => {
+test('カードの合計を計算する(Aceが11の場合)', () => {
   const card1 = new Card("♠︎", "A");
   const card2 = new Card("♦︎", "K");
   player.setHand([card1, card2]);
@@ -119,3 +118,21 @@ test("画像の割り当て", () => {
   const card = new Card("♠︎", "10");
   expect(card.getImg()).toBe("trump-game/public/card_img/s10.png");
 })
+
+// test("ディーラーがヒットする場合", () => {
+//   let house = table.getHouse()
+//   house.setHand(new Card("spade", "4"));
+//   house.setHand(new Card("spade", "6"));
+//   table.dealerPhase();
+//   const result = house.calcScore();
+//   expect(result).not.toBe(10);
+// })
+
+// test("ディーラーがヒットしない場合", () => {
+//   let house = table.getHouse();
+//   house.setHand(new Card("spade", "10"));
+//   house.setHand(new Card("spade", "10"));
+//   table.dealerPhase();
+//   const result = house.calcScore();
+//   expect(result).toBe(20);
+// })

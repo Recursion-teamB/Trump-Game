@@ -11,7 +11,7 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header" />
+      <header className="App-header">
       {!isButtonClicked && (
         <div className=''>
             <div id="lobby" style={{ backgroundColor: '#008000', padding: '10px' }} className="bg-warning ">
@@ -23,6 +23,7 @@ function App() {
             </div>
         </div>
       )}
+      </header>
       <div id="game" />
     </div>
   );

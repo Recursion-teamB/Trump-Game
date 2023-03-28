@@ -1,4 +1,4 @@
-import {Deck, Player} from './general'
+import {Card, Deck, Player} from './general'
 
 export class BlackJackPlayer extends Player{
     private chips : number;
@@ -29,13 +29,24 @@ export class BlackJackPlayer extends Player{
     public setCost(cost : number) : void{
         this.cost = cost
     }
+
     public getAction() : string{
         return this.action
     }
     public setAction(action :string) : void{
         this.action = action
     }
-    
+
+    // CardかCard[]を引数としthis.handに追加する。
+    public setHand(card : Card): void;
+    public setHand(cards : Card[]): void;
+    public setHand(card : Card | Card[]) : void{
+        if(Array.isArray(card)){
+            this.hand.concat(card);
+        }
+        else this.hand.push(card);
+    }
+
     // 掛け金をかける。cost <= this.chipsならばthis.chipsが入力分減り、this.costにセットされる。cost > this.chipsなら何も処理されない。
     public bet(cost: number) : void{
         if(this.chips >= cost){
@@ -43,6 +54,7 @@ export class BlackJackPlayer extends Player{
             this.setChips(this.getChips()-this.getCost());
         }
     }
+
     //プレイヤーの手札の合計を計算するメソッド
     //JQKは10として加算
     //Aceは1, 11の都合の良い方で加算
@@ -62,7 +74,7 @@ export class BlackJackPlayer extends Player{
         if(hasAce && currentScore <= 11){
             currentScore += 10;
         }
-        return currentScore; 
+        return currentScore;
     }
     //プレイヤーのカードの合計値が22以上の場合バスト
     public isBust() : boolean{
@@ -80,7 +92,7 @@ export class BlackJackPlayer extends Player{
     //スコアが21未満のときかつactionの値がhitまたはstandのときにコマンド選択可能.
     //actionのデフォルトはhitでhit,stand,double,surrenderによって書き換えられる.
     public hit(deck : Deck) :void{
-        if(this.getAction() != ("" || "hit") || this.calcScore() > 20){
+        if(this.getAction() !== ("" || "hit") || this.calcScore() > 20){
             return;
         }
         this.addHand(deck.draw());
@@ -89,7 +101,7 @@ export class BlackJackPlayer extends Player{
         }
     }
     public stand() : void{
-        if(this.getAction() != ("" || "hit") || this.calcScore() > 20){
+        if(this.getAction() !== ("" || "hit") || this.calcScore() > 20){
             return;
         }
         this.setAction("stand")
@@ -97,7 +109,7 @@ export class BlackJackPlayer extends Player{
     //ほかのコマンドはコマンド選択画面をおした瞬間に起こるが, double()はdouble選択->掛金選択後に起こる.
     //掛金は0 < betMoney < this.getCost()
     public double(deck : Deck, betMoney : number) : void{
-        if(this.getAction() != ("") || this.calcScore() > 20){
+        if(this.getAction() !== ("") || this.calcScore() > 20){
             return;
         }
         if(betMoney > 0 && betMoney <= this.getCost()){
@@ -112,7 +124,7 @@ export class BlackJackPlayer extends Player{
         }
     }
     public surrender() :void{
-        if(this.getAction() != ("") || this.calcScore() > 20){
+        if(this.getAction() !== ("") || this.calcScore() > 20){
             return;
         }
         this.addChips(this.getCost()/2)
@@ -121,7 +133,7 @@ export class BlackJackPlayer extends Player{
 }
 
 export class BlackJackTable {
-    private house : Player = new Player("House", "House");
+    private house : BlackJackPlayer = new BlackJackPlayer("House", "House");
     private roundNumber : number = 1;
     private turnNumber : number = 0; // 1に変更の可能性あり
     private phase : string = "betting"; // betting, dear, playerPhase, dealerPhaseなどに1roundの中で適宜変更される。不要なら削除もあり。
@@ -146,6 +158,10 @@ export class BlackJackTable {
         return this.players;
     }
 
+    public getHouse() : BlackJackPlayer {
+        return this.house;
+    }
+
     // ゲームの参加者が掛け金をベットするときの処理。CPUはランダムに、人間のplayerは入力を受け取って掛け金を決める。
     // this.betsの値と各参加者のchipが掛け金分減り、costが掛け金と同値になる。
     // chipsが0以下なら順番がスルーされる。
@@ -165,6 +181,23 @@ export class BlackJackTable {
             this.bets[i] = bet;
             current.bet(bet)
         }
+    }
+
+    // commandが実装され次第完成させる今は未完成
+    public dealerPhase() : void{
+        while(this.house.calcScore() <= 16){
+            // 2秒遅れてhit
+            /*
+            setTimeout(() => {
+                this.house.hit() // hit仮置き
+                renderDealerBet()
+            }, 2000);
+            */
+        }
+    }
+    
+    public judgeWinOrLose() : string[]{
+        return ["win","win","win"]
     }
 }
 
