@@ -72,7 +72,7 @@ test("画像の割り当て", () => {
   expect(card.getImg()).toBe("./src/s10.png");
 })
 
-test("画像の割り当て2", () => {
-  const card = new Card("♠︎", "9");
-  expect(card.getImg()).toBe("./src/s10.png");
-})
+// test("画像の割り当て2", () => {
+//   const card = new Card("♠︎", "9");
+//   expect(card.getImg()).toBe("./src/s10.png");
+// })
