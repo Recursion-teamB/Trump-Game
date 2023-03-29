@@ -120,6 +120,23 @@ export class BlackJackPlayer extends Player{
         this.addChips(this.getCost()/2)
         this.setAction("surrender")
     }
+
+    //roundResultにはwin, draw, loseが入る.
+    //judgePerRound()メソッドで呼び出す.
+    //賞金をchipsに追加し, costをリセットする.
+    public winPrize(roundResult : string) : void{
+        if(roundResult === "win"){
+            if(this.calcScore() == 21 && this.getHand().length == 2){
+                this.addChips(this.getCost() * 2.5)
+            }else{
+                this.addChips(this.getCost() * 2)
+            }
+            
+        }else if(roundResult === "draw"){
+            this.addChips(this.getCost())
+        }
+        this.setCost(0)
+    }
 }
 
 export class BlackJackTable {
@@ -184,10 +201,6 @@ export class BlackJackTable {
             }, 2000);
             */
         }
-    }
-    
-    public judgeWinOrLose() : string[]{
-        return ["win","win","win"]
     }
 }
 

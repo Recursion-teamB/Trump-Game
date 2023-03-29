@@ -136,3 +136,29 @@ test("画像の割り当て", () => {
 //   const result = house.calcScore();
 //   expect(result).toBe(20);
 // })
+
+test("賞金獲得",() => {
+  let preChips = player.getChips()
+  player.setCost(100)
+  player.addChips(-100)
+  player.winPrize("win")
+  let winChips = player.getChips()
+  if(player.calcScore() == 21 &&player.getHand().length == 2){
+    expect(winChips - preChips).toBe(150)
+  }else{
+    expect(winChips - preChips).toBe(100)
+  }
+  
+
+  player.setCost(100)
+  player.addChips(-100)
+  player.winPrize("draw")
+  let drawChips = player.getChips()
+  expect(winChips - drawChips).toBe(0)
+
+  player.setCost(100)
+  player.addChips(-100)
+  player.winPrize("lose")
+  let loseChips = player.getChips()
+  expect(loseChips - drawChips).toBe(-100)
+})
