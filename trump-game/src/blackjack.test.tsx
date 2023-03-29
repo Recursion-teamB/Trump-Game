@@ -160,5 +160,9 @@ test("賞金獲得",() => {
   player.addChips(-100)
   player.winPrize("lose")
   let loseChips = player.getChips()
-  expect(loseChips - drawChips).toBe(-100)
+  if(player.getAction() === "surrender"){
+    expect(loseChips - drawChips).toBe(-50)
+  }else{
+    expect(loseChips - drawChips).toBe(-100)
+  }
 })
