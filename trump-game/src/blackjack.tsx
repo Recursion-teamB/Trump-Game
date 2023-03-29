@@ -1,4 +1,4 @@
-import {Card, Deck, Player} from './general'
+import {Deck, Player} from './general'
 
 export class BlackJackPlayer extends Player{
     private chips : number;
@@ -82,7 +82,8 @@ export class BlackJackPlayer extends Player{
     //スコアが21未満のときかつactionの値がhitまたはstandのときにコマンド選択可能.
     //actionのデフォルトはhitでhit,stand,double,surrenderによって書き換えられる.
     public hit(deck : Deck) :void{
-        if(this.getAction() !== ("" || "hit") || this.calcScore() > 20){
+        // if(this.getAction() !== ("" || "hit") || this.calcScore() > 20){
+        if((this.getAction() !==  "" && this.getAction() !== "hit") || this.calcScore() > 20){
             return;
         }
         this.addHand(deck.draw());
@@ -91,7 +92,7 @@ export class BlackJackPlayer extends Player{
         }
     }
     public stand() : void{
-        if(this.getAction() !== ("" || "hit") || this.calcScore() > 20){
+        if((this.getAction() !==  "" && this.getAction() !== "hit") || this.calcScore() > 20){
             return;
         }
         this.setAction("stand")
@@ -173,19 +174,23 @@ export class BlackJackTable {
         }
     }
 
-    // commandが実装され次第完成させる今は未完成
+    // ディーラーフェイズ houseの手札のスコアが16以下ならhitしループ、 17以上ならフェイズ終了
     public dealerPhase() : void{
+        this.phase = "dealer phase";
+        // renderDealerOpen() ディーラーの伏せてあったカードがopenする画面出力
         while(this.house.calcScore() <= 16){
             // 2秒遅れてhit
-            /*
-            setTimeout(() => {
-                this.house.hit() // hit仮置き
-                renderDealerBet()
-            }, 2000);
-            */
+            // setTimeout(() => {
+                this.house.hit(this.deck); // hit仮置き
+                // this.house.addHand(this.deck.draw());
+                // renderDealerHit()ディーラーがヒットするアニメーションを起動する
+                if(this.house.isBust()) {
+                    this.house.setAction("bust");
+                }
+            // }, 2000);
         }
     }
-    
+
     public judgeWinOrLose() : string[]{
         return ["win","win","win"]
     }

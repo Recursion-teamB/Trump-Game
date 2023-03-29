@@ -31,12 +31,28 @@ test("hitコマンドのテスト",() => {
   }
 })
 
-test("standコマンドのテスト",() => {
-  table.betPhase();
-  if(player.getAction() === ("" || "hit")){
-    player.stand()
-    expect(player.getAction()).toBe("stand")
-  }
+test("standコマンドのテストthis.actionが空の場合",() => {
+  // table.betPhase();
+  // if(player.getAction() === ("" || "hit")){
+  //   player.stand()
+  //   expect(player.getAction()).toBe("stand")
+  // }
+  player.setAction("");
+  player.stand()
+  const result = player.getAction();
+  expect(result).toBe("stand");
+})
+
+test("standコマンドのテストthis.actionがhitの場合",() => {
+  // table.betPhase();
+  // if(player.getAction() === ("" || "hit")){
+  //   player.stand()
+  //   expect(player.getAction()).toBe("stand")
+  // }
+  player.setAction("hit");
+  player.stand()
+  const result = player.getAction();
+  expect(result).toBe("stand");
 })
 
 test("doubleコマンドのテスト",()=>{
@@ -82,6 +98,22 @@ test('カードの合計を計算する(Aceが11の場合)', () => {
   expect(result).toBe(21);
 })
 
+test('カードの合計を計算する(Aceが手札にない場合)', () => {
+  const card1 = new Card("♠︎", "10");
+  const card2 = new Card("♠︎", "10");
+  player.setHand([card1, card2])
+  const result = player.calcScore();
+  expect(result).toBe(20);
+})
+
+test('addHandのテスト', () => {
+  player.resetHand();
+  player.addHand(new Card("♠︎", "10"));
+  player.addHand(new Card("♠︎", "10"));
+  const result = player.calcScore();
+  expect(result).toBe(20);
+})
+
 test("合計値が22以上の場合バストする", () => {
   const card1 = new Card("♠︎", "K");
   const card2 = new Card("♦︎", "A");
@@ -116,23 +148,24 @@ test("シャッフル後のデッキはランダムな順序である", () => {
 
 test("画像の割り当て", () => {
   const card = new Card("♠︎", "10");
-  expect(card.getImg()).toBe("trump-game/public/card_img/s10.png");
+  expect(card.getImg()).toBe("/card_img/s10.png");
 })
 
-// test("ディーラーがヒットする場合", () => {
-//   let house = table.getHouse()
-//   house.setHand(new Card("spade", "4"));
-//   house.setHand(new Card("spade", "6"));
-//   table.dealerPhase();
-//   const result = house.calcScore();
-//   expect(result).not.toBe(10);
-// })
+test("ディーラーがヒットする場合", () => {
+  let house = table.getHouse()
+  house.addHand(new Card("♠︎", "4"));
+  house.addHand(new Card("♠︎", "6"));
+  table.dealerPhase();
+  const result = house.calcScore();
+  expect(result).not.toBe(10);
+})
 
-// test("ディーラーがヒットしない場合", () => {
-//   let house = table.getHouse();
-//   house.setHand(new Card("spade", "10"));
-//   house.setHand(new Card("spade", "10"));
-//   table.dealerPhase();
-//   const result = house.calcScore();
-//   expect(result).toBe(20);
-// })
+test("ディーラーがヒットしない場合", () => {
+  let house = table.getHouse();
+  house.resetHand();
+  house.addHand(new Card("♠︎", "10"));
+  house.addHand(new Card("♠︎", "10"));
+  table.dealerPhase();
+  const result = house.calcScore();
+  expect(result).toBe(20);
+})
