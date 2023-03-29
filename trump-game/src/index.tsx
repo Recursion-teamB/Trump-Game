@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import Lobby from './Lobby';
 import reportWebVitals from './reportWebVitals';
+import { SelectLevelScreen } from './App';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
