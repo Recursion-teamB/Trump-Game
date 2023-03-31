@@ -100,6 +100,15 @@ test("合計値が21以下の時バストしない", () => {
   expect(result).toBe(false);
 })
 
+//意図的にテストが想定外になるケース
+test("合計値が21以下の時バストしない", () => {
+  const card1 = new Card("♠︎", "A");
+  const card2 = new Card("♦︎", "K");
+  player.setHand([card1, card2]);
+  const result = player.isBust();
+  expect(result).toBe(true);
+})
+
 
 test("カードを引くとデッキから1枚減る", () => {
   const initialDeckSize = deck.getDeck().length;
