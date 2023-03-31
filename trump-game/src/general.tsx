@@ -51,7 +51,7 @@ export class Deck{
     }
     constructor(){
         this.deck = this.createDeck();
-    }   
+    }
 
     //52枚のカードをデッキに入れるメソッド
     public createDeck() : Card[]{

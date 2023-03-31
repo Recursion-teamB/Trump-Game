@@ -31,54 +31,91 @@ test("hitコマンドのテスト",() => {
   }
 })
 
+
+
 test("standコマンドのテストthis.actionが空の場合",() => {
-  // table.betPhase();
-  // if(player.getAction() === ("" || "hit")){
-  //   player.stand()
-  //   expect(player.getAction()).toBe("stand")
-  // }
   player.setAction("");
-  player.stand()
+  player.stand();
   const result = player.getAction();
   expect(result).toBe("stand");
 })
 
 test("standコマンドのテストthis.actionがhitの場合",() => {
-  // table.betPhase();
-  // if(player.getAction() === ("" || "hit")){
-  //   player.stand()
-  //   expect(player.getAction()).toBe("stand")
-  // }
   player.setAction("hit");
-  player.stand()
+  player.stand();
   const result = player.getAction();
   expect(result).toBe("stand");
 })
 
-test("doubleコマンドのテスト",()=>{
-  table.betPhase();
-  let preHandsLen = player.getHand().length
-  let preChips = player.getChips()
-  let preCost = player.getCost()
-  if(player.getAction() === ""){
-    player.double(table.getDeck(), 100);
-    expect(player.getHand().length - preHandsLen).toBe(1)
-    if(player.isBust()){
-      expect(player.getAction()).toBe("bust")
-    }else{
-      expect(player.getAction()).toBe("stand")
-    }
-    expect(player.getChips()).toBe(preChips - 100)
-    expect(player.getCost()).toBe(preCost + 100)
-  }
+test("standコマンドのテストthis.actionがhitと空ではない場合",() => {
+  player.setAction("surrender");
+  player.stand();
+  const result = player.getAction();
+  expect(result).toBe("surrender");
 })
 
-test("surrenderコマンドのテスト", () => {
-  table.betPhase();
-  if(player.getAction()===""){
-    expect(player.getAction()).toBe("surrender")
-    expect(player.getChips()).toBe(39950)
-  }
+test("doubleコマンドのテスト、this.actionが空の場合のthis.actionの変更", () => {
+  player.setAction("");
+  player.setCost(1000);
+  player.double(deck, 1000);
+  const result = player.getAction();
+  expect(result).toBe("stand");
+})
+
+test("doubleコマンドのテスト、this.actionが空の場合のthis.costの変更", () => {
+  player.setAction("");
+  player.setCost(1000);
+  player.double(deck, 1000);
+  const result = player.getCost();
+  expect(result).toBe(2000);
+})
+
+test("doubleコマンドのテスト、this.actionが空でない場合のthis.actionの変更", () => {
+  player.setAction("hit");
+  player.setCost(1000);
+  player.double(deck, 1000);
+  const result = player.getAction();
+  expect(result).toBe("hit");
+})
+
+test("doubleコマンドのテスト、this.actionが空でない場合のthis.costの変更", () => {
+  player.setAction("hit");
+  player.setCost(1000);
+  player.double(deck, 1000);
+  const result = player.getCost();
+  expect(result).toBe(1000);
+})
+
+test("surrenderコマンドのテスト、this.actionが空の場合のthis.actionの変更", () => {
+  player.setAction("");
+  player.surrender();
+  const result = player.getAction();
+  expect(result).toBe("surrender");
+})
+
+test("surrenderコマンドのテスト、this.actionが空の場合のthis.chipsの変更", () => {
+  player.setCost(1000);
+  player.setChips(0);
+  player.setAction("");
+  player.surrender();
+  const result = player.getChips();
+  expect(result).toBe(500);
+})
+
+test("surrenderコマンドのテスト、this.actionが空でない場合のthis.actionの変更", () => {
+  player.setAction("hit");
+  player.surrender();
+  const result = player.getAction();
+  expect(result).toBe("hit");
+})
+
+test("surrenderコマンドのテスト、this.actionが空でない場合のthis.chipsの変更", () => {
+  player.setCost(1000);
+  player.setChips(0);
+  player.setAction("hit");
+  player.surrender();
+  const result = player.getChips();
+  expect(result).toBe(0);
 })
 
 test('カードの合計を計算する(Aceが1の場合)', () => {
@@ -158,7 +195,7 @@ test("ディーラーがヒットする場合", () => {
   table.dealerPhase();
   const result = house.calcScore();
   expect(result).not.toBe(10);
-})
+}, 10000)
 
 test("ディーラーがヒットしない場合", () => {
   let house = table.getHouse();
@@ -168,4 +205,4 @@ test("ディーラーがヒットしない場合", () => {
   table.dealerPhase();
   const result = house.calcScore();
   expect(result).toBe(20);
-})
+}, 10000)

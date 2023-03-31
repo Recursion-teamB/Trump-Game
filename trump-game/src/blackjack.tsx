@@ -130,12 +130,11 @@ export class BlackJackTable {
     private phase : string = "betting"; // betting, deal, playerPhase, dealerPhaseなどに1roundの中で適宜変更される。不要なら削除もあり。
     private bets : number[] = [0, 0, 0]; // 仮置き
     protected players : BlackJackPlayer[];
-    private deck : Deck;
+    private deck : Deck = new Deck();
 
     constructor(player: BlackJackPlayer){
         // 仮置き
         this.players = [new BlackJackPlayer("CPU1", "CPU"), player, new BlackJackPlayer("CPU2", "CPU")];
-        this.deck = new Deck();
     }
 
     public getDeck() : Deck{
@@ -175,19 +174,19 @@ export class BlackJackTable {
     }
 
     // ディーラーフェイズ houseの手札のスコアが16以下ならhitしループ、 17以上ならフェイズ終了
-    public dealerPhase() : void{
+    public async dealerPhase(): Promise<void> {
         this.phase = "dealer phase";
-        // renderDealerOpen() ディーラーの伏せてあったカードがopenする画面出力
-        while(this.house.calcScore() <= 16){
-            // 2秒遅れてhit
-            // setTimeout(() => {
-                this.house.hit(this.deck); // hit仮置き
-                // this.house.addHand(this.deck.draw());
-                // renderDealerHit()ディーラーがヒットするアニメーションを起動する
-                if(this.house.isBust()) {
-                    this.house.setAction("bust");
-                }
-            // }, 2000);
+        // renderDealerPhase() ディーラーフェイズの画面出力
+        while (this.house.calcScore() <= 16) {
+            // hitを遅延させる
+            await Promise.all([
+                new Promise(resolve => setTimeout(resolve, 2000)),
+                // renderDealerHit() ディーラーがヒットする画面出力
+                this.house.hit(this.deck)
+            ]);
+            if (this.house.isBust()) {
+                this.house.setAction("bust");
+            }
         }
     }
 
