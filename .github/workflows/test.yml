@@ -25,5 +25,5 @@ jobs:
 
     - name: Run tests
       run: |
-        cd react-project-directory
+        cd trump-game
         yarn test --watchAll=false
