@@ -29,19 +29,19 @@ export class Deck{
     private static suitList : string[] = ["♠︎", "♦︎", "♥︎", "♣︎"];
     private static imgMap : { [key: string]: string[] } = {
         "♠︎" : [
-            "/card_img/s1.png", "/card_img/s2.png", "/card_img/s3.png", "/card_img/s4.png", "/card_img/s5.png",
-            "/card_img/s6.png", "/card_img/s7.png", "/card_img/s8.png", "/card_img/s9.png", "/card_img/s10.png",
-            "/card_img/s11.png", "/card_img/s12.png", "/card_img/s13.png"
+            "trump-game/public/card_img/s1.png", "trump-game/public/card_img/s2.png", "trump-game/public/card_img/s3.png", "trump-game/public/card_img/s4.png", "trump-game/public/card_img/s5.png",
+            "trump-game/public/card_img/s6.png", "trump-game/public/card_img/s7.png", "trump-game/public/card_img/s8.png", "trump-game/public/card_img/s9.png", "trump-game/public/card_img/s10.png",
+            "trump-game/public/card_img/s11.png", "trump-game/public/card_img/s12.png", "trump-game/public/card_img/s13.png"
         ],
         "♦︎" : [
-            "/card_img/d1.png", "/card_img/d2.png", "/card_img/d3.png", "/card_img/d4.png", "/card_img/d5.png",
-            "/card_img/d6.png", "/card_img/d7.png", "/card_img/d8.png", "/card_img/d9.png", "/card_img/d10.png",
-            "/card_img/d11.png", "/card_img/d12.png", "/card_img/d13.png"
+            "trump-game/public/card_img/d1.png", "trump-game/public/card_img/d2.png", "trump-game/public/card_img/d3.png", "trump-game/public/card_img/d4.png", "trump-game/public/card_img/d5.png",
+            "trump-game/public/card_img/d6.png", "trump-game/public/card_img/d7.png", "trump-game/public/card_img/d8.png", "trump-game/public/card_img/d9.png", "trump-game/public/card_img/d10.png",
+            "trump-game/public/card_img/d11.png", "trump-game/public/card_img/d12.png", "trump-game/public/card_img/d13.png"
         ],
         "♥︎" : [
-            "/card_img/h1.png", "/card_img/h2.png", "/card_img/h3.png", "/card_img/h4.png", "/card_img/h5.png",
-            "/card_img/h6.png", "/card_img/h7.png", "/card_img/h8.png", "/card_img/h9.png", "/card_img/h10.png",
-            "/card_img/h11.png", "/card_img/h12.png", "/card_img/h13.png"
+            "trump-game/public/card_img/h1.png", "trump-game/public/card_img/h2.png", "trump-game/public/card_img/h3.png", "trump-game/public/card_img/h4.png", "trump-game/public/card_img/h5.png",
+            "trump-game/public/card_img/h6.png", "trump-game/public/card_img/h7.png", "trump-game/public/card_img/h8.png", "trump-game/public/card_img/h9.png", "trump-game/public/card_img/h10.png",
+            "trump-game/public/card_img/h11.png", "trump-game/public/card_img/h12.png", "trump-game/public/card_img/h13.png"
         ],
         "♣︎" : [
             "trump-game/public/card_img/c1.png", "trump-game/public/card_img/c2.png", "trump-game/public/card_img/c3.png", "trump-game/public/card_img/c4.png", "trump-game/public/card_img/c5.png",
