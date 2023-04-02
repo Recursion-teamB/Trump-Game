@@ -363,7 +363,7 @@ export class BlackJackTable {
             return;
         }
 
-        // 13 <= score < 17 でhouseのアップカードのスコアが7以上ならhit,7未満ならstand
+        // houseのアップカードのスコアが7以上ならhit,7未満ならstand
         if(this.house.getHand()[0].getRank() >= 7 || this.house.getHand()[0].getRank() === 1){
             cpu.hit(this.deck);
             return;
