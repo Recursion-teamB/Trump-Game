@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
+import { BlackJackTable } from './blackjack';
 import './Select-level-screen.css';
 //import game from './phaser';
 

@@ -4,6 +4,8 @@ import './index.css';
 import Lobby from './Lobby';
 import reportWebVitals from './reportWebVitals';
 import { SelectLevelScreen } from './App';
+import {StartBlackJackScreen} from './blackjackView'
+import { GameContainer } from './phaser';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -11,6 +13,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <Lobby />
+    <SelectLevelScreen/>
+    <StartBlackJackScreen/>
+    <GameContainer/>
   </React.StrictMode>
 );
 // If you want to start measuring performance in your app, pass a function
