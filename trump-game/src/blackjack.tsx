@@ -189,6 +189,14 @@ export class BlackJackTable {
             }
         }
     }
+    //ゲーム開始時に各プレイヤーにデッキから手札を2枚ずつ配る
+    public distributeCards() : void{
+        for(let player of this.players){
+            for(let numOfCards = 0; numOfCards < 2; numOfCards++){
+                player.addHand(this.deck.draw());
+            }
+        }
+    }
 
     public judgeWinOrLose() : string[]{
         return ["win","win","win"]

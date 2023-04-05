@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import Phaser from 'phaser';
+import { BlackJackPlayer, BlackJackTable } from './blackjack';
 
 export class MainScene extends Phaser.Scene {
     constructor() {
@@ -7,12 +8,15 @@ export class MainScene extends Phaser.Scene {
     }
   
     preload() {
-      this.load.image('back', './image/back.jpg');
+      this.load.image('back', 'assets/back.jpg');
       //this.load.image('help', 'assets/buttons/help.png');
       //this.load.image('back_home', 'assets/buttons/back_home.png');
     }
   
     create() {
+      let player : BlackJackPlayer = new BlackJackPlayer("Player", "Player");
+      let table : BlackJackTable = new BlackJackTable(player);
+      table.distributeCards();
       // 背景を緑色に設定
       this.cameras.main.setBackgroundColor(0x008800);
   
@@ -30,16 +34,25 @@ export class MainScene extends Phaser.Scene {
       deck.setDisplaySize(deckWidth, deckHeight);
   
       // ディーラーの手札とテキストを作成
-      const dealerCard = this.add.image(deck.x, deck.y - deckHeight * 3, 'back');
-      dealerCard.setDisplaySize(deckWidth, deckHeight);
-      const dealerText = this.add.text(deck.x - deckWidth / 2, dealerCard.y - deckHeight * 1.0, 'dealer');
+      const dealerCards = table.getHouse().getHand();
+      dealerCards.forEach((card, index) => {
+        const dealerCard = card.createPhaserImg(this, deck.x - deckWidth * 3 + (index * deckWidth * 1.2), deck.y - deckHeight * 3);
+        dealerCard.setDisplaySize(deckWidth, deckHeight);
+      });
+      const dealerText = this.add.text(deck.x - deckWidth / 2, deck.y - deckHeight * 1.0, 'dealer', {
+        fontFamily: 'Arial',
+        fontSize: '20px'
+      });
   
       // プレイヤーの手札とテキストを作成
-      const numPlayers = 3;
+      const numPlayers = table.getPlayers().length;
       for (let i = 0; i < numPlayers; i++) {
-        const playerCard = this.add.image(deck.x + (i - 1) * deckWidth * 3, deck.y + deckHeight * 3, 'back');
-        playerCard.setDisplaySize(deckWidth, deckHeight);
-        const playerText = this.add.text(playerCard.x - deckWidth / 2, playerCard.y + deckHeight * 1.0, `player${i + 1}`);
+        const playerCard = table.getPlayers()[i].getHand()
+        playerCard.forEach((card, index) => {
+          card.createPhaserImg(this, deck.x + (i - 1) * deckWidth * 3 + (index * deckWidth * 1.2), deck.y + deckHeight * 3);
+          card.getPhaserImage().setDisplaySize(deckWidth, deckHeight);
+        });
+        //const playerText = this.add.text(deck.x - (i - 1) * deckWidth * 3, deck.y - deckHeight * 1.0, 'player');
       }
     }
 }
