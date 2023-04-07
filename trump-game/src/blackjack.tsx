@@ -135,6 +135,7 @@ export class BlackJackTable {
     constructor(player: BlackJackPlayer){
         // 仮置き
         this.players = [new BlackJackPlayer("CPU1", "CPU"), player, new BlackJackPlayer("CPU2", "CPU")];
+        this.deck.shuffle();
     }
 
     public getDeck() : Deck{
@@ -196,6 +197,8 @@ export class BlackJackTable {
                 player.addHand(this.deck.draw());
             }
         }
+        this.house.addHand(this.deck.draw());
+        this.house.addHand(this.deck.draw());
     }
 
     public judgeWinOrLose() : string[]{
