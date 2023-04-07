@@ -1,4 +1,4 @@
-import { Card, Deck } from './general';
+import { Card, Deck } from '../General/general';
 import {BlackJackPlayer, BlackJackTable} from './blackjack';
 
 let player : BlackJackPlayer = new BlackJackPlayer("jack", "player");

@@ -1,4 +1,4 @@
-import {Deck, Player} from './general'
+import {Deck, Player} from '../General/general'
 
 export class BlackJackPlayer extends Player{
     private chips : number;
