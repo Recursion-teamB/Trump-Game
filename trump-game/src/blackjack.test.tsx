@@ -184,14 +184,14 @@ test("シャッフル後のデッキはランダムな順序である", () => {
 });
 
 test("画像の割り当て", () => {
-  const card = new Card("♠︎", "10");
-  expect(card.getImg()).toBe("/card_img/s10.png");
+  const card = new Card("s", "10");
+  expect(card.getImg()).toBe("s10");
 })
 
 test("ディーラーがヒットする場合", () => {
   let house = table.getHouse()
-  house.addHand(new Card("♠︎", "4"));
-  house.addHand(new Card("♠︎", "6"));
+  house.addHand(new Card("s", "4"));
+  house.addHand(new Card("c", "6"));
   table.dealerPhase();
   const result = house.calcScore();
   expect(result).not.toBe(10);
@@ -200,8 +200,8 @@ test("ディーラーがヒットする場合", () => {
 test("ディーラーがヒットしない場合", () => {
   let house = table.getHouse();
   house.resetHand();
-  house.addHand(new Card("♠︎", "10"));
-  house.addHand(new Card("♠︎", "10"));
+  house.addHand(new Card("s", "10"));
+  house.addHand(new Card("h", "10"));
   table.dealerPhase();
   const result = house.calcScore();
   expect(result).toBe(20);
