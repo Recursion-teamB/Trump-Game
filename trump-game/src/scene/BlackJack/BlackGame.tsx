@@ -136,6 +136,7 @@ export default class BlackGameScene extends Phaser.Scene {
       console.log("numPlayers", numPlayers);
       for (let i = 0; i < numPlayers; i++) {
         const player = table.getPlayers()[i];
+        console.log(player.getName(), player.getChips());
         this.playerChipsTexts[i].setText(`$${player.getChips()}`);
         console.log("playerChipsTexts", this.playerChipsTexts[i]);
       }
@@ -154,22 +155,22 @@ export default class BlackGameScene extends Phaser.Scene {
         onHit={() => {
           console.log('Hit');
           this.handleHitAction(table);
-          this.hideActionPopUp(table.getPlayers()[table.getTurnNumber()]);
+          this.hideActionPopUp(table);
         }}
         onStand={() => {
           console.log('Stand');
           table.getPlayers()[table.getTurnNumber()].stand();
-          this.hideActionPopUp(table.getPlayers()[table.getTurnNumber()]);
+          this.hideActionPopUp(table);
         }}
         onDouble={() => {
           console.log('Double');
           this.handledoubleAction(table);
-          this.hideActionPopUp(table.getPlayers()[table.getTurnNumber()]);
+          this.hideActionPopUp(table);
         }}
         onSurrender={() => {
           console.log('Surrender');
           this.handleSurrenderAction(table);
-          this.hideActionPopUp(table.getPlayers()[table.getTurnNumber()]);
+          this.hideActionPopUp(table);
         }}
         />,
         this.actionPopupContainer
@@ -201,10 +202,13 @@ export default class BlackGameScene extends Phaser.Scene {
     updateChipSurrender(turnNumber : number, player : BlackJackPlayer) {
       this.playerChipsTexts[turnNumber].setText(`$${player.getChips()}`);
     }
-    hideActionPopUp(player : BlackJackPlayer) {
+    hideActionPopUp(table : BlackJackTable) {
       //to do scoreが21の時非表示にできなくなるのを解消したい
+      const player = table.getPlayers()[table.getTurnNumber()];
       if(this.actionPopupContainer && (player.getAction() !== 'hit' && player.getAction() !== '')){
         ReactDOM.unmountComponentAtNode(this.actionPopupContainer);
+        //アクションが終わったらターンを次のプレイヤーに移す
+        table.setTurnNumber(table.getTurnNumber() + 1);
       }
     }
 

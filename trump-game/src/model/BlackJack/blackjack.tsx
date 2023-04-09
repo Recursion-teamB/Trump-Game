@@ -158,6 +158,9 @@ export class BlackJackTable {
     public getTurnNumber() : number {
         return this.turnNumber;
     }
+    public setTurnNumber(turnNumber : number) : void {
+        this.turnNumber = turnNumber;
+    }
 
     // ゲームの参加者が掛け金をベットするときの処理。CPUはランダムに、人間のplayerは入力を受け取って掛け金を決める。
     // this.betsの値と各参加者のchipが掛け金分減り、costが掛け金と同値になる。
@@ -174,8 +177,8 @@ export class BlackJackTable {
             }
             else {
                 bet = playerBetAmount // プレイヤーからの入力を受け取る
-                current.bet(bet);
             }
+            current.bet(bet);
             this.bets[i] = bet;
         }
     }
