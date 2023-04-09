@@ -185,7 +185,7 @@ test("シャッフル後のデッキはランダムな順序である", () => {
 
 test("画像の割り当て", () => {
   const card = new Card("♠︎", "10");
-  expect(card.getImg()).toBe("/card_img/s10.png");
+  expect(card.getImg()).toBe("card_img/s10.png");
 })
 
 test("ディーラーがヒットする場合", () => {
