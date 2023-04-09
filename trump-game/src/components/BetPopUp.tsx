@@ -29,6 +29,7 @@ export const BetPopup: React.FC<BetPopupProps> = ({ onBet }) => {
       }}
     >
       <input
+        className='bet-input'
         type="number"
         value={betAmount}
         onChange={(e) => setBetAmount(parseInt(e.target.value))}

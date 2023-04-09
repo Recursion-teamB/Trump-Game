@@ -36,13 +36,12 @@ export default class BlackGameScene extends Phaser.Scene {
       this.createDeck(screenWidth, screenHeight);
       this.createDealerSection(table, screenWidth / 2, screenHeight / 2);
       this.createPlayerSection(table, screenWidth / 2, screenHeight / 2);
-      // Create a container for the BetPopup
+
       this.betPopupContainer = document.createElement('div');
       document.body.appendChild(this.betPopupContainer);
 
-      // Set a timer to show the BetPopup after 3 seconds
       setTimeout(() => {
-        this.showBetPopup();
+        this.showBetPopup(table);
       }, 3000);
     }
     createHelpAndHomeButtons() {
@@ -96,7 +95,7 @@ export default class BlackGameScene extends Phaser.Scene {
         this.playerScoresTexts[i] = playerScore;
       }
     }
-    showBetPopup() {
+    showBetPopup(table : BlackJackTable) {
       if (!this.betPopupContainer) {
         return;
       }
@@ -104,7 +103,7 @@ export default class BlackGameScene extends Phaser.Scene {
       ReactDOM.render(
         <BetPopup
           onBet={(betAmount) => {
-            // Update chips and betPhase here
+            this.handleBet(table, betAmount);
             console.log('Bet amount:', betAmount);
             this.hideBetPopup();
           }}
@@ -118,6 +117,19 @@ export default class BlackGameScene extends Phaser.Scene {
         ReactDOM.unmountComponentAtNode(this.betPopupContainer);
       }
     }
-    
-    
+    handleBet(table : BlackJackTable, betAmount: number) {
+      // BlackJackTableのbetPhaseメソッドを呼び出す
+      table.betPhase(betAmount);
+  
+      // 表示されているチップを更新
+      this.updateChips(table);
+    }
+  
+    updateChips(table : BlackJackTable) {
+      const numPlayers = table.getPlayers().length;
+      for (let i = 0; i < numPlayers; i++) {
+        const player = table.getPlayers()[i];
+        this.playerChipsTexts[i].setText(`$${player.getChips()}`);
+      }
+    }
 }
