@@ -12,7 +12,22 @@ export const BetPopup: React.FC<BetPopupProps> = ({ onBet }) => {
   };
 
   return (
-    <div>
+    <div
+      style={{
+        position: 'absolute',
+        width: '50%',
+        height: '50%',
+        top: '0',
+        left: '25%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#ffffff',
+        border: '2px solid #000000',
+        borderRadius: '10px',
+      }}
+    >
       <input
         type="number"
         value={betAmount}
