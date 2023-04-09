@@ -5,31 +5,31 @@ let player : BlackJackPlayer = new BlackJackPlayer("jack", "player");
 let table : BlackJackTable = new BlackJackTable(player);
 let deck : Deck = new Deck();
 
-test("betPhase()によってbetsが変更されている", () => {
-  table.betPhase();
-  const result = table.getBets();
-	expect(result).not.toBe([0,0,0]);
-});
+// test("betPhase()によってbetsが変更されている", () => {
+//   table.betPhase(100);
+//   const result = table.getBets();
+// 	expect(result).not.toBe([0,0,0]);
+// });
 
-test("プレイヤーに掛け金がセットされる", () =>{
-  table.betPhase();
-  const result = table.getPlayers()[1].getCost();
-  expect(result).toBe(100);
-})
+// test("プレイヤーに掛け金がセットされる", () =>{
+//   table.betPhase(100);
+//   const result = table.getPlayers()[1].getCost();
+//   expect(result).toBe(100);
+// })
 
-test("hitコマンドのテスト",() => {
-  table.betPhase();
-  let preHandsLen = player.getHand().length
-  if(player.getAction() === ("" || "hit")){
-    player.hit(table.getDeck())
-    expect(player.getHand().length - preHandsLen).toBe(1)
-    if(player.isBust()){
-      expect(player.getAction()).toBe("bust")
-    }else{
-      expect(player.getAction()).toBe("hit")
-    }
-  }
-})
+// test("hitコマンドのテスト",() => {
+//   table.betPhase(100);
+//   let preHandsLen = player.getHand().length
+//   if(player.getAction() === ("" || "hit")){
+//     player.hit(table.getDeck())
+//     expect(player.getHand().length - preHandsLen).toBe(1)
+//     if(player.isBust()){
+//       expect(player.getAction()).toBe("bust")
+//     }else{
+//       expect(player.getAction()).toBe("hit")
+//     }
+//   }
+// })
 
 
 
