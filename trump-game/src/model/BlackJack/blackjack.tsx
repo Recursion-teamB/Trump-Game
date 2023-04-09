@@ -169,7 +169,8 @@ export class BlackJackTable {
 
             let bet : number = 0;
             if(current.getType() === "CPU"){
-                bet = Math.random()*(this.players[i].getChips()+1 - 1) + 1;
+                bet = Math.floor(Math.random()*(this.players[i].getChips()+1 - 1) + 1);
+                console.log('CPUs bet amount', bet);
             }
             else {
                 bet = playerBetAmount // プレイヤーからの入力を受け取る

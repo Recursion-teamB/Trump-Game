@@ -133,9 +133,11 @@ export default class BlackGameScene extends Phaser.Scene {
   
     updateChips(table : BlackJackTable) {
       const numPlayers = table.getPlayers().length;
+      console.log("numPlayers", numPlayers);
       for (let i = 0; i < numPlayers; i++) {
         const player = table.getPlayers()[i];
         this.playerChipsTexts[i].setText(`$${player.getChips()}`);
+        console.log("playerChipsTexts", this.playerChipsTexts[i]);
       }
     }
     showActionPopUp(table : BlackJackTable){
