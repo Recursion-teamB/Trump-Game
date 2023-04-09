@@ -5,7 +5,7 @@ import Lobby from './Lobby';
 import reportWebVitals from './reportWebVitals';
 import { SelectLevelScreen } from './App';
 import {StartBlackJackScreen} from './blackjackView'
-import { GameContainer } from './phaser';
+import { GameContainer} from './phaser';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -14,7 +14,6 @@ root.render(
   <React.StrictMode>
     <Lobby />
     <SelectLevelScreen/>
-    <StartBlackJackScreen/>
     <GameContainer/>
   </React.StrictMode>
 );
