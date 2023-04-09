@@ -1,4 +1,4 @@
-import {Card, Deck, Player} from './general'
+import {Deck, Player} from '../General/general'
 
 export class BlackJackPlayer extends Player{
     private chips : number;
@@ -82,7 +82,8 @@ export class BlackJackPlayer extends Player{
     //スコアが21未満のときかつactionの値がhitまたはstandのときにコマンド選択可能.
     //actionのデフォルトはhitでhit,stand,double,surrenderによって書き換えられる.
     public hit(deck : Deck) :void{
-        if(this.getAction() !== ("" || "hit") || this.calcScore() > 20){
+        // if(this.getAction() !== ("" || "hit") || this.calcScore() > 20){
+        if((this.getAction() !==  "" && this.getAction() !== "hit") || this.calcScore() > 20){
             return;
         }
         this.addHand(deck.draw());
@@ -91,7 +92,7 @@ export class BlackJackPlayer extends Player{
         }
     }
     public stand() : void{
-        if(this.getAction() !== ("" || "hit") || this.calcScore() > 20){
+        if((this.getAction() !==  "" && this.getAction() !== "hit") || this.calcScore() > 20){
             return;
         }
         this.setAction("stand")
@@ -126,15 +127,14 @@ export class BlackJackTable {
     private house : BlackJackPlayer = new BlackJackPlayer("House", "House");
     private roundNumber : number = 1;
     private turnNumber : number = 0; // 1に変更の可能性あり
-    private phase : string = "betting"; // betting, dear, playerPhase, dealerPhaseなどに1roundの中で適宜変更される。不要なら削除もあり。
+    private phase : string = "betting"; // betting, deal, playerPhase, dealerPhaseなどに1roundの中で適宜変更される。不要なら削除もあり。
     private bets : number[] = [0, 0, 0]; // 仮置き
     protected players : BlackJackPlayer[];
-    private deck : Deck;
+    private deck : Deck = new Deck();
 
     constructor(player: BlackJackPlayer){
         // 仮置き
         this.players = [new BlackJackPlayer("CPU1", "CPU"), player, new BlackJackPlayer("CPU2", "CPU")];
-        this.deck = new Deck();
     }
 
     public getDeck() : Deck{
@@ -173,19 +173,31 @@ export class BlackJackTable {
         }
     }
 
-    // commandが実装され次第完成させる今は未完成
-    public dealerPhase() : void{
-        while(this.house.calcScore() <= 16){
-            // 2秒遅れてhit
-            /*
-            setTimeout(() => {
-                this.house.hit() // hit仮置き
-                renderDealerBet()
-            }, 2000);
-            */
+    // ディーラーフェイズ houseの手札のスコアが16以下ならhitしループ、 17以上ならフェイズ終了
+    public async dealerPhase(): Promise<void> {
+        this.phase = "dealer phase";
+        // renderDealerPhase() ディーラーフェイズの画面出力
+        while (this.house.calcScore() <= 16) {
+            // hitを遅延させる
+            await Promise.all([
+                new Promise(resolve => setTimeout(resolve, 2000)),
+                // renderDealerHit() ディーラーがヒットする画面出力
+                this.house.hit(this.deck)
+            ]);
+            if (this.house.isBust()) {
+                this.house.setAction("bust");
+            }
         }
     }
-    
+    //ゲーム開始時に各プレイヤーにデッキから手札を2枚ずつ配る
+    public distributeCards() : void{
+        for(let player of this.players){
+            for(let numOfCards = 0; numOfCards < 2; numOfCards++){
+                player.addHand(this.deck.draw());
+            }
+        }
+    }
+
     public judgeWinOrLose() : string[]{
         return ["win","win","win"]
     }
