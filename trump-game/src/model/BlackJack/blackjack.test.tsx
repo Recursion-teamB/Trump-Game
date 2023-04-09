@@ -13,7 +13,7 @@ test("betPhase()によってbetsが変更されている", () => {
 
 test("プレイヤーに掛け金がセットされる", () =>{
   table.betPhase(100);
-  const result = table.getPlayers()[1].getCost();
+  const result = table.getPlayers()[0].getCost();
   expect(result).toBe(100);
 })
 
