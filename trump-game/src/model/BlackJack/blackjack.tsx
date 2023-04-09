@@ -93,7 +93,7 @@ export class BlackJackPlayer extends Player{
 
     }
     public stand() : void{
-        if((this.getAction() !==  "" && this.getAction() !== "hit") || this.calcScore() > 20){
+        if((this.getAction() !==  "" && this.getAction() !== "hit") || this.calcScore() >= 21){
             return;
         }
         this.setAction("stand")
@@ -101,13 +101,14 @@ export class BlackJackPlayer extends Player{
     //ほかのコマンドはコマンド選択画面をおした瞬間に起こるが, double()はdouble選択->掛金選択後に起こる.
     //掛金は0 < betMoney < this.getCost()
     public double(deck : Deck, betMoney : number) : void{
-        if(this.getAction() !== ("") || this.calcScore() > 20){
+        if(this.getAction() !== ("") || this.calcScore() >= 21){
             return;
         }
         if(betMoney > 0 && betMoney <= this.getCost()){
             this.addChips(0 - betMoney)
             this.setCost(this.getCost() + betMoney)
             this.addHand(deck.draw())
+            
             if(this.isBust()){
                 this.setAction("bust");
             }else{
@@ -135,8 +136,7 @@ export class BlackJackTable {
 
     constructor(player: BlackJackPlayer){
         // 仮置き
-        this.players = [new BlackJackPlayer("CPU1", "CPU"), player, new BlackJackPlayer("CPU2", "CPU")];
-        //this.players = [player];
+        this.players = [player, new BlackJackPlayer("CPU1", "CPU"), new BlackJackPlayer("CPU2", "CPU")];
         this.deck.shuffle();
     }
 
@@ -153,6 +153,10 @@ export class BlackJackTable {
 
     public getHouse() : BlackJackPlayer {
         return this.house;
+    }
+
+    public getTurnNumber() : number {
+        return this.turnNumber;
     }
 
     // ゲームの参加者が掛け金をベットするときの処理。CPUはランダムに、人間のplayerは入力を受け取って掛け金を決める。
@@ -172,7 +176,6 @@ export class BlackJackTable {
                 current.bet(bet);
             }
             this.bets[i] = bet;
-            console.log(bet);
         }
     }
 

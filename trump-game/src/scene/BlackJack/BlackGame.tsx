@@ -2,12 +2,14 @@ import { BlackJackPlayer, BlackJackTable } from '../../model/BlackJack/blackjack
 import Phaser from 'phaser';
 import { Deck } from '../../model/General/general';
 import { BetPopup } from '../../components/BetPopUp';
+import { ActionPopup } from '../../components/ActionPopUp';
 import ReactDOM from 'react-dom';
 
 export default class BlackGameScene extends Phaser.Scene {
     private playerChipsTexts: Phaser.GameObjects.Text[] = [];
     private playerScoresTexts: Phaser.GameObjects.Text[] = [];
     private betPopupContainer: HTMLElement | null = null;
+    private actionPopupContainer: HTMLElement | null = null;
     constructor() {
       super({ key: 'BlackGameScene' });
     }
@@ -39,7 +41,8 @@ export default class BlackGameScene extends Phaser.Scene {
 
       this.betPopupContainer = document.createElement('div');
       document.body.appendChild(this.betPopupContainer);
-
+      this.actionPopupContainer = document.createElement('div');
+      document.body.appendChild(this.actionPopupContainer);
       setTimeout(() => {
         this.showBetPopup(table);
       }, 3000);
@@ -123,6 +126,9 @@ export default class BlackGameScene extends Phaser.Scene {
   
       // 表示されているチップを更新
       this.updateChips(table);
+      setTimeout(() => {
+        this.showActionPopUp(table);
+      }, 3000);
     }
   
     updateChips(table : BlackJackTable) {
@@ -132,4 +138,72 @@ export default class BlackGameScene extends Phaser.Scene {
         this.playerChipsTexts[i].setText(`$${player.getChips()}`);
       }
     }
+    showActionPopUp(table : BlackJackTable){
+      if (!this.actionPopupContainer ) {
+        return;
+      }
+      if(table.getPlayers()[table.getTurnNumber()].calcScore() >= 21){
+        //最初から21以上の場合は非表示
+        return;
+      }
+
+      ReactDOM.render(
+        <ActionPopup
+        onHit={() => {
+          console.log('Hit');
+          this.handleHitAction(table);
+          this.hideActionPopUp(table.getPlayers()[table.getTurnNumber()]);
+        }}
+        onStand={() => {
+          console.log('Stand');
+          table.getPlayers()[table.getTurnNumber()].stand();
+          this.hideActionPopUp(table.getPlayers()[table.getTurnNumber()]);
+        }}
+        onDouble={() => {
+          console.log('Double');
+          this.handledoubleAction(table);
+          this.hideActionPopUp(table.getPlayers()[table.getTurnNumber()]);
+        }}
+        onSurrender={() => {
+          console.log('Surrender');
+          this.handleSurrenderAction(table);
+          this.hideActionPopUp(table.getPlayers()[table.getTurnNumber()]);
+        }}
+        />,
+        this.actionPopupContainer
+      );
+    }
+    handleHitAction(table : BlackJackTable) {
+      const turnNumber = table.getTurnNumber();
+      const player = table.getPlayers()[turnNumber];
+      player.hit(table.getDeck());
+      this.updatePlayerScore(turnNumber, player);
+    }
+    handledoubleAction(table : BlackJackTable) {
+      const turnNumber = table.getTurnNumber();
+      const player = table.getPlayers()[turnNumber];
+      const betAmount = player.getCost(); 
+      player.double(table.getDeck(), betAmount);
+      console.log('カードの枚数' + player.getHand().length);
+      this.updatePlayerScore(turnNumber, player);
+    }
+    handleSurrenderAction(table : BlackJackTable) {
+      const turnNumber = table.getTurnNumber();
+      const player = table.getPlayers()[turnNumber];
+      player.surrender();
+      this.updateChipSurrender(turnNumber, player);
+    }
+    updatePlayerScore(turnNumber : number, player : BlackJackPlayer) {
+      this.playerScoresTexts[turnNumber].setText(`Score : ${player.calcScore()}`);
+    }
+    updateChipSurrender(turnNumber : number, player : BlackJackPlayer) {
+      this.playerChipsTexts[turnNumber].setText(`$${player.getChips()}`);
+    }
+    hideActionPopUp(player : BlackJackPlayer) {
+      //to do scoreが21の時非表示にできなくなるのを解消したい
+      if(this.actionPopupContainer && (player.getAction() !== 'hit' && player.getAction() !== '')){
+        ReactDOM.unmountComponentAtNode(this.actionPopupContainer);
+      }
+    }
+
 }

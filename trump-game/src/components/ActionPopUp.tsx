@@ -14,11 +14,26 @@ export const ActionPopup: React.FC<ActionPopupProps> = ({
   onSurrender,
 }) => {
   return (
-    <div>
-      <button onClick={onHit}>Hit</button>
-      <button onClick={onStand}>Stand</button>
-      <button onClick={onDouble}>Double</button>
-      <button onClick={onSurrender}>Surrender</button>
+    <div
+    style={{
+      position: 'absolute',
+      width: '50%',
+      height: '50%',
+      top: '0',
+      left: '25%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#ffffff',
+      border: '2px solid #000000',
+      borderRadius: '10px',
+    }}
+    >
+      <button onClick={onHit} id='action-hit'>Hit</button>
+      <button onClick={onStand} id='action-stand'>Stand</button>
+      <button onClick={onDouble} id='action-double'>Double</button>
+      <button onClick={onSurrender} id='action-surrender'>Surrender</button>
     </div>
   );
 };
