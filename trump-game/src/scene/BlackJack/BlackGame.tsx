@@ -131,7 +131,7 @@ export default class BlackGameScene extends Phaser.Scene {
       }, 3000);
     }
   
-    updateChips(table : BlackJackTable) {
+    async updateChips(table : BlackJackTable) {
       const numPlayers = table.getPlayers().length;
       console.log("numPlayers", numPlayers);
       for (let i = 0; i < numPlayers; i++) {
@@ -139,6 +139,7 @@ export default class BlackGameScene extends Phaser.Scene {
         console.log(player.getName(), player.getChips());
         this.playerChipsTexts[i].setText(`$${player.getChips()}`);
         console.log("playerChipsTexts", this.playerChipsTexts[i]);
+        await new Promise(resolve => setTimeout(resolve, 500))
       }
     }
     showActionPopUp(table : BlackJackTable){
