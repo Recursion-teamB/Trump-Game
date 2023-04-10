@@ -2,6 +2,9 @@ import { BlackJackPlayer, BlackJackTable } from '../../model/BlackJack/blackjack
 import { Card, Deck, Player } from '../../model/General/general';
 
 export default class BlackGameScene extends Phaser.Scene {
+    private playerPositions: { [key: string]: { x: number; y: number } } = {};
+
+
     constructor() {
         super({key: "BlackGameScene"})
     }
@@ -62,6 +65,14 @@ export default class BlackGameScene extends Phaser.Scene {
         const cardManager = new CardManager(this, table)
         cardManager.firstDealCardToAllPlayers
       }
+    
+      decidePlayerPosition() : void{
+        const playerArr = this.table.getPlayers()
+        const count = playerArr.length;
+            // プレイヤーの位置データを連想配列に追加します
+        for(let i= 0, positionX = (this.width / count) * (0.5 + i) ; i < count; i++)
+            this.playerPositions[playerArr[i].getName()] = { x: positionX, y: this.height * 0.9};
+        }
 }
 
 export class CardManager {
