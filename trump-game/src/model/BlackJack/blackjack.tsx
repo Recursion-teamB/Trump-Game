@@ -377,10 +377,12 @@ export class BlackJackTable {
             else if(score === 10){
                 if(this.getRandomInt(0, 2) === 1){
                     cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1));
+                    console.log('hit')
                     return;
                 }
                 else{
                     cpu.hit(this.deck);
+                    console.log('double')
                     return;
                 }
             }
@@ -389,22 +391,26 @@ export class BlackJackTable {
         // 2ターン目以降でスコア12以下なら確定でhit
         if(score <= 12){
             cpu.hit(this.deck);
+            console.log('hit')
             return;
         }
 
         // スコアが17以上なら確定でstand
         if(score <= 17){
             cpu.stand();
+            console.log('stand')
             return;
         }
 
         // houseのアップカードのスコアが7以上ならhit,7未満ならstand
         if(this.house.getHand()[0].getRank() >= 7 || this.house.getHand()[0].getRank() === 1){
             cpu.hit(this.deck);
+            console.log('hit')
             return;
         }
         else{
             cpu.stand();
+            console.log('stand')
             return;
         }
     }

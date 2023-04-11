@@ -4,6 +4,7 @@ import { Deck } from '../../model/General/general';
 import { BetPopup } from '../../components/BlackJack/BetPopUp';
 import { ActionPopup } from '../../components/BlackJack/ActionPopUp';
 import { HelpPopup } from '../../components/BlackJack/HelpPopUp';
+
 import ReactDOM from 'react-dom';
 
 export default class BlackGameScene extends Phaser.Scene {
@@ -172,9 +173,12 @@ export default class BlackGameScene extends Phaser.Scene {
     }
 
     handleBet(table : BlackJackTable, betAmount: number) {
+      // BlackJackTableのbetPhaseメソッドを呼び出す
+      table.betPhase(betAmount);
       // 表示されているチップを更新
       this.table.betPhase(this, betAmount);
       this.updateChips(table);
+
       // 次の人のターン
       this.table.betPhase(this, 0);
     }
