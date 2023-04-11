@@ -45,7 +45,7 @@ export default class BlackGameScene extends Phaser.Scene {
       document.body.appendChild(this.actionPopupContainer);
       setTimeout(() => {
         this.showBetPopup(table);
-      }, 3000);
+      }, 1000);
     }
     createHelpAndHomeButtons() {
       const helpButton = this.add.image(50, 50, 'help').setInteractive();
