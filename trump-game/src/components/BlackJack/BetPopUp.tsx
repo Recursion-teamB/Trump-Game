@@ -27,7 +27,7 @@ export const BetPopup: React.FC<BetPopupProps> = ({ onBet, playerChips}) => {
         position: 'absolute',
         width: '50%',
         height: '50%',
-        top: '0',
+        top: '25%',
         left: '25%',
         display: 'flex',
         flexDirection: 'column',
