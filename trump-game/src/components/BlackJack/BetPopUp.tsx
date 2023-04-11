@@ -17,7 +17,7 @@ export const BetPopup: React.FC<BetPopupProps> = ({ onBet }) => {
         position: 'absolute',
         width: '50%',
         height: '50%',
-        top: '0',
+        top: '25%',
         left: '25%',
         display: 'flex',
         flexDirection: 'column',
@@ -26,13 +26,16 @@ export const BetPopup: React.FC<BetPopupProps> = ({ onBet }) => {
         background: '#ffffff',
         border: '2px solid #000000',
         borderRadius: '10px',
+        opacity: '0.93',
       }}
     >
+      <p style={{margin: '0'}}>掛け金を入力してください</p>
       <input
         className='bet-input'
         type="number"
         value={betAmount}
         onChange={(e) => setBetAmount(parseInt(e.target.value))}
+        style={{margin: '10px'}}
       />
       <button onClick={handleBetButtonClick}>Bet</button>
     </div>

@@ -1,4 +1,5 @@
 import {Deck, Player} from '../General/general'
+import BlackGameScene from '../../scene/BlackJack/BlackGame'
 
 export class BlackJackPlayer extends Player{
     private chips : number;
@@ -216,6 +217,88 @@ export class BlackJackTable {
 
     public getPhase(){
         return this.phase;
+    }
+
+    // プレイヤー行動するフェイズ
+    public async actionPhase(scene: BlackGameScene) : Promise<void>{
+        console.log("check");
+        let flag : boolean = true;
+
+        while(flag){
+            flag = false;
+            let playersLength : number = this.players.length;
+
+            for(let i = 0; i < playersLength; ++i){
+                let current : BlackJackPlayer = this.players[i];
+                if(current.getType() === "CPU"){
+                    await this.cpuAction(current);
+                    console.log(current.getName() + " score :" + current.calcScore());
+                }
+                else{
+                    // プレイヤーからactionを取得するレンダーとコントロール
+                    await scene.showActionPopUp(this);
+                    console.log(current.getName() + " score :" + current.calcScore());
+                }
+                if(current.getAction() === "hit") flag = true;
+            }
+        }
+    }
+
+    public cpuAction(cpu : BlackJackPlayer) : void {
+        let score : number = cpu.calcScore()
+        if(cpu.getAction() === ""){
+            // スコア11で1ターン目なら確定double
+            if(score === 11){
+                cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1));
+                return;
+            }
+            // スコア10で1ターン目なら半々でhitかdouble
+            else if(score === 10){
+                if(this.getRandomInt(0, 2) === 1){
+                    cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1));
+                    console.log('hit')
+                    return;
+                }
+                else{
+                    cpu.hit(this.deck);
+                    console.log('double')
+                    return;
+                }
+            }
+        }
+
+        // 2ターン目以降でスコア12以下なら確定でhit
+        if(score <= 12){
+            cpu.hit(this.deck);
+            console.log('hit')
+            return;
+        }
+
+        // スコアが17以上なら確定でstand
+        if(score <= 17){
+            cpu.stand();
+            console.log('stand')
+            return;
+        }
+
+        // houseのアップカードのスコアが7以上ならhit,7未満ならstand
+        if(this.house.getHand()[0].getRank() >= 7 || this.house.getHand()[0].getRank() === 1){
+            cpu.hit(this.deck);
+            console.log('hit')
+            return;
+        }
+        else{
+            cpu.stand();
+            console.log('stand')
+            return;
+        }
+    }
+
+    // 返り値をnとして min <= n < max の範囲のランダムな整数値を返す。
+    public getRandomInt(min : number, max : number) : number {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min) + min);
     }
 }
 

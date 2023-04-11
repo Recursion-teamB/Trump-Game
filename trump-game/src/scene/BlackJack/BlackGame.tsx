@@ -1,8 +1,8 @@
 import { BlackJackPlayer, BlackJackTable } from '../../model/BlackJack/blackjack';
 import Phaser from 'phaser';
 import { Deck } from '../../model/General/general';
-import { BetPopup } from '../../components/BetPopUp';
-import { ActionPopup } from '../../components/ActionPopUp';
+import { BetPopup } from '../../components/BlackJack/BetPopUp';
+import { ActionPopup } from '../../components/BlackJack/ActionPopUp';
 import ReactDOM from 'react-dom';
 
 export default class BlackGameScene extends Phaser.Scene {
@@ -43,10 +43,12 @@ export default class BlackGameScene extends Phaser.Scene {
       document.body.appendChild(this.betPopupContainer);
       this.actionPopupContainer = document.createElement('div');
       document.body.appendChild(this.actionPopupContainer);
+      // this.showBetPopup(table);
       setTimeout(() => {
         this.showBetPopup(table);
-      }, 3000);
+      }, 1500);
     }
+
     createHelpAndHomeButtons() {
       const helpButton = this.add.image(50, 50, 'help').setInteractive();
       const backHomeButton = this.add.image(150, 50, 'back_home').setInteractive();
@@ -120,14 +122,15 @@ export default class BlackGameScene extends Phaser.Scene {
         ReactDOM.unmountComponentAtNode(this.betPopupContainer);
       }
     }
+
     handleBet(table : BlackJackTable, betAmount: number) {
       // BlackJackTableのbetPhaseメソッドを呼び出す
       table.betPhase(betAmount);
-  
       // 表示されているチップを更新
       this.updateChips(table);
       setTimeout(() => {
-        this.showActionPopUp(table);
+        table.actionPhase(this);
+        // this.showActionPopUp(table);
       }, 3000);
     }
   
@@ -142,7 +145,8 @@ export default class BlackGameScene extends Phaser.Scene {
         await new Promise(resolve => setTimeout(resolve, 500))
       }
     }
-    showActionPopUp(table : BlackJackTable){
+
+    showActionPopUp (table : BlackJackTable,){
       if (!this.actionPopupContainer ) {
         return;
       }
@@ -186,7 +190,7 @@ export default class BlackGameScene extends Phaser.Scene {
     handledoubleAction(table : BlackJackTable) {
       const turnNumber = table.getTurnNumber();
       const player = table.getPlayers()[turnNumber];
-      const betAmount = player.getCost(); 
+      const betAmount = player.getCost();
       player.double(table.getDeck(), betAmount);
       console.log('カードの枚数' + player.getHand().length);
       this.updatePlayerScore(turnNumber, player);
@@ -212,5 +216,4 @@ export default class BlackGameScene extends Phaser.Scene {
         table.setTurnNumber(table.getTurnNumber() + 1);
       }
     }
-
 }
