@@ -105,6 +105,7 @@ export default class BlackGameScene extends Phaser.Scene {
 
       ReactDOM.render(
         <BetPopup
+          playerChips={table.getPlayers()[0].getChips()}
           onBet={(betAmount) => {
             this.handleBet(table, betAmount);
             console.log('Bet amount:', betAmount);
