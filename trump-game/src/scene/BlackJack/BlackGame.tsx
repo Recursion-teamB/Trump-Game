@@ -32,7 +32,6 @@ export default class BlackGameScene extends Phaser.Scene {
     }
 
     create() {
-      // modelのインスタンス化
       // Phaserの設定
       const screenWidth = this.cameras.main.width;
       const screenHeight = this.cameras.main.height;
@@ -48,10 +47,6 @@ export default class BlackGameScene extends Phaser.Scene {
       document.body.appendChild(this.betPopupContainer);
       this.actionPopupContainer = document.createElement('div');
       document.body.appendChild(this.actionPopupContainer);
-      // this.showBetPopup(table);
-      // setTimeout(() => {
-      //   this.showBetPopup(table);
-      // }, 1500);
 
       // helpポップアップの箱を追加
       this.helpPopupContainer = document.createElement('div');
@@ -286,9 +281,5 @@ export default class BlackGameScene extends Phaser.Scene {
         ])
         table.actionPhase(this);
       }
-      // if(this.actionPopupContainer && (player.getAction() !== 'hit' && player.getAction() !== '')){
-      //   ReactDOM.unmountComponentAtNode(this.actionPopupContainer);
-      //   table.actionPhase(this);
-      // }
     }
 }
