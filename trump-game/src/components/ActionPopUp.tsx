@@ -28,6 +28,7 @@ export const ActionPopup: React.FC<ActionPopupProps> = ({
       background: '#ffffff',
       border: '2px solid #000000',
       borderRadius: '10px',
+      marginTop:'4rem',
     }}
     >
       <button onClick={onHit} id='action-hit'>Hit</button>

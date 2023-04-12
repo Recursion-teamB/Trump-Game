@@ -217,3 +217,79 @@ test("ディーラーがヒットしない場合", () => {
   const result = house.calcScore();
   expect(result).toBe(20);
 }, 10000)
+
+
+/*
+個々のテストは作り直す、適宜修正
+describe('cpuAction', () => {
+  let table: BlackJackTable;
+  let cpu: BlackJackPlayer;
+
+  beforeEach(() => {
+    table = new BlackJackTable(new BlackJackPlayer("jack", "player"));
+    cpu = new BlackJackPlayer('cpu', "CPU");
+  });
+
+  test('should double when score is 11 in the first turn', () => {
+    jest.spyOn(table, 'getRandomInt').mockReturnValue(1);
+    jest.spyOn(cpu, 'calcScore').mockReturnValue(11);
+    jest.spyOn(cpu, 'getAction').mockReturnValue('');
+    jest.spyOn(cpu, 'double');
+    table.cpuAction(cpu);
+    expect(cpu.double(table.getDeck(), cpu.)).toHaveBeenCalledWith(table.getDeck(), 1);
+  });
+
+  test('should hit when score is 10 in the first turn and getRandomInt returns 0', () => {
+    jest.spyOn(table, 'getRandomInt').mockReturnValue(0);
+    jest.spyOn(cpu, 'calcScore').mockReturnValue(10);
+    jest.spyOn(cpu, 'getAction').mockReturnValue('');
+    jest.spyOn(cpu, 'hit');
+    table.cpuAction(cpu);
+    expect(cpu.hit).toHaveBeenCalledWith(table.getDeck());
+  });
+
+  test('should double when score is 10 in the first turn and getRandomInt returns 1', () => {
+    jest.spyOn(table, 'getRandomInt').mockReturnValue(1);
+    jest.spyOn(cpu, 'calcScore').mockReturnValue(10);
+    jest.spyOn(cpu, 'getAction').mockReturnValue('');
+    jest.spyOn(cpu, 'double');
+    table.cpuAction(cpu);
+    expect(cpu.double(table.getDeck(), cpu.)).toHaveBeenCalledWith(table.getDeck(), 1);
+  });
+
+  test('should hit when score is 12 or less', () => {
+    jest.spyOn(cpu, 'calcScore').mockReturnValue(12);
+    jest.spyOn(cpu, 'hit');
+    table.cpuAction(cpu);
+    expect(cpu.hit).toHaveBeenCalledWith(table.getDeck());
+  });
+
+  test('should stand when score is 17 or more', () => {
+    jest.spyOn(cpu, 'calcScore').mockReturnValue(17);
+    jest.spyOn(cpu, 'stand');
+    table.cpuAction(cpu);
+    expect(cpu.stand).toHaveBeenCalled();
+  });
+
+  test('should hit when house upcard rank is 1', () => {
+    jest.spyOn(table.getHouse().getHand()[0], 'getRank').mockReturnValue(1);
+    jest.spyOn(cpu, 'hit');
+    table.cpuAction(cpu);
+    expect(cpu.hit).toHaveBeenCalledWith(table.getDeck());
+  });
+
+  test('should hit when house upcard rank is 7 or higher', () => {
+    jest.spyOn(table.getHouse().getHand()[0], 'getRank').mockReturnValue(7);
+    jest.spyOn(cpu, 'hit');
+    table.cpuAction(cpu);
+    expect(cpu.hit).toHaveBeenCalledWith(table.getDeck());
+  });
+
+  test('should stand when house upcard rank is less than 7', () => {
+    jest.spyOn(table.getHouse().getHand()[0], 'getRank').mockReturnValue(6);
+    jest.spyOn(cpu, 'stand');
+    table.cpuAction(cpu);
+    expect(cpu.stand).toHaveBeenCalled();
+  });
+});
+*/
