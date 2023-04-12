@@ -6,19 +6,19 @@ let table : BlackJackTable = new BlackJackTable(player);
 let deck : Deck = new Deck();
 
 test("betPhase()によってbetsが変更されている", () => {
-  table.betPhase();
+  table.betPhase(100);
   const result = table.getBets();
 	expect(result).not.toBe([0,0,0]);
 });
 
 test("プレイヤーに掛け金がセットされる", () =>{
-  table.betPhase();
-  const result = table.getPlayers()[1].getCost();
+  table.betPhase(100);
+  const result = table.getPlayers()[0].getCost();
   expect(result).toBe(100);
 })
 
 test("hitコマンドのテスト",() => {
-  table.betPhase();
+  table.betPhase(100);
   let preHandsLen = player.getHand().length
   if(player.getAction() === ("" || "hit")){
     player.hit(table.getDeck())
@@ -86,6 +86,17 @@ test("doubleコマンドのテスト、this.actionが空でない場合のthis.c
   expect(result).toBe(1000);
 })
 
+test("doubleコマンドのテスト、枚数が1枚増えている", () => {
+  player.setChips(100000);
+  player.setHand([new Card("s", "A"), new Card("h", "9")]);
+  player.setAction("");
+  player.setCost(10);
+  const before = player.getHand().length;
+  player.double(deck, 10);
+  const after = player.getHand().length;
+  expect(after).toBe(before + 1);
+})
+
 test("surrenderコマンドのテスト、this.actionが空の場合のthis.actionの変更", () => {
   player.setAction("");
   player.surrender();
@@ -145,25 +156,25 @@ test('カードの合計を計算する(Aceが手札にない場合)', () => {
 
 test('addHandのテスト', () => {
   player.resetHand();
-  player.addHand(new Card("♠︎", "10"));
-  player.addHand(new Card("♠︎", "10"));
+  player.addHand(new Card("s", "10"));
+  player.addHand(new Card("h", "10"));
   const result = player.calcScore();
   expect(result).toBe(20);
 })
 
 test("合計値が22以上の場合バストする", () => {
-  const card1 = new Card("♠︎", "K");
-  const card2 = new Card("♦︎", "A");
-  const card3 = new Card("♣︎", "Q");
-  const card4 = new Card("♣︎", "A");
+  const card1 = new Card("h", "K");
+  const card2 = new Card("d", "A");
+  const card3 = new Card("c", "Q");
+  const card4 = new Card("c", "A");
   player.setHand([card1, card2, card3, card4]);
   const result = player.isBust();
   expect(result).toBe(true);
 })
 
 test("合計値が21以下の時バストしない", () => {
-  const card1 = new Card("♠︎", "A");
-  const card2 = new Card("♦︎", "K");
+  const card1 = new Card("d", "A");
+  const card2 = new Card("d", "K");
   player.setHand([card1, card2]);
   const result = player.isBust();
   expect(result).toBe(false);
@@ -184,14 +195,14 @@ test("シャッフル後のデッキはランダムな順序である", () => {
 });
 
 test("画像の割り当て", () => {
-  const card = new Card("♠︎", "10");
-  expect(card.getImg()).toBe("card_img/s10.png");
+  const card = new Card("s", "10");
+  expect(card.getImg()).toBe("s10");
 })
 
 test("ディーラーがヒットする場合", () => {
   let house = table.getHouse()
-  house.addHand(new Card("♠︎", "4"));
-  house.addHand(new Card("♠︎", "6"));
+  house.addHand(new Card("s", "4"));
+  house.addHand(new Card("c", "6"));
   table.dealerPhase();
   const result = house.calcScore();
   expect(result).not.toBe(10);
@@ -200,8 +211,8 @@ test("ディーラーがヒットする場合", () => {
 test("ディーラーがヒットしない場合", () => {
   let house = table.getHouse();
   house.resetHand();
-  house.addHand(new Card("♠︎", "10"));
-  house.addHand(new Card("♠︎", "10"));
+  house.addHand(new Card("s", "10"));
+  house.addHand(new Card("h", "10"));
   table.dealerPhase();
   const result = house.calcScore();
   expect(result).toBe(20);

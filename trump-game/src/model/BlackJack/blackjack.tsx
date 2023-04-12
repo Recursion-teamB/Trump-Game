@@ -90,9 +90,10 @@ export class BlackJackPlayer extends Player{
         if(this.isBust()){
             this.setAction("bust");
         }
+
     }
     public stand() : void{
-        if((this.getAction() !==  "" && this.getAction() !== "hit") || this.calcScore() > 20){
+        if((this.getAction() !==  "" && this.getAction() !== "hit") || this.calcScore() >= 21){
             return;
         }
         this.setAction("stand")
@@ -100,13 +101,14 @@ export class BlackJackPlayer extends Player{
     //ほかのコマンドはコマンド選択画面をおした瞬間に起こるが, double()はdouble選択->掛金選択後に起こる.
     //掛金は0 < betMoney < this.getCost()
     public double(deck : Deck, betMoney : number) : void{
-        if(this.getAction() !== ("") || this.calcScore() > 20){
+        if(this.getAction() !== ("") || this.calcScore() >= 21){
             return;
         }
         if(betMoney > 0 && betMoney <= this.getCost()){
             this.addChips(0 - betMoney)
             this.setCost(this.getCost() + betMoney)
             this.addHand(deck.draw())
+            
             if(this.isBust()){
                 this.setAction("bust");
             }else{
@@ -134,7 +136,8 @@ export class BlackJackTable {
 
     constructor(player: BlackJackPlayer){
         // 仮置き
-        this.players = [new BlackJackPlayer("CPU1", "CPU"), player, new BlackJackPlayer("CPU2", "CPU")];
+        this.players = [player, new BlackJackPlayer("CPU1", "CPU"), new BlackJackPlayer("CPU2", "CPU")];
+        this.deck.shuffle();
     }
 
     public getDeck() : Deck{
@@ -152,24 +155,31 @@ export class BlackJackTable {
         return this.house;
     }
 
+    public getTurnNumber() : number {
+        return this.turnNumber;
+    }
+    public setTurnNumber(turnNumber : number) : void {
+        this.turnNumber = turnNumber;
+    }
+
     // ゲームの参加者が掛け金をベットするときの処理。CPUはランダムに、人間のplayerは入力を受け取って掛け金を決める。
     // this.betsの値と各参加者のchipが掛け金分減り、costが掛け金と同値になる。
     // chipsが0以下なら順番がスルーされる。
-    public betPhase() : void{
+    public betPhase(playerBetAmount : number) : void{
         for(let i : number = 0; i < this.players.length; ++i){
             let current : BlackJackPlayer = this.players[i];
             if(current.getChips() === 0) continue;
 
             let bet : number = 0;
             if(current.getType() === "CPU"){
-                bet = this.getRandomInt(1, this.players[i].getChips()+1);
+                bet = Math.floor(Math.random()*(this.players[i].getChips()+1 - 1) + 1);
+                console.log('CPUs bet amount', bet);
             }
             else {
-                bet = 100 // プレイヤーからの入力を受け取る
-                current.bet(bet);
+                bet = playerBetAmount // プレイヤーからの入力を受け取る
             }
+            current.bet(bet);
             this.bets[i] = bet;
-            current.bet(bet)
         }
     }
 
@@ -196,81 +206,16 @@ export class BlackJackTable {
                 player.addHand(this.deck.draw());
             }
         }
+        this.house.addHand(this.deck.draw());
+        this.house.addHand(this.deck.draw());
     }
 
     public judgeWinOrLose() : string[]{
         return ["win","win","win"]
     }
 
-    // プレイヤー行動するフェイズ
-    public actionPhase() : void{
-        let flag : boolean = true;
-
-        while(flag){
-            flag = false;
-
-            for(let i = 0; i < this.players.length; ++i){
-                let current : BlackJackPlayer = this.players[i];
-                if(current.getType() === "CPU"){
-                    this.cpuAction(current);
-                }
-                else{
-                    // getPlayerCommand();
-                }
-                if(current.getAction() === "hit") flag = true;
-            }
-        }
-    }
-
-    public cpuAction(cpu : BlackJackPlayer) : void {
-        let score : number = cpu.calcScore()
-        if(cpu.getAction() === ""){
-            // スコア11で1ターン目なら確定double
-            if(score === 11){
-                cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1));
-                return;
-            }
-            // スコア10で1ターン目なら半々でhitかdouble
-            else if(score === 10){
-                if(this.getRandomInt(0, 2) === 1){
-                    cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1));
-                    return;
-                }
-                else{
-                    cpu.hit(this.deck);
-                    return;
-                }
-            }
-        }
-
-        // 2ターン目以降でスコア12以下なら確定でhit
-        if(score <= 12){
-            cpu.hit(this.deck);
-            return;
-        }
-
-        // スコアが17以上なら確定でstand
-        if(score <= 17){
-            cpu.stand();
-            return;
-        }
-
-        // houseのアップカードのスコアが7以上ならhit,7未満ならstand
-        if(this.house.getHand()[0].getRank() >= 7 || this.house.getHand()[0].getRank() === 1){
-            cpu.hit(this.deck);
-            return;
-        }
-        else{
-            cpu.stand();
-            return;
-        }
-    }
-
-    // 返り値をnとして min <= n < max の範囲のランダムな整数値を返す。
-    public getRandomInt(min : number, max : number) : number {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min) + min);
+    public getPhase(){
+        return this.phase;
     }
 }
 

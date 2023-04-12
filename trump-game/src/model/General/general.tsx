@@ -6,7 +6,7 @@ export class Card{
     constructor(suit : string, number : string){
         this.suit = suit;
         this.number = number;
-        this.img = Deck.getImgMap()[this.suit][Deck.getValueList().indexOf(this.number)];
+        this.img = `${suit}${Deck.getValueList().indexOf(this.number) + 1}`;
         this.phaserImage = null;
     }
 
@@ -29,7 +29,7 @@ export class Card{
         }
         return this.phaserImage;
     }
-    createPhaserImg(scene: Phaser.Scene, x: number, y: number): Phaser.GameObjects.Image {
+    public createPhaserImg(scene: Phaser.Scene, x: number, y: number): Phaser.GameObjects.Image {
         this.phaserImage = scene.add.image(x, y, this.img);
         return this.phaserImage;
     }
@@ -38,29 +38,8 @@ export class Card{
 export class Deck{
     private deck : Card[] = [];
     private static valueList : string[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
-    private static suitList : string[] = ["♠︎", "♦︎", "♥︎", "♣︎"];
-    private static imgMap : { [key: string]: string[] } = {
-        "♠︎" : [
-            "card_img/s1.png", "card_img/s2.png", "card_img/s3.png", "card_img/s4.png", "card_img/s5.png",
-            "card_img/s6.png", "card_img/s7.png", "card_img/s8.png", "card_img/s9.png", "card_img/s10.png",
-            "card_img/s11.png", "card_img/s12.png", "card_img/s13.png"
-        ],
-        "♦︎" : [
-            "card_img/d1.png", "card_img/d2.png", "card_img/d3.png", "card_img/d4.png", "card_img/d5.png",
-            "card_img/d6.png", "card_img/d7.png", "card_img/d8.png", "card_img/d9.png", "card_img/d10.png",
-            "card_img/d11.png", "card_img/d12.png", "card_img/d13.png"
-        ],
-        "♥︎" : [
-            "card_img/h1.png", "card_img/h2.png", "card_img/h3.png", "card_img/h4.png", "card_img/h5.png",
-            "card_img/h6.png", "card_img/h7.png", "card_img/h8.png", "card_img/h9.png", "card_img/h10.png",
-            "card_img/h11.png", "card_img/h12.png", "card_img/h13.png"
-        ],
-        "♣︎" : [
-            "card_img/c1.png", "card_img/c2.png", "card_img/c3.png", "card_img/c4.png", "card_img/c5.png",
-            "card_img/c6.png", "card_img/c7.png", "card_img/c8.png", "card_img/c9.png", "card_img/c10.png",
-            "card_img/c11.png", "card_img/c12.png", "card_img/c13.png"
-        ]
-    }
+    private static suitList : string[] = ["s", "d", "h", "c"];
+
     constructor(){
         this.deck = this.createDeck();
     }
@@ -95,9 +74,6 @@ export class Deck{
     }
     public static getSuitList() : string[]{
         return Deck.suitList;
-    }
-    public static getImgMap() : { [key: string]: string[] }{
-        return Deck.imgMap;
     }
     public getDeck() : Card[]{
         return this.deck;
