@@ -279,24 +279,27 @@ export class BlackJackTable {
         }
     }
 
+    // cpuのhitやstandなどのアクションを決定する関数
     public cpuAction(cpu : BlackJackPlayer) : void {
         let score : number = cpu.calcScore()
+        // 1ターン目の判定
         if(cpu.getAction() === ""){
             // スコア11で1ターン目なら確定double
             if(score === 11){
                 cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1));
+                console.log("double")
                 return;
             }
             // スコア10で1ターン目なら半々でhitかdouble
             else if(score === 10){
                 if(this.getRandomInt(0, 2) === 1){
                     cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1));
-                    console.log('hit')
+                    console.log('double')
                     return;
                 }
                 else{
                     cpu.hit(this.deck);
-                    console.log('double')
+                    console.log('hit')
                     return;
                 }
             }
@@ -316,7 +319,7 @@ export class BlackJackTable {
             return;
         }
 
-        // houseのアップカードのスコアが7以上ならhit,7未満ならstand
+        // 13 <= score < 17 でhouseのアップカードのスコアが7以上ならhit,7未満ならstand
         if(this.house.getHand()[0].getRank() >= 7 || this.house.getHand()[0].getRank() === 1){
             cpu.hit(this.deck);
             console.log('hit')
