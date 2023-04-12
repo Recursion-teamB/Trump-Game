@@ -4,7 +4,6 @@ import { Deck } from '../../model/General/general';
 import { BetPopup } from '../../components/BlackJack/BetPopUp';
 import { ActionPopup } from '../../components/BlackJack/ActionPopUp';
 import { HelpPopup } from '../../components/BlackJack/HelpPopUp';
-
 import ReactDOM from 'react-dom';
 
 export default class BlackGameScene extends Phaser.Scene {

@@ -1,7 +1,6 @@
 import React from 'react';
 import '../../style/BJButton.css'
 
-
 interface ActionPopupProps {
   onHit: () => void;
   onStand: () => void;
