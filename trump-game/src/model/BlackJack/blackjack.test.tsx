@@ -219,6 +219,86 @@ test("ディーラーがヒットしない場合", () => {
 }, 10000)
 
 
+test("プレイヤーが勝利した場合、賞金が正しく配られる", () => {
+  const player = new BlackJackPlayer("playser", "player");
+  const table = new BlackJackTable(player);
+  player.setChips(1000);
+  player.bet(100);
+  player.winPrize("win");
+  expect(player.getChips()).toBe(1100);
+  expect(player.getCost()).toBe(0);
+});
+
+test("プレイヤーが勝利し、手札が二枚でかつ21の場合、賞金が正しく配られる", () => {
+  const player = new BlackJackPlayer("player", "player");
+  const table = new BlackJackTable(player);
+  player.setChips(1000);
+  player.bet(100);
+  player.addHand(new Card("s","10"))
+  player.addHand(new Card("s","A"))
+  player.winPrize("win");
+  expect(player.getChips()).toBe(1150);
+  expect(player.getCost()).toBe(0);
+});
+
+test("プレイヤーが引き分けの場合、賞金が正しく配られる", () => {
+  const player = new BlackJackPlayer("player", "player");
+  const table = new BlackJackTable(player);
+  player.setChips(1000);
+  player.bet(100);
+  player.winPrize("draw");
+
+  expect(player.getChips()).toBe(1000);
+  expect(player.getCost()).toBe(0);
+});
+
+test("プレイヤーが敗北した場合、賞金が正しく配られる", () => {
+  const player = new BlackJackPlayer("player", "player");
+  const table = new BlackJackTable(player);
+  player.setChips(1000);
+  player.bet(100);
+  player.winPrize("lose");
+
+  expect(player.getChips()).toBe(900);
+  expect(player.getCost()).toBe(0);
+});
+
+test('judgePerRound - Player wins', () => {
+  const player = new BlackJackPlayer("player", "player");
+  const table = new BlackJackTable(player);
+  player.setChips(1000);
+  player.bet(200);
+  table.getHouse().setAction("bust");
+  table.judgePerRound();
+  expect(player.getChips()).toBe(1200);
+});
+
+test('judgePerRound - Player loses', () => {
+  const player = new BlackJackPlayer("player", "player");
+  const table = new BlackJackTable(player);
+  player.setChips(1000);
+  player.bet(200);
+  player.setAction("bust");
+  table.judgePerRound();
+  expect(player.getChips()).toBe(800);
+});
+
+test('judgePerRound - Player draws', () => {
+  const player = new BlackJackPlayer("player", "player");
+  const table = new BlackJackTable(player);
+  player.setChips(1000);
+  player.bet(200);
+  player.setAction("stand");
+  table.getHouse().setAction("stand");
+
+  // プレイヤーとディーラーのスコアを同じに設定
+  jest.spyOn(player, 'calcScore').mockReturnValue(20);
+  jest.spyOn(table.getHouse(), 'calcScore').mockReturnValue(20);
+
+  table.judgePerRound();
+  expect(player.getChips()).toBe(1000);
+});
+
 /*
 個々のテストは作り直す、適宜修正
 describe('cpuAction', () => {
