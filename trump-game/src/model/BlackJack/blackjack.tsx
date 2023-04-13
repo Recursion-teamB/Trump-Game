@@ -128,12 +128,9 @@ export class BlackJackPlayer extends Player{
     //賞金をchipsに追加し, costをリセットする.
     public winPrize(roundResult : string){
         if(roundResult === "win"){
-            if(this.calcScore() == 21 && this.getHand().length == 2){
-                this.addChips(this.getCost() * 2.5)
-            }else{
-                this.addChips(this.getCost() * 2)
-            }
-            
+            let isBlackJack : boolean = this.calcScore() === 21 && this.getHand().length === 2;
+            let prize : number = isBlackJack ? this.getCost() * 2.5 : this.getCost() * 2;
+            this.addChips(prize);
         }else if(roundResult === "draw"){
             this.addChips(this.getCost())
         }
