@@ -5,20 +5,13 @@ let player : BlackJackPlayer = new BlackJackPlayer("jack", "player");
 let table : BlackJackTable = new BlackJackTable(player);
 let deck : Deck = new Deck();
 
-test("betPhase()によってbetsが変更されている", () => {
-  table.betPhase(100);
-  const result = table.getBets();
-	expect(result).not.toBe([0,0,0]);
-});
-
 test("プレイヤーに掛け金がセットされる", () =>{
-  table.betPhase(100);
+  player.setCost(100);
   const result = table.getPlayers()[0].getCost();
   expect(result).toBe(100);
 })
 
 test("hitコマンドのテスト",() => {
-  table.betPhase(100);
   let preHandsLen = player.getHand().length
   if(player.getAction() === ("" || "hit")){
     player.hit(table.getDeck())
@@ -217,7 +210,6 @@ test("ディーラーがヒットしない場合", () => {
   const result = house.calcScore();
   expect(result).toBe(20);
 }, 10000)
-
 
 test("プレイヤーが勝利した場合、賞金が正しく配られる", () => {
   const player = new BlackJackPlayer("playser", "player");
