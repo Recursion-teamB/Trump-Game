@@ -6,6 +6,7 @@ let table : BlackJackTable = new BlackJackTable(player);
 let deck : Deck = new Deck();
 
 test("プレイヤーに掛け金がセットされる", () =>{
+  player.setCost(100);
   const result = table.getPlayers()[0].getCost();
   expect(result).toBe(100);
 })
