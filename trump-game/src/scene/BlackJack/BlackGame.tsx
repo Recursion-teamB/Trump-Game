@@ -172,12 +172,9 @@ export default class BlackGameScene extends Phaser.Scene {
     }
 
     handleBet(table : BlackJackTable, betAmount: number) {
-      // BlackJackTableのbetPhaseメソッドを呼び出す
-      table.betPhase(betAmount);
       // 表示されているチップを更新
       this.table.betPhase(this, betAmount);
       this.updateChips(table);
-
       // 次の人のターン
       this.table.betPhase(this, 0);
     }
@@ -285,5 +282,9 @@ export default class BlackGameScene extends Phaser.Scene {
         ])
         table.actionPhase(this);
       }
+      // if(this.actionPopupContainer && (player.getAction() !== 'hit' && player.getAction() !== '')){
+      //   ReactDOM.unmountComponentAtNode(this.actionPopupContainer);
+      //   table.actionPhase(this);
+      // }
     }
 }

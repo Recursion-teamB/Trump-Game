@@ -234,6 +234,25 @@ export class BlackJackTable {
         return true;
     }
 
+    // 必要なくなった。
+    // public betPhase(playerBetAmount : number) : void{
+    //     for(let i : number = 0; i < this.players.length; ++i){
+    //         let current : BlackJackPlayer = this.players[i];
+    //         if(current.getChips() === 0) continue;
+
+    //         let bet : number = 0;
+    //         if(current.getType() === "CPU"){
+    //             bet = Math.floor(Math.random()*(this.players[i].getChips()+1 - 1) + 1);
+    //             console.log('CPUs bet amount', bet);
+    //         }
+    //         else {
+    //             bet = playerBetAmount // プレイヤーからの入力を受け取る
+    //         }
+    //         current.bet(bet);
+    //         this.bets[i] = bet;
+    //     }
+    // }
+
     // ディーラーフェイズ houseの手札のスコアが16以下ならhitしループ、 17以上ならフェイズ終了
     public async dealerPhase(): Promise<void> {
         console.log("dealer Phase")
@@ -371,19 +390,16 @@ export class BlackJackTable {
             // スコア11で1ターン目なら確定double
             if(score === 11){
                 cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1));
-                console.log("double")
                 return;
             }
             // スコア10で1ターン目なら半々でhitかdouble
             else if(score === 10){
                 if(this.getRandomInt(0, 2) === 1){
                     cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1));
-                    console.log('double')
                     return;
                 }
                 else{
                     cpu.hit(this.deck);
-                    console.log('hit')
                     return;
                 }
             }
@@ -392,26 +408,22 @@ export class BlackJackTable {
         // 2ターン目以降でスコア12以下なら確定でhit
         if(score <= 12){
             cpu.hit(this.deck);
-            console.log('hit')
             return;
         }
 
         // スコアが17以上なら確定でstand
         if(score <= 17){
             cpu.stand();
-            console.log('stand')
             return;
         }
 
         // 13 <= score < 17 でhouseのアップカードのスコアが7以上ならhit,7未満ならstand
         if(this.house.getHand()[0].getRank() >= 7 || this.house.getHand()[0].getRank() === 1){
             cpu.hit(this.deck);
-            console.log('hit')
             return;
         }
         else{
             cpu.stand();
-            console.log('stand')
             return;
         }
     }
