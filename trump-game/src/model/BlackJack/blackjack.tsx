@@ -67,6 +67,16 @@ export class BlackJackPlayer extends Player{
         }
         return currentScore;
     }
+
+    // 手札の一枚がクローズ状態のdealerのscoreを返す関数
+    public closeCalcScore() : number{
+        if(this.hand[0].getRank() === 1){
+            return 11;
+        }
+        else{
+            return this.hand[0].getRank() >= 10? 10: this.hand[0].getRank();
+        }
+    }
     //プレイヤーのカードの合計値が22以上の場合バスト
     public isBust() : boolean{
         let totalValue : number = 0;
@@ -145,7 +155,7 @@ export class BlackJackPlayer extends Player{
         }else if(roundResult === "draw"){
             this.addChips(this.getCost())
         }
-        this.setCost(0)
+        this.setCost(0);
     }
 
 }
@@ -154,7 +164,7 @@ export class BlackJackTable {
     private house : BlackJackPlayer = new BlackJackPlayer("House", "House");
     private roundNumber : number = 1;
     private turnNumber : number = 0;
-    private phase : string = "betting";
+    private phase : string = "initial";
     private bets : number[] = [0, 0, 0];
     protected players : BlackJackPlayer[];
     private deck : Deck = new Deck();
@@ -197,6 +207,7 @@ export class BlackJackTable {
     // this.betsの値と各参加者のchipが掛け金分減り、costが掛け金と同値になる。
     // chipsが0以下なら順番がスルーされる。
     public betPhase(scene : BlackGameScene, amount : number) : void {
+        this.phase = "betting";
         if(this.completeBet()){
             this.distributeCards(scene);
             return;
@@ -236,42 +247,47 @@ export class BlackJackTable {
     }
 
     // ディーラーフェイズ houseの手札のスコアが16以下ならhitしループ、 17以上ならフェイズ終了
-    public async dealerPhase(): Promise<void> {
-        console.log("dealer Phase")
+    public async dealerPhase(scene : BlackGameScene): Promise<void> {
         this.phase = "dealer phase";
+        scene.updateDealerScore(true);
         // renderDealerPhase() ディーラーフェイズの画面出力
         while (this.house.calcScore() <= 16) {
             // hitを遅延させる
             await Promise.all([
-                new Promise(resolve => setTimeout(resolve, 2000)),
-                // renderDealerHit() ディーラーがヒットする画面出力
+                new Promise(resolve => setTimeout(resolve, 1500)),
                 this.house.hit(this.deck)
             ]);
             if (this.house.isBust()) {
                 this.house.setAction("bust");
             }
+            scene.updateDealerAction();
+            scene.updateDealerScore(true);
         }
-        // this.judgeWinOrLose(); 勝敗判定のフェイズへ移動
+        console.log("dealer complete");
+        this.judgePerRound(scene);
     }
 
     //ゲーム開始時に各プレイヤーにデッキから手札を2枚ずつ配る
     public async distributeCards(scene : BlackGameScene) : Promise<void>{
         for(let i = 0; i < 2; ++i){
-            for(let j = 0; j < 3; ++j){
-                let current : BlackJackPlayer = this.players[j];
+            for(let j = 0; j < 4; ++j){
+                let current : BlackJackPlayer = j === 3? this.house : this.players[j];
                 await Promise.all([
                     new Promise(resolve => setTimeout(resolve, 650)),
                     current.addHand(this.deck.draw()),
-                    scene.updatePlayerScore(j, current),
                 ]);
+                if(j === 3){
+                    scene.updateDealerScore(false);
+                }
+                else{
+                    scene.updatePlayerScore(j, current);
+                }
                 if(current.calcScore() === 21){
                     current.setAction("BlackJack");
                 }
             }
         }
 
-        this.house.addHand(this.deck.draw());
-        this.house.addHand(this.deck.draw());
         for(let player of this.players){
             console.log(player.getHand());
         }
@@ -280,8 +296,7 @@ export class BlackJackTable {
         this.actionPhase(scene);
     }
 
-    
-    public judgePerRound() : void{
+    public judgePerRound(scene: BlackGameScene) : void{
         const dealerScore = this.house.calcScore()
         let result = ""
         const judge = (num1 : number, num2 : number) => {
@@ -293,7 +308,8 @@ export class BlackJackTable {
                 return "lose"
             }
         }
-        for(const player of this.players){
+        for(let i = 0; i < 3; ++i){
+            const player : BlackJackPlayer = this.players[i];
             if(player.getAction() === "surrender" || player.getAction() === "bust"){
                 result = "lose"
             }else if(this.house.getAction() === "bust"){
@@ -301,7 +317,11 @@ export class BlackJackTable {
             }else{
                 result = judge(player.calcScore(),dealerScore)
             }
-            player.winPrize(result)
+            player.winPrize(result);
+
+            scene.updatePlayerAction(i, player);
+            scene.updatePlayerScore(i, player);
+            scene.updateChip(i, player);
         }
     }
 
@@ -316,7 +336,7 @@ export class BlackJackTable {
         console.log(this.players[this.turnNumber].getName() + ' : ' + this.players[this.turnNumber].getType() +  " : " + this.players[this.turnNumber].getAction());
         if(this.completeAction()){
             console.log("action complete");
-            this.dealerPhase();
+            this.dealerPhase(scene);
             return;
         }
         if(this.turnNumber >= this.players.length){
@@ -325,7 +345,7 @@ export class BlackJackTable {
         let current : BlackJackPlayer = this.players[this.turnNumber];
 
         // 行動出来ないプレイヤーをスルーする処理
-        if(current.getAction() === "stand" || current.getAction() === "surrender" || current.getAction() === "BlackJack") {
+        while(current.getAction() === "stand" || current.getAction() === "surrender" || current.getAction() === "BlackJack" || current.getAction() === "broke") {
             console.log("check");
             this.changeTurnNumber();
             this.actionPhase(scene);

@@ -10,6 +10,7 @@ export default class BlackGameScene extends Phaser.Scene {
     private playerChipsTexts: Phaser.GameObjects.Text[] = [];
     private playerScoresTexts: Phaser.GameObjects.Text[] = [];
     private playerActionTexts: Phaser.GameObjects.Text[] = [];
+    private dealerTexts: Phaser.GameObjects.Text[] = [];
     private betPopupContainer: HTMLElement | null = null;
     private actionPopupContainer: HTMLElement | null = null;
     private helpPopupContainer: HTMLElement | null = null;
@@ -88,6 +89,32 @@ export default class BlackGameScene extends Phaser.Scene {
         fontFamily: 'Arial',
         fontSize: '20px'
       });
+      const dealerScore = this.add.text(screenWidth - screenWidth * 0.06, screenHeight - screenHeight * 0.3 * 2.2, `Score : ${table.getHouse().calcScore()}`, {
+        fontFamily: 'Arial',
+        fontSize: '20px'
+      });
+
+      const dealerAction = this.add.text(screenWidth - screenWidth * 0.06, screenHeight - screenHeight * 0.3 * 1.9, `${table.getHouse().getAction()}`, {
+        fontFamily: 'Arial',
+        fontSize: '20px'
+      })
+      this.dealerTexts[0] = dealerText;
+      this.dealerTexts[1] = dealerScore;
+      this.dealerTexts[2] = dealerAction;
+    }
+
+    updateDealerScore(open : boolean){
+      let dealer : BlackJackPlayer = this.table.getHouse();
+      if(open){
+        this.dealerTexts[1].setText(`Score : ${dealer.calcScore()}`);
+      }
+      else{
+        this.dealerTexts[1].setText(`Score : ${dealer.closeCalcScore()}`);
+      }
+    }
+
+    updateDealerAction(){
+      this.dealerTexts[2].setText(`${this.table.getHouse().getAction()}`);
     }
 
     createPlayerSection(table: BlackJackTable, screenWidth: number, screenHeight: number) {
@@ -177,6 +204,10 @@ export default class BlackGameScene extends Phaser.Scene {
       this.updateChips(table);
       // 次の人のターン
       this.table.betPhase(this, 0);
+    }
+
+    updateChip(turnNumber : number, player : BlackJackPlayer){
+      this.playerChipsTexts[turnNumber].setText(`$${player.getChips()}`);
     }
 
     async updateChips(table : BlackJackTable) {

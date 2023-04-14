@@ -33,12 +33,14 @@ export const BetPopup: React.FC<BetPopupProps> = ({ onBet, playerChips}) => {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#301934', 
+        // background: '#301934',
+        backgroundColor: 'rgba(255,255,255,0.9)',
         border: '2px solid #000000',
         borderRadius: '10px',
         marginTop:'4rem',
       }}
     >
+      <p>掛け金を入力してください</p>
       <div
         style={{
           display: 'flex',
