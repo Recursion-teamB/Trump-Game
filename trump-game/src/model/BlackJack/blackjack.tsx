@@ -152,14 +152,13 @@ export class BlackJackPlayer extends Player{
 export class BlackJackTable {
     private house : BlackJackPlayer = new BlackJackPlayer("House", "House");
     private roundNumber : number = 1;
-    private turnNumber : number = 0; // 1に変更の可能性あり
-    private phase : string = "betting"; // betting, deal, playerPhase, dealerPhaseなどに1roundの中で適宜変更される。不要なら削除もあり。
-    private bets : number[] = [0, 0, 0]; // 仮置き
+    private turnNumber : number = 0;
+    private phase : string = "betting";
+    private bets : number[] = [0, 0, 0];
     protected players : BlackJackPlayer[];
     private deck : Deck = new Deck();
 
     constructor(player: BlackJackPlayer){
-        // 仮置き
         this.players = [player, new BlackJackPlayer("CPU1", "CPU"), new BlackJackPlayer("CPU2", "CPU")];
         this.deck.shuffle();
     }
@@ -234,25 +233,6 @@ export class BlackJackTable {
         }
         return true;
     }
-
-    // 必要なくなった。
-    // public betPhase(playerBetAmount : number) : void{
-    //     for(let i : number = 0; i < this.players.length; ++i){
-    //         let current : BlackJackPlayer = this.players[i];
-    //         if(current.getChips() === 0) continue;
-
-    //         let bet : number = 0;
-    //         if(current.getType() === "CPU"){
-    //             bet = Math.floor(Math.random()*(this.players[i].getChips()+1 - 1) + 1);
-    //             console.log('CPUs bet amount', bet);
-    //         }
-    //         else {
-    //             bet = playerBetAmount // プレイヤーからの入力を受け取る
-    //         }
-    //         current.bet(bet);
-    //         this.bets[i] = bet;
-    //     }
-    // }
 
     // ディーラーフェイズ houseの手札のスコアが16以下ならhitしループ、 17以上ならフェイズ終了
     public async dealerPhase(): Promise<void> {
@@ -366,36 +346,6 @@ export class BlackJackTable {
             scene.showActionPopUp(this);
             return;
         }
-
-
-
-        // console.log("check");
-        // let flag : boolean = true;
-
-        // while(flag){
-        //     flag = false;
-        //     let playersLength : number = this.players.length;
-
-        //     for(let i = 0; i < playersLength; ++i){
-        //         let current : BlackJackPlayer = this.players[i];
-        //         // cpu
-        //         if(current.getType() === "CPU"){
-        //             await Promise.all([
-        //                 new Promise(resolve => setTimeout(resolve, 2000)),
-        //                 this.cpuAction(current),
-        //                 console.log(current.getName() + " score :" + current.calcScore()),
-        //             ]);
-        //         }
-        //         // 人間
-        //         else{
-        //             // プレイヤーからactionを取得するレンダーとコントロール
-        //             await scene.showActionPopUp(this);
-        //             console.log(current.getName() + " score :" + current.calcScore());
-        //         }
-        //         if(current.getAction() === "hit") flag = true;
-        //     }
-        // }
-        // await this.dealerPhase();
     }
 
     // 参加者全員のactionが終わっているとtrueまだ残っているとfalse;
