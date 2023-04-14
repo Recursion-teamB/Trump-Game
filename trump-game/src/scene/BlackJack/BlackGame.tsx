@@ -31,8 +31,6 @@ export default class BlackGameScene extends Phaser.Scene {
     create() {
         this.width = this.cameras.main.width
         this.height = this.cameras.main.height
-        this.cardWidth = this.width * 0.04
-        this.cardHeight = this.cardWidth * 1.6
         let player : BlackJackPlayer = new BlackJackPlayer("Player", "Player");
         let table : BlackJackTable = new BlackJackTable(player);
         table.distributeCards();
@@ -45,7 +43,7 @@ export default class BlackGameScene extends Phaser.Scene {
         const helpButton = this.add.image(50, 50, 'help').setInteractive();
         const backHomeButton = this.add.image(150, 50, 'back_home').setInteractive();
       
-        const cardManager = new CardManager(this, table, this.cardWidth, this.cardHeight)
+        const cardManager = new CardManager(this, table)
         cardManager.createDeckView();
         this.decideDealerPostion();
         this.decidePlayerPosition();
@@ -119,14 +117,14 @@ export class CardManager {
     private cardWidth: number;
     private cardHeight: number;
   
-    constructor(scene: Phaser.Scene, table: BlackJackTable, cardWidth: number, cardHeight: number) {
+    constructor(scene: Phaser.Scene, table: BlackJackTable) {
       this.scene = scene;
-      this.table = table
+      this.table = table;
       this.cards = [];
       this.deckPosition.x = this.scene.cameras.main.width / 2;
       this.deckPosition.y = this.scene.cameras.main.height / 2;
-      this.cardWidth = cardWidth
-      this.cardHeight = cardHeight
+      this.cardWidth = this.scene.cameras.main.width * 0.05
+      this.cardHeight = this.cardWidth * 1.6
     }
   
     public createDeckView(): void {
@@ -137,32 +135,32 @@ export class CardManager {
     }
 
 
-    public dealCard(card: Card, x: number,y: number, flipOver : boolean ,duration: number = 500): Phaser.GameObjects.Image | null {
-      if (this.table.getDeck().getDeck().length > 0) {
-        //const card = this.deck.draw();
-        // カードをデッキの位置に裏向きで作成します
-        const cardImage = this.scene.add.image(this.deckPosition.x, this.deckPosition.y, 'back');
-        cardImage.setOrigin(0.5, 0.5);
-        cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
-        cardImage.setData(card.getSuit() + card.getRank(), card);
-        this.cards.push(cardImage);
-  
-        // カードをプレイヤーの場所までアニメーションさせます
-        this.scene.tweens.add({targets: cardImage, x: x, y: y, duration: duration, ease: 'Linear',});
-
-        //表の画像に差し替えます. ひっくり返るようなアニメーションは追加してません.
-        //flipOverがtrueのときのみ裏返す.
-        if(flipOver){
-          setTimeout(() => {
-            const cardTexture = `${card.getSuit()}${card.getRank()}`;
-            cardImage.setTexture(cardTexture);
-            cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
-          }, duration + 100 );
-        }
-        
-        return cardImage;
+    public dealCard(card: Card, x: number,y: number, flipOver : boolean ,duration: number = 200): Phaser.GameObjects.Image | null {
+      if (this.table.getDeck().getDeck().length <= 0) {
+        return null
       }
-      return null;
+    
+      // カードをデッキの位置に裏向きで作成します
+      const cardImage = this.scene.add.image(this.deckPosition.x, this.deckPosition.y, 'back');
+      cardImage.setOrigin(0.5, 0.5);
+      cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
+      cardImage.setData(card.getSuit() + card.getRank(), card);
+      this.cards.push(cardImage);
+
+      // カードをプレイヤーの場所までアニメーションさせます
+      this.scene.tweens.add({targets: cardImage, x: x, y: y, duration: duration, ease: 'Linear',});
+
+      //表の画像に差し替えます. ひっくり返るようなアニメーションは追加してません.
+      //flipOverがtrueのときのみ裏返す.
+      if(flipOver){
+        setTimeout(() => {
+          const cardTexture = `${card.getSuit()}${card.getRank()}`;
+          cardImage.setTexture(cardTexture);
+          cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
+        }, duration + 50 );
+      }
+      
+      return cardImage;
     }
   
     public dealCardToPlayer(player: BlackJackPlayer,card: Card, positionX : number, positionY : number, flipCard: boolean, duration: number = 500 ): void {
@@ -183,7 +181,7 @@ export class CardManager {
                 console.log(card.getSuit() + card.getRank())
                 const playerPosition = playerPositions[player.getName()]
                 this.dealCardToPlayer(player, card, (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6), playerPosition.y, true);
-              }, 700 * count );
+              }, 300 * count );
               count ++
             }
         }
@@ -191,7 +189,7 @@ export class CardManager {
           setTimeout(() => {
             const card = this.table.getDeck().draw()
             this.dealCardToPlayer(this.table.getHouse(), card, (dealerPosition.x - this.cardWidth / 2 )+ i * (this.cardWidth + 6), dealerPosition.y, i === 0);
-          }, 700 * count );
+          }, 300 * count );
           count ++
         }
     }
