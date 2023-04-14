@@ -28,26 +28,10 @@ export default class BlackLevelScene extends Phaser.Scene{
         this.centerX = this.width / 2;
         this.centerY = this.height / 2;
         // タイトルの表示
-        const titleText = this.add.text(this.centerX, this.heightPosition(0.1), 'ブラックジャック', { fontSize: '32px', color: '#fff' });
-        titleText.setOrigin(0.5, 0.5);
+        this.createTitleText()
 
         // レベル選択用のテキスト
-        const selectedLevelText = this.add.text(this.widthPosition(0.2), this.heightPosition(0.3), '', { fontSize: '20px', color: '#fff' });
-        selectedLevelText.setOrigin(0.5, 0.5);
-        updateSelectedLevel('normal')
-        const levels = ['easy', 'normal', 'hard'];
-        const levelButtons = levels.map((level, index) => {
-            const button = this.add.text(this.widthPosition(0.1) + (index * this.widthPosition(0.13)), this.heightPosition(0.4), level.toUpperCase(), { fontSize: '20px', color: '#fff', backgroundColor: '#1a1a1a'});
-            button.setOrigin(0.5, 0.5);
-            button.setInteractive();
-
-            button.on('pointerdown', () => {
-                console.log(`Selected level: ${level}`);
-                updateSelectedLevel(level); // 選択したレベルを更新
-            });
-
-            return button;
-        });
+        this.createLevelButtons() 
 
         // 敵の数選択用のテキスト
         const selectedEnemyCountText = this.add.text(this.widthPosition(0.2), this.heightPosition(0.5), '', { fontSize: '20px', color: '#fff' });
@@ -116,14 +100,39 @@ export default class BlackLevelScene extends Phaser.Scene{
         tutorialButton.setInteractive();
         // tutorialButtonのイベントハンドラをここに追加...
 
-        function updateSelectedLevel(level : string) : void{
-            selectedLevelText.setText(`レベル: ${level.toUpperCase()}`);
-        }
+        
 
         function updateSelectedEnemyCount(count : number) : void {
             selectedEnemyCountText.setText(`敵の数: ${count}`);
         }
     }
+    createTitleText() {
+        const titleText = this.add.text(this.centerX, this.heightPosition(0.1), 'ブラックジャック', { fontSize: '32px', color: '#fff' });
+        titleText.setOrigin(0.5, 0.5);
+    }
+
+    createLevelButtons() {
+        const selectedLevelText = this.add.text(this.widthPosition(0.2), this.heightPosition(0.3), '', { fontSize: '20px', color: '#fff' });
+        selectedLevelText.setOrigin(0.5, 0.5);
+        this.updateSelectedLevel('normal', selectedLevelText)
+        const levels = ['easy', 'normal', 'hard'];
+        const levelButtons = levels.map((level, index) => {
+            const button = this.add.text(this.widthPosition(0.1) + (index * this.widthPosition(0.13)), this.heightPosition(0.4), level.toUpperCase(), { fontSize: '20px', color: '#fff', backgroundColor: '#1a1a1a'});
+            button.setOrigin(0.5, 0.5);
+            button.setInteractive();
+
+            button.on('pointerdown', () => {
+                console.log(`Selected level: ${level}`);
+                this.updateSelectedLevel(level, selectedLevelText); // 選択したレベルを更新
+            });
+
+            return button;
+        });
+    }
+    updateSelectedLevel(level : string, selectedLevelText: Phaser.GameObjects.Text) : void{
+        selectedLevelText.setText(`レベル: ${level.toUpperCase()}`);
+    }
+
     //引数にnumをとることで, 割合をかけて得ることができる.
     widthPosition(num : number) : number{
         if(num <= 1 && num >= 0){
