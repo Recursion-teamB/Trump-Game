@@ -123,6 +123,20 @@ export class BlackJackPlayer extends Player{
         this.addChips(this.getCost()/2)
         this.setAction("surrender")
     }
+        //roundResultにはwin, draw, loseが入る. 手札が2枚で21かを判定する.
+    //judgePerRound()メソッドで呼び出す.
+    //賞金をchipsに追加し, costをリセットする.
+    public winPrize(roundResult : string){
+        if(roundResult === "win"){
+            let isBlackJack : boolean = this.calcScore() === 21 && this.getHand().length === 2;
+            let prize : number = isBlackJack ? this.getCost() * 2.5 : this.getCost() * 2;
+            this.addChips(prize);
+        }else if(roundResult === "draw"){
+            this.addChips(this.getCost())
+        }
+        this.setCost(0)
+    }
+
 }
 
 export class BlackJackTable {
@@ -210,8 +224,29 @@ export class BlackJackTable {
         this.house.addHand(this.deck.draw());
     }
 
-    public judgeWinOrLose() : string[]{
-        return ["win","win","win"]
+    
+    public judgePerRound() : void{
+        const dealerScore = this.house.calcScore()
+        let result = ""
+        const judge = (num1 : number, num2 : number) => {
+            if(num1 > num2){
+                return "win"
+            }else if(num1 === num2){
+                return "draw"
+            }else{
+                return "lose"
+            }
+        }
+        for(const player of this.players){
+            if(player.getAction() === "surrender" || player.getAction() === "bust"){
+                result = "lose"
+            }else if(this.house.getAction() === "bust"){
+                result = "win"
+            }else{
+                result = judge(player.calcScore(),dealerScore)
+            }
+            player.winPrize(result)
+        }
     }
 
     public getPhase(){
