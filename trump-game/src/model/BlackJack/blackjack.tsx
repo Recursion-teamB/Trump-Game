@@ -88,6 +88,11 @@ export class BlackJackPlayer extends Player{
             return;
         }
         this.addHand(deck.draw());
+        this.setAction('hit');
+        if(this.calcScore() === 21){
+            this.setAction("BlackJack");
+        }
+        console.log('hit');
         if(this.isBust()){
             this.setAction("bust");
         }
@@ -98,6 +103,7 @@ export class BlackJackPlayer extends Player{
             return;
         }
         this.setAction("stand")
+        console.log('stand');
     }
     //ほかのコマンドはコマンド選択画面をおした瞬間に起こるが, double()はdouble選択->掛金選択後に起こる.
     //掛金は0 < betMoney < this.getCost()
@@ -109,11 +115,13 @@ export class BlackJackPlayer extends Player{
             this.addChips(0 - betMoney)
             this.setCost(this.getCost() + betMoney)
             this.addHand(deck.draw())
-            
+            console.log('double');
             if(this.isBust()){
                 this.setAction("bust");
+            }else if(this.calcScore() === 21){
+                this.setAction("BlackJack");
             }else{
-                this.setAction("stand")
+                this.setAction("stand");
             }
         }
     }
@@ -123,6 +131,7 @@ export class BlackJackPlayer extends Player{
         }
         this.addChips(this.getCost()/2)
         this.setAction("surrender")
+        console.log('surrender');
     }
         //roundResultにはwin, draw, loseが入る. 手札が2枚で21かを判定する.
     //judgePerRound()メソッドで呼び出す.
@@ -177,29 +186,77 @@ export class BlackJackTable {
         this.turnNumber = turnNumber;
     }
 
+    public changeTurnNumber() : void {
+        if(this.turnNumber >= this.players.length-1) {
+            this.turnNumber = 0;
+        }
+        else ++this.turnNumber;
+    }
+
     // ゲームの参加者が掛け金をベットするときの処理。CPUはランダムに、人間のplayerは入力を受け取って掛け金を決める。
     // this.betsの値と各参加者のchipが掛け金分減り、costが掛け金と同値になる。
     // chipsが0以下なら順番がスルーされる。
-    public betPhase(playerBetAmount : number) : void{
-        for(let i : number = 0; i < this.players.length; ++i){
-            let current : BlackJackPlayer = this.players[i];
-            if(current.getChips() === 0) continue;
+    public betPhase(scene : BlackGameScene, amount : number) : void {
+        if(this.completeBet()){
+            this.distributeCards(scene);
+            return;
+        }
 
-            let bet : number = 0;
-            if(current.getType() === "CPU"){
-                bet = Math.floor(Math.random()*(this.players[i].getChips()+1 - 1) + 1);
-                console.log('CPUs bet amount', bet);
-            }
-            else {
-                bet = playerBetAmount // プレイヤーからの入力を受け取る
-            }
-            current.bet(bet);
-            this.bets[i] = bet;
+        let current : BlackJackPlayer = this.players[this.getTurnNumber()];
+        if(current.getChips() === 0){
+            this.changeTurnNumber();
+        }
+        if(current.getType() === "CPU"){
+            amount = this.getRandomInt(1, current.getChips()+1);
+            current.bet(amount);
+            scene.updateChips(this);
+            this.changeTurnNumber();
+            // scene.renderBet() 的なやつを起動する。
+            scene.updateChips(this);
+            this.betPhase(scene, 0);
+        }
+        else{
+            console.log("check3");
+            current.bet(amount);
+            this.changeTurnNumber();
         }
     }
 
+    completeBet() : boolean {
+        if(this.phase !== 'betting'){
+            return false;
+        }
+
+        for(let player of this.players){
+            if(player.getChips() !== 0 && player.getCost() === 0){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // 必要なくなった。
+    // public betPhase(playerBetAmount : number) : void{
+    //     for(let i : number = 0; i < this.players.length; ++i){
+    //         let current : BlackJackPlayer = this.players[i];
+    //         if(current.getChips() === 0) continue;
+
+    //         let bet : number = 0;
+    //         if(current.getType() === "CPU"){
+    //             bet = Math.floor(Math.random()*(this.players[i].getChips()+1 - 1) + 1);
+    //             console.log('CPUs bet amount', bet);
+    //         }
+    //         else {
+    //             bet = playerBetAmount // プレイヤーからの入力を受け取る
+    //         }
+    //         current.bet(bet);
+    //         this.bets[i] = bet;
+    //     }
+    // }
+
     // ディーラーフェイズ houseの手札のスコアが16以下ならhitしループ、 17以上ならフェイズ終了
     public async dealerPhase(): Promise<void> {
+        console.log("dealer Phase")
         this.phase = "dealer phase";
         // renderDealerPhase() ディーラーフェイズの画面出力
         while (this.house.calcScore() <= 16) {
@@ -213,16 +270,33 @@ export class BlackJackTable {
                 this.house.setAction("bust");
             }
         }
+        // this.judgeWinOrLose(); 勝敗判定のフェイズへ移動
     }
+
     //ゲーム開始時に各プレイヤーにデッキから手札を2枚ずつ配る
-    public distributeCards() : void{
-        for(let player of this.players){
-            for(let numOfCards = 0; numOfCards < 2; numOfCards++){
-                player.addHand(this.deck.draw());
+    public async distributeCards(scene : BlackGameScene) : Promise<void>{
+        for(let i = 0; i < 2; ++i){
+            for(let j = 0; j < 3; ++j){
+                let current : BlackJackPlayer = this.players[j];
+                await Promise.all([
+                    new Promise(resolve => setTimeout(resolve, 650)),
+                    current.addHand(this.deck.draw()),
+                    scene.updatePlayerScore(j, current),
+                ]);
+                if(current.calcScore() === 21){
+                    current.setAction("BlackJack");
+                }
             }
         }
+
         this.house.addHand(this.deck.draw());
         this.house.addHand(this.deck.draw());
+        for(let player of this.players){
+            console.log(player.getHand());
+        }
+
+        this.turnNumber = 0;
+        this.actionPhase(scene);
     }
 
     
@@ -254,29 +328,89 @@ export class BlackJackTable {
         return this.phase;
     }
 
-    // プレイヤー行動するフェイズ
+    // プレイヤーが行動するフェイズ
+    // public async actionPhase(scene: BlackGameScene) : Promise<void>{
     public async actionPhase(scene: BlackGameScene) : Promise<void>{
-        console.log("check");
-        let flag : boolean = true;
+        this.phase = 'action';
+        console.log(this.players[this.turnNumber].getName() + ' : ' + this.players[this.turnNumber].getType() +  " : " + this.players[this.turnNumber].getAction());
+        if(this.completeAction()){
+            console.log("action complete");
+            this.dealerPhase();
+            return;
+        }
+        if(this.turnNumber >= this.players.length){
+            this.turnNumber = 0;
+        }
+        let current : BlackJackPlayer = this.players[this.turnNumber];
 
-        while(flag){
-            flag = false;
-            let playersLength : number = this.players.length;
+        // 行動出来ないプレイヤーをスルーする処理
+        if(current.getAction() === "stand" || current.getAction() === "surrender" || current.getAction() === "BlackJack") {
+            console.log("check");
+            this.changeTurnNumber();
+            this.actionPhase(scene);
+            return;
+        }
 
-            for(let i = 0; i < playersLength; ++i){
-                let current : BlackJackPlayer = this.players[i];
-                if(current.getType() === "CPU"){
-                    await this.cpuAction(current);
-                    console.log(current.getName() + " score :" + current.calcScore());
-                }
-                else{
-                    // プレイヤーからactionを取得するレンダーとコントロール
-                    await scene.showActionPopUp(this);
-                    console.log(current.getName() + " score :" + current.calcScore());
-                }
-                if(current.getAction() === "hit") flag = true;
+        if(current.getType() === "CPU"){
+            await Promise.all([
+                new Promise(resolve => setTimeout(resolve, 1000)),
+                this.cpuAction(current),
+                scene.updatePlayerScore(this.turnNumber, current),
+                scene.updatePlayerAction(this.turnNumber, current),
+                this.changeTurnNumber(),
+            ]);
+            this.actionPhase(scene);
+            return;
+        }
+        else{
+            scene.showActionPopUp(this);
+            return;
+        }
+
+
+
+        // console.log("check");
+        // let flag : boolean = true;
+
+        // while(flag){
+        //     flag = false;
+        //     let playersLength : number = this.players.length;
+
+        //     for(let i = 0; i < playersLength; ++i){
+        //         let current : BlackJackPlayer = this.players[i];
+        //         // cpu
+        //         if(current.getType() === "CPU"){
+        //             await Promise.all([
+        //                 new Promise(resolve => setTimeout(resolve, 2000)),
+        //                 this.cpuAction(current),
+        //                 console.log(current.getName() + " score :" + current.calcScore()),
+        //             ]);
+        //         }
+        //         // 人間
+        //         else{
+        //             // プレイヤーからactionを取得するレンダーとコントロール
+        //             await scene.showActionPopUp(this);
+        //             console.log(current.getName() + " score :" + current.calcScore());
+        //         }
+        //         if(current.getAction() === "hit") flag = true;
+        //     }
+        // }
+        // await this.dealerPhase();
+    }
+
+    // 参加者全員のactionが終わっているとtrueまだ残っているとfalse;
+    private completeAction() : boolean{
+        if(this.phase !== "action"){
+            return false;
+        }
+
+        for(let i = 0; i < this.players.length; ++i){
+            let pStatus = this.players[i].getAction();
+            if(pStatus !== "stand" && pStatus !== "bust" && pStatus !== "BlackJack" && pStatus !== 'broke'){
+                return false;
             }
         }
+        return true;
     }
 
     // cpuのhitやstandなどのアクションを決定する関数
@@ -287,19 +421,16 @@ export class BlackJackTable {
             // スコア11で1ターン目なら確定double
             if(score === 11){
                 cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1));
-                console.log("double")
                 return;
             }
             // スコア10で1ターン目なら半々でhitかdouble
             else if(score === 10){
                 if(this.getRandomInt(0, 2) === 1){
                     cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1));
-                    console.log('double')
                     return;
                 }
                 else{
                     cpu.hit(this.deck);
-                    console.log('hit')
                     return;
                 }
             }
@@ -308,26 +439,22 @@ export class BlackJackTable {
         // 2ターン目以降でスコア12以下なら確定でhit
         if(score <= 12){
             cpu.hit(this.deck);
-            console.log('hit')
             return;
         }
 
         // スコアが17以上なら確定でstand
         if(score <= 17){
             cpu.stand();
-            console.log('stand')
             return;
         }
 
         // 13 <= score < 17 でhouseのアップカードのスコアが7以上ならhit,7未満ならstand
         if(this.house.getHand()[0].getRank() >= 7 || this.house.getHand()[0].getRank() === 1){
             cpu.hit(this.deck);
-            console.log('hit')
             return;
         }
         else{
             cpu.stand();
-            console.log('stand')
             return;
         }
     }
