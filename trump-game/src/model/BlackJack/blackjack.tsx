@@ -133,7 +133,8 @@ export class BlackJackPlayer extends Player{
         this.setAction("surrender")
         console.log('surrender');
     }
-        //roundResultにはwin, draw, loseが入る. 手札が2枚で21かを判定する.
+
+    //roundResultにはwin, draw, loseが入る. 手札が2枚で21かを判定する.
     //judgePerRound()メソッドで呼び出す.
     //賞金をchipsに追加し, costをリセットする.
     public winPrize(roundResult : string){
@@ -233,25 +234,6 @@ export class BlackJackTable {
         }
         return true;
     }
-
-    // 必要なくなった。
-    // public betPhase(playerBetAmount : number) : void{
-    //     for(let i : number = 0; i < this.players.length; ++i){
-    //         let current : BlackJackPlayer = this.players[i];
-    //         if(current.getChips() === 0) continue;
-
-    //         let bet : number = 0;
-    //         if(current.getType() === "CPU"){
-    //             bet = Math.floor(Math.random()*(this.players[i].getChips()+1 - 1) + 1);
-    //             console.log('CPUs bet amount', bet);
-    //         }
-    //         else {
-    //             bet = playerBetAmount // プレイヤーからの入力を受け取る
-    //         }
-    //         current.bet(bet);
-    //         this.bets[i] = bet;
-    //     }
-    // }
 
     // ディーラーフェイズ houseの手札のスコアが16以下ならhitしループ、 17以上ならフェイズ終了
     public async dealerPhase(): Promise<void> {
