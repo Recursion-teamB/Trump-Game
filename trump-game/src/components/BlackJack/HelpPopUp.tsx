@@ -12,20 +12,22 @@ export const HelpPopup: React.FC<HelpPopupProps> = ({
         <div
         style={{
             position: 'absolute',
-            width: '50%',
-            height: '50%',
-            top: '25%',
-            left: '25%',
+            width: '70%',
+            height: '100%',
+            top: '0%',
+            left: '15%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
+            // justifyContent: 'space-around',
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
             border: '2px solid #000000',
             borderRadius: '10px',
             color: '#ffffff',
-            overflowX: 'hidden',
-            overflowY: 'scroll',
+            overflow : 'auto',
+            // overflowX: 'hidden',
+            // overflowY: 'scroll',
+            margin: '2px 0px',
         }}
         >
             <h1 className='text'>Black Jack Help</h1>
@@ -40,7 +42,7 @@ export const HelpPopup: React.FC<HelpPopupProps> = ({
             <h2 className='text'>このゲームの操作</h2>
             <p className='text'>ベットするためのポップアップが表示されたら。掛け金を設定する。</p>
             <p className='text'>その後表示されるボタンをクリックしてアクションを選択してください。</p>
-            <button className='button' onClick={onClose} id='closeButton'>Close</button>
+            <button className='close-button' onClick={onClose} id='closeButton'>Close</button>
         </div>
     );
 };
