@@ -3,11 +3,19 @@ export default class BlackLevelScene extends Phaser.Scene{
     private height : number = 0
     private centerX : number = 0
     private centerY : number = 0
+    private static level : string = "normal";
     private static count : number = 3;
     constructor() {
         // super(key:'menuScene')で渡す値はゲームの切り替えやスタートなどに使う
         // Phaser.Scene.start('menuScene')やPhaser.Scene.switch('menuScene')など
         super({ key: 'BlackLevelScene'});
+    }
+    public static getLevel() : string{
+        return this.level
+    }
+
+    public static setLevel(newLevel: string): void {
+        this.level = newLevel;
     }
     public static getCount() : number{
         return this.count
@@ -27,6 +35,7 @@ export default class BlackLevelScene extends Phaser.Scene{
         this.height = this.cameras.main.height;
         this.centerX = this.width / 2;
         this.centerY = this.height / 2;
+        
         // タイトルの表示
         this.createTitleText()
 
@@ -130,7 +139,8 @@ export default class BlackLevelScene extends Phaser.Scene{
         });
     }
     updateSelectedLevel(level : string, selectedLevelText: Phaser.GameObjects.Text) : void{
-        selectedLevelText.setText(`レベル: ${level.toUpperCase()}`);
+        BlackLevelScene.setLevel(level)
+        selectedLevelText.setText(`レベル: ${BlackLevelScene.getLevel().toUpperCase()}`);
     }
 
     //引数にnumをとることで, 割合をかけて得ることができる.
