@@ -38,6 +38,12 @@ export class BlackJackPlayer extends Player{
         this.action = action
     }
 
+    public resetAction() : void{
+        if(this.action !== 'broke'){
+            this.action = '';
+        }
+    }
+
     // 掛け金をかける。cost <= this.chipsならばthis.chipsが入力分減り、this.costにセットされる。cost > this.chipsなら何も処理されない。
     public bet(cost: number) : void{
         if(this.chips >= cost){
@@ -218,9 +224,11 @@ export class BlackJackTable {
             this.changeTurnNumber();
         }
         if(current.getType() === "CPU"){
-            amount = this.getRandomInt(1, current.getChips()+1);
-            current.bet(amount);
-            scene.updateChips(this);
+            if(current.getAction() !== 'broke'){
+                amount = this.getRandomInt(1, current.getChips()+1);
+                current.bet(amount);
+                scene.updateChips(this);
+            }
             this.changeTurnNumber();
             // scene.renderBet() 的なやつを起動する。
             scene.updateChips(this);
@@ -250,6 +258,7 @@ export class BlackJackTable {
     public async dealerPhase(scene : BlackGameScene): Promise<void> {
         this.phase = "dealer phase";
         scene.updateDealerScore(true);
+        this.house.setAction('');
         // renderDealerPhase() ディーラーフェイズの画面出力
         while (this.house.calcScore() <= 16) {
             // hitを遅延させる
@@ -281,9 +290,10 @@ export class BlackJackTable {
                 }
                 else{
                     scene.updatePlayerScore(j, current);
-                }
-                if(current.calcScore() === 21){
-                    current.setAction("BlackJack");
+                    if(current.calcScore() === 21){
+                        current.setAction("BlackJack");
+                        scene.updatePlayerAction(j, current);
+                    }
                 }
             }
         }
@@ -323,6 +333,56 @@ export class BlackJackTable {
             scene.updatePlayerScore(i, player);
             scene.updateChip(i, player);
         }
+
+        this.haveNext(scene);
+    }
+
+    public haveNext(scene : BlackGameScene){
+        this.phase = 'decide Next';
+        for(let player of this.players){
+            if(player.getChips() === 0){
+                player.setAction('broke');
+
+                // round終了時にplayerのchipが無ければbrokeしゲームを終了
+                if(player.getType() === 'Player'){
+                    // ゲームの終了画面を出すyou broke的なやつ
+                    console.log('broke end');
+                    return;
+                }
+            }
+        }
+
+        // 7round 1gameだとした場合のゲームの終了を判定
+        if(this.roundNumber === 7){
+            this.phase = 'End Game';
+            // ゲームの終了画面呼び出し
+            console.log("Game End");
+            return;
+        }
+        ++this.roundNumber;
+
+        // ここ以下では次のroundに移行するためにgameの各要素をresetする
+        // costのresetはwinPrizeですでに実行済み
+        // reset項目はcost, hand, broke以外のaction, deck, turnNumberを0にする,
+        this.resetGame(scene);
+        scene.showBetPopup(this);
+    }
+
+    private resetGame(scene : BlackGameScene) : void {
+        for (let i = 0; i < 3; ++i){
+            const player = this.players[i];
+            player.resetAction();
+            player.resetHand();
+            scene.updatePlayerScore(i, player);
+            scene.updatePlayerAction(i, player);
+        }
+        this.house.resetHand();
+        this.house.setAction("Waiting")
+        scene.updateDealerScore(true);
+        scene.updateDealerAction();
+        this.turnNumber = 0;
+        this.deck = new Deck();
+        this.deck.shuffle();
     }
 
     public getPhase(){
