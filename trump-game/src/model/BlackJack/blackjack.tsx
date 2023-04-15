@@ -171,7 +171,6 @@ export class BlackJackTable {
     private roundNumber : number = 1;
     private turnNumber : number = 0;
     private phase : string = "initial";
-    private bets : number[] = [0, 0, 0];
     protected players : BlackJackPlayer[];
     private deck : Deck = new Deck();
 
@@ -182,9 +181,6 @@ export class BlackJackTable {
 
     public getDeck() : Deck{
         return this.deck;
-    }
-    public getBets() : number[] {
-        return this.bets;
     }
 
     public getPlayers() : BlackJackPlayer[] {
@@ -210,7 +206,7 @@ export class BlackJackTable {
     }
 
     // ゲームの参加者が掛け金をベットするときの処理。CPUはランダムに、人間のplayerは入力を受け取って掛け金を決める。
-    // this.betsの値と各参加者のchipが掛け金分減り、costが掛け金と同値になる。
+    // 各参加者のchipが掛け金分減り、costが掛け金と同値になる。
     // chipsが0以下なら順番がスルーされる。
     public betPhase(scene : BlackGameScene, amount : number) : void {
         this.phase = "betting";
@@ -241,6 +237,8 @@ export class BlackJackTable {
         }
     }
 
+    // すべての参加者のbetが終了したかを判定する
+    // betPhase()で呼び出す。
     completeBet() : boolean {
         if(this.phase !== 'betting'){
             return false;
@@ -306,6 +304,7 @@ export class BlackJackTable {
         this.actionPhase(scene);
     }
 
+    // roundごとの各プレイヤーの勝敗を判定する
     public judgePerRound(scene: BlackGameScene) : void{
         const dealerScore = this.house.calcScore()
         let result = ""
@@ -337,6 +336,9 @@ export class BlackJackTable {
         this.haveNext(scene);
     }
 
+    // 掛け金の配当終了後、次のroundを実行するための関数
+    // 今のroundが7round目であればゲーム終了
+    // 属性がPlayerの参加者の掛け金が0になっていてもゲーム終了
     public haveNext(scene : BlackGameScene){
         this.phase = 'decide Next';
         for(let player of this.players){
@@ -368,6 +370,7 @@ export class BlackJackTable {
         scene.showBetPopup(this);
     }
 
+    // 次のroundを開始するためにtableを初期化する
     private resetGame(scene : BlackGameScene) : void {
         for (let i = 0; i < 3; ++i){
             const player = this.players[i];
