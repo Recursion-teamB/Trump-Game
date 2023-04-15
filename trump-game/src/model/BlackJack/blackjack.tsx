@@ -197,7 +197,8 @@ export class BlackJackTable {
     // chipsが0以下なら順番がスルーされる。
     public betPhase(scene : BlackGameScene, amount : number) : void {
         if(this.completeBet()){
-            this.distributeCards(scene);
+            scene.getCardManager().firstDealCardToAllPlayers(scene.getDealerPosition(), scene.getPlayerPositions());
+            
             return;
         }
 
