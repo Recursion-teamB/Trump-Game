@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import LobbyScene from './scene/Lobby';
 import BlackGameScene from './scene/BlackJack/BlackGame';
+import { WarScene } from './scene/War/warGame';
 
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
@@ -14,7 +15,7 @@ const config: Phaser.Types.Core.GameConfig = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
         fullscreenTarget: 'phaser-game'
     },
-    scene: [LobbyScene, BlackGameScene],
+    scene: [LobbyScene, BlackGameScene, WarScene],
 }
 
 const phaserGame = new Phaser.Game(config);

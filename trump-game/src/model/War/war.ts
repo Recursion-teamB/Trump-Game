@@ -40,6 +40,9 @@ export class WarTable{
         this.players = [player, new WarPlayer("CPU", "CPU")];
         this.deck.shuffle();
     }
+    public getPlayers(): WarPlayer[]{
+        return this.players;
+    }
     public distributeCards(): void{
         for(let player of this.players){
             for(let i = 0; i < 26; i++){
@@ -62,6 +65,9 @@ export class WarTable{
     }
 
     public judgeWinner(players : WarPlayer[]): string{
+        if(players[0].getChosenCard() === null || players[1].getChosenCard() === null){
+            throw new Error("Player has not chosen card yet");
+        }
         if(players[0].getChosenCard()!.getRank() === players[1].getChosenCard()!.getRank()){
             return "draw";
         }
