@@ -3,9 +3,10 @@ import React from 'react';
 interface BetPopupProps {
   onBet: (betAmount: number) => void;
   playerChips: number;
+  text: string;
 }
 
-export const BetPopup: React.FC<BetPopupProps> = ({ onBet, playerChips}) => {
+export const BetPopup: React.FC<BetPopupProps> = ({ onBet, playerChips, text}) => {
   const [betAmount, setBetAmount] = React.useState(0);
   const [err, setBettingValidation] = React.useState('');
 
@@ -27,18 +28,20 @@ export const BetPopup: React.FC<BetPopupProps> = ({ onBet, playerChips}) => {
         position: 'absolute',
         width: '50%',
         height: '50%',
-        top: '25%',
+        top: '15%',
         left: '25%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#301934', 
+        backgroundColor: 'rgba(255,255,255,0.9)',
         border: '2px solid #000000',
         borderRadius: '10px',
         marginTop:'4rem',
       }}
     >
+      {/* <p>掛け金を入力してください</p> */}
+      <p>{text}</p>
       <div
         style={{
           display: 'flex',

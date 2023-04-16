@@ -105,7 +105,7 @@ export class Player{
     }
     public resetHand() : void {
         this.hand = [];
-    }    
+    }
     //テストのみで使用すること
     public setHand(cardsForTest : Card[]) : void{
         this.hand = cardsForTest;
