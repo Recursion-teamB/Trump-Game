@@ -29,7 +29,6 @@ export default class LobbyScene extends Phaser.Scene {
             button.on('pointerdown', () => {
                 this.scene.start('BlackGameScene');
                 this.scene.stop('LobbyScene');
-                this.textures.remove('back');
             })
 
             x += 150;
