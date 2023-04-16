@@ -15,7 +15,7 @@ export const Ranking: React.FC<RankingProps> = ({ items, onContinue, onEnd }) =>
             position: 'absolute',
             width: '50%',
             height: '50%',
-            top: '25%',
+            top: '15%',
             left: '25%',
             display: 'flex',
             flexDirection: 'column',

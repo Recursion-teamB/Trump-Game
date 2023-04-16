@@ -353,6 +353,7 @@ export class BlackJackTable {
                 // round終了時にplayerのchipが無ければbrokeしゲームを終了
                 if(player.getType() === 'Player'){
                     // ゲームの終了画面を出すyou broke的なやつ
+                    await scene.createEventDisplay("You Broke")
                     this.sortPlayers();
                     scene.showRankingPopup(this.getPlayers());
                     console.log('broke end');
