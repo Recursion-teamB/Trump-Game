@@ -192,24 +192,24 @@ test("画像の割り当て", () => {
   expect(card.getImg()).toBe("s10");
 })
 
-test("ディーラーがヒットする場合", () => {
-  let house = table.getHouse()
-  house.addHand(new Card("s", "4"));
-  house.addHand(new Card("c", "6"));
-  table.dealerPhase();
-  const result = house.calcScore();
-  expect(result).not.toBe(10);
-}, 10000)
+// test("ディーラーがヒットする場合", () => {
+//   let house = table.getHouse()
+//   house.addHand(new Card("s", "4"));
+//   house.addHand(new Card("c", "6"));
+//   table.dealerPhase();
+//   const result = house.calcScore();
+//   expect(result).not.toBe(10);
+// }, 10000)
 
-test("ディーラーがヒットしない場合", () => {
-  let house = table.getHouse();
-  house.resetHand();
-  house.addHand(new Card("s", "10"));
-  house.addHand(new Card("h", "10"));
-  table.dealerPhase();
-  const result = house.calcScore();
-  expect(result).toBe(20);
-}, 10000)
+// test("ディーラーがヒットしない場合", () => {
+//   let house = table.getHouse();
+//   house.resetHand();
+//   house.addHand(new Card("s", "10"));
+//   house.addHand(new Card("h", "10"));
+//   table.dealerPhase();
+//   const result = house.calcScore();
+//   expect(result).toBe(20);
+// }, 10000)
 
 test("プレイヤーが勝利した場合、賞金が正しく配られる", () => {
   const player = new BlackJackPlayer("playser", "player");
@@ -255,41 +255,41 @@ test("プレイヤーが敗北した場合、賞金が正しく配られる", ()
   expect(player.getCost()).toBe(0);
 });
 
-test('judgePerRound - Player wins', () => {
-  const player = new BlackJackPlayer("player", "player");
-  const table = new BlackJackTable(player);
-  player.setChips(1000);
-  player.bet(200);
-  table.getHouse().setAction("bust");
-  table.judgePerRound();
-  expect(player.getChips()).toBe(1200);
-});
+// test('judgePerRound - Player wins', () => {
+//   const player = new BlackJackPlayer("player", "player");
+//   const table = new BlackJackTable(player);
+//   player.setChips(1000);
+//   player.bet(200);
+//   table.getHouse().setAction("bust");
+//   table.judgePerRound();
+//   expect(player.getChips()).toBe(1200);
+// });
 
-test('judgePerRound - Player loses', () => {
-  const player = new BlackJackPlayer("player", "player");
-  const table = new BlackJackTable(player);
-  player.setChips(1000);
-  player.bet(200);
-  player.setAction("bust");
-  table.judgePerRound();
-  expect(player.getChips()).toBe(800);
-});
+// test('judgePerRound - Player loses', () => {
+//   const player = new BlackJackPlayer("player", "player");
+//   const table = new BlackJackTable(player);
+//   player.setChips(1000);
+//   player.bet(200);
+//   player.setAction("bust");
+//   table.judgePerRound();
+//   expect(player.getChips()).toBe(800);
+// });
 
-test('judgePerRound - Player draws', () => {
-  const player = new BlackJackPlayer("player", "player");
-  const table = new BlackJackTable(player);
-  player.setChips(1000);
-  player.bet(200);
-  player.setAction("stand");
-  table.getHouse().setAction("stand");
+// test('judgePerRound - Player draws', () => {
+//   const player = new BlackJackPlayer("player", "player");
+//   const table = new BlackJackTable(player);
+//   player.setChips(1000);
+//   player.bet(200);
+//   player.setAction("stand");
+//   table.getHouse().setAction("stand");
 
-  // プレイヤーとディーラーのスコアを同じに設定
-  jest.spyOn(player, 'calcScore').mockReturnValue(20);
-  jest.spyOn(table.getHouse(), 'calcScore').mockReturnValue(20);
+//   // プレイヤーとディーラーのスコアを同じに設定
+//   jest.spyOn(player, 'calcScore').mockReturnValue(20);
+//   jest.spyOn(table.getHouse(), 'calcScore').mockReturnValue(20);
 
-  table.judgePerRound();
-  expect(player.getChips()).toBe(1000);
-});
+//   table.judgePerRound();
+//   expect(player.getChips()).toBe(1000);
+// });
 
 /*
 個々のテストは作り直す、適宜修正

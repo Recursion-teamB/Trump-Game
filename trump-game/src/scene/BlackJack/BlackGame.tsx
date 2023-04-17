@@ -5,14 +5,15 @@ import { Card, Deck } from '../../model/General/general';
 import { BetPopup } from '../../components/BlackJack/BetPopUp';
 import { ActionPopup } from '../../components/BlackJack/ActionPopUp';
 import { HelpPopup } from '../../components/BlackJack/HelpPopUp';
+import { Ranking } from '../../components/BlackJack/ranking';
 import ReactDOM from 'react-dom';
 
 export default class BlackGameScene extends Phaser.Scene {
     private playerChipsTexts: Phaser.GameObjects.Text[] = [];
     private playerScoresTexts: Phaser.GameObjects.Text[] = [];
     private playerActionTexts: Phaser.GameObjects.Text[] = [];
-    private betPopupContainer: HTMLElement | null = null;
-    private actionPopupContainer: HTMLElement | null = null;
+    private dealerTexts: Phaser.GameObjects.Text[] = [];
+    private gameEventPopupContainer : HTMLElement | null = null;
     private helpPopupContainer: HTMLElement | null = null;
     private player: BlackJackPlayer = new BlackJackPlayer("You", "Player");
     private table: BlackJackTable = new BlackJackTable(this.player);
@@ -41,7 +42,7 @@ export default class BlackGameScene extends Phaser.Scene {
       }
     }
 
-    create() {
+    async create() {
       // Phaserの設定
       this.screenWidth = this.cameras.main.width;
       this.screenHeight = this.cameras.main.height;
@@ -55,25 +56,25 @@ export default class BlackGameScene extends Phaser.Scene {
       this.scene.launch('BlackGameSceneController');
       this.createHelpAndHomeButtons();
 
-
       //this.createDeck(this.screenWidth, this.screenHeight);
       this.cardManager.createDeckView()
-      //this.createDealerSection(this.table, this.screenWidth / 2, this.screenHeight / 2);
       this.decideDealerPosition()
-      //this.createPlayerSection(this.table, this.screenWidth / 2, this.screenHeight / 2);
       this.decidePlayerPosition()
-      // betとactionのポップアップの箱を追加
-      this.betPopupContainer = document.createElement('div');
-      document.body.appendChild(this.betPopupContainer);
-      this.actionPopupContainer = document.createElement('div');
-      document.body.appendChild(this.actionPopupContainer);
+
+      // betとactionを表示するためのポップアップの箱を追加
+      // betとactionは同時に画面に存在することがないため同じ箱を使いまわす
+      this.gameEventPopupContainer = document.createElement('div');
+      document.body.appendChild(this.gameEventPopupContainer);
 
       // helpポップアップの箱を追加
+      // helpはbetやactionと同時に使われることがあると想定されるので別の箱を用いる
       this.helpPopupContainer = document.createElement('div');
       document.body.appendChild(this.helpPopupContainer);
 
 
       // 初期挙動の開始
+      await this.createEventDisplay("Game Start");
+      await this.createEventDisplay("Round 1");
       this.showBetPopup(this.table);
     }
 
@@ -86,6 +87,25 @@ export default class BlackGameScene extends Phaser.Scene {
     getCardManager() : CardManager{
       return this.cardManager
     }
+
+    // roundの移行や勝敗の表示などの時に使う
+    async createEventDisplay(str : string) : Promise<void> {
+      let rectangle = this.add.graphics();
+      rectangle.fillStyle(0x000000, 0.7);
+      rectangle.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
+
+      // テキストを作成して中央に配置する
+      let text = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, str, {
+        font: "60px Arial",
+      });
+      text.setOrigin(0.5);
+      text.setDepth(1);
+
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      rectangle.destroy();
+      text.destroy();
+    }
+
     // helpボタンとbackHomeボタンの追加と設定
     createHelpAndHomeButtons() {
       const maxScale : number = 70;
@@ -99,7 +119,49 @@ export default class BlackGameScene extends Phaser.Scene {
       })
       const backHomeButton = this.add.image(150, 50, 'back_home').setInteractive();
     }
-      
+
+    updateDealerScore(open : boolean){
+      let dealer : BlackJackPlayer = this.table.getHouse();
+      if(open){
+        this.dealerTexts[1].setText(`Score : ${dealer.calcScore()}`);
+      }
+      else{
+        this.dealerTexts[1].setText(`Score : ${dealer.closeCalcScore()}`);
+      }
+    }
+
+    updateDealerAction(){
+      this.dealerTexts[2].setText(`${this.table.getHouse().getAction()}`);
+    }
+
+    // ゲーム終了時にランキングを表示する関数
+    showRankingPopup(ranking : BlackJackPlayer[]) {
+      if(!this.gameEventPopupContainer){
+        return;
+      }
+
+      ReactDOM.render(
+        <Ranking
+          items={ranking}
+          onContinue={() => {
+            this.handleContinue();
+          }}
+          onEnd={() => {
+            this.handleEnd();
+          }}
+        />,
+        this.gameEventPopupContainer
+      );
+    }
+
+    handleContinue(){
+      console.log("continue");
+    };
+
+    handleEnd(){
+      console.log("End");
+    }
+
     showHelpPopup() {
       if (!this.helpPopupContainer) {
         return;
@@ -121,7 +183,7 @@ export default class BlackGameScene extends Phaser.Scene {
     }
 
     showBetPopup(table : BlackJackTable) {
-      if (!this.betPopupContainer) {
+      if (!this.gameEventPopupContainer) {
         return;
       }
 
@@ -133,14 +195,15 @@ export default class BlackGameScene extends Phaser.Scene {
             console.log('Bet amount:', betAmount);
             this.hideBetPopup();
           }}
+          text='掛け金を入力してください'
         />,
-        this.betPopupContainer
+        this.gameEventPopupContainer
       );
     }
 
     hideBetPopup() {
-      if (this.betPopupContainer) {
-        ReactDOM.unmountComponentAtNode(this.betPopupContainer);
+      if (this.gameEventPopupContainer) {
+        ReactDOM.unmountComponentAtNode(this.gameEventPopupContainer);
       }
     }
 
@@ -150,6 +213,10 @@ export default class BlackGameScene extends Phaser.Scene {
       this.updateChips(table);
       // 次の人のターン
       this.table.betPhase(this, 0);
+    }
+
+    updateChip(turnNumber : number, player : BlackJackPlayer){
+      this.playerChipsTexts[turnNumber].setText(`$${player.getChips()}`);
     }
 
     async updateChips(table : BlackJackTable) {
@@ -165,7 +232,7 @@ export default class BlackGameScene extends Phaser.Scene {
     }
 
     showActionPopUp (table : BlackJackTable,){
-      if (!this.actionPopupContainer ) {
+      if (!this.gameEventPopupContainer ) {
         return;
       }
       if(table.getPlayers()[table.getTurnNumber()].calcScore() >= 21){
@@ -188,8 +255,8 @@ export default class BlackGameScene extends Phaser.Scene {
         }}
         onDouble={() => {
           console.log('Double');
-          this.handledoubleAction(table);
-          this.hideActionPopUp(table);
+          this.hideEventPopUp();
+          this.showDoubleBetPopup(this.table);
         }}
         onSurrender={() => {
           console.log('Surrender');
@@ -197,7 +264,7 @@ export default class BlackGameScene extends Phaser.Scene {
           this.hideActionPopUp(table);
         }}
         />,
-        this.actionPopupContainer
+        this.gameEventPopupContainer
       );
     }
 
@@ -213,10 +280,29 @@ export default class BlackGameScene extends Phaser.Scene {
     handledoubleAction(table : BlackJackTable) {
       const turnNumber = table.getTurnNumber();
       const player = table.getPlayers()[turnNumber];
-      const betAmount = player.getCost();
-      player.double(table.getDeck(), betAmount);
       console.log('カードの枚数' + player.getHand().length);
       this.updatePlayerScore(turnNumber, player);
+      this.updateChip(turnNumber, player);
+    }
+
+    showDoubleBetPopup(table : BlackJackTable) {
+      const player = table.getPlayers()[table.getTurnNumber()];
+      if (!this.gameEventPopupContainer) {
+        return;
+      }
+
+      ReactDOM.render(
+        <BetPopup
+          playerChips={player.getCost()}
+          onBet={(betAmount) => {
+            player.double(table.getDeck(), betAmount);
+            this.handledoubleAction(table);
+            this.hideActionPopUp(table);
+          }}
+          text='追加の掛け金を入力してください。すでにかけた金額と同額まで追加で掛けることができます'
+        />,
+        this.gameEventPopupContainer
+      );
     }
 
     // surrenderボタンの後の処理
@@ -229,6 +315,7 @@ export default class BlackGameScene extends Phaser.Scene {
 
     // 表示されているプレイヤーのスコアを書き換える
     updatePlayerScore(turnNumber : number, player : BlackJackPlayer) {
+      console.log(player.calcScore())
       this.playerScoresTexts[turnNumber].setText(`Score : ${player.calcScore()}`);
     }
 
@@ -242,32 +329,49 @@ export default class BlackGameScene extends Phaser.Scene {
       this.playerChipsTexts[turnNumber].setText(`$${player.getChips()}`);
     }
 
+    hideEventPopUp() : void {
+      if(this.gameEventPopupContainer){
+        ReactDOM.unmountComponentAtNode(this.gameEventPopupContainer);
+      }
+    }
+
     // actionPopupを消す
     async hideActionPopUp(table : BlackJackTable) : Promise<void> {
       this.updatePlayerAction(table.getTurnNumber(), table.getPlayers()[table.getTurnNumber()]);
       //to do scoreが21の時非表示にできなくなるのを解消したい
       // const player = table.getPlayers()[table.getTurnNumber()];
-      if(this.actionPopupContainer){
+      if(this.gameEventPopupContainer){
         await Promise.all([
           new Promise(resolve => setTimeout(resolve, 1000)),
           table.changeTurnNumber(),
-          ReactDOM.unmountComponentAtNode(this.actionPopupContainer),
+          ReactDOM.unmountComponentAtNode(this.gameEventPopupContainer),
         ])
         table.actionPhase(this);
       }
-      // if(this.actionPopupContainer && (player.getAction() !== 'hit' && player.getAction() !== '')){
-      //   ReactDOM.unmountComponentAtNode(this.actionPopupContainer);
-      //   table.actionPhase(this);
-      // }
     }
     decideDealerPosition() : void{
       this.dealerPosition.x = this.screenWidth / 2
-      this.dealerPosition.y = this.screenHeight * 0.15
-      const dealerText = this.add.text(this.dealerPosition.x, this.dealerPosition.y + this.cardHeight / 2 + this.screenHeight * 0.05, 'dealer', {
+      this.dealerPosition.y = this.screenHeight * 0.12
+      let textHeight = this.dealerPosition.y + this.cardHeight / 2 + 2
+      const dealerText = this.add.text(this.dealerPosition.x, textHeight , 'dealer', {
         fontFamily: 'Arial',
         fontSize: '15px'
       });
-      dealerText.setOrigin(0.5, 0.5);
+      dealerText.setOrigin(0.5, 0);
+      const dealerScore = this.add.text(this.dealerPosition.x, textHeight + this.screenHeight * 0.02, `Score : ${this.table.getHouse().calcScore()}`, {
+        fontFamily: 'Arial',
+        fontSize: '15px'
+      });
+      dealerScore.setOrigin(0.5, 0);
+
+      const dealerAction = this.add.text(this.dealerPosition.x, textHeight + this.screenHeight * 0.04, `${this.table.getHouse().getAction()}`, {
+        fontFamily: 'Arial',
+        fontSize: '15px'
+      })
+      dealerAction.setOrigin(0.5, 0)
+      this.dealerTexts[0] = dealerText;
+      this.dealerTexts[1] = dealerScore;
+      this.dealerTexts[2] = dealerAction;
     }
 
     decidePlayerPosition() : void{
@@ -279,7 +383,7 @@ export default class BlackGameScene extends Phaser.Scene {
         const actionHeight = positionY
         const textHeight = positionY + this.screenHeight * 0.03
         const chipHeight = positionY + this.screenHeight * 0.06
-        const scoreHeight = positionY * this.screenHeight * 0.09
+        const scoreHeight = positionY + this.screenHeight * 0.09
         for(let i= 0; i < count; i++){
             const positionX = (this.screenWidth / count) * (0.5 + i)
             this.playerPositions[playerArr[i].getName()] = { x: positionX, y: positionY};
@@ -379,72 +483,62 @@ export class CardManager {
   }
 
   //最初にこれを呼び出せばカードが配られ, 配置されるようにする.
-  /*public firstDealCardToAllPlayers(dealerPosition : {x :number; y : number}, playerPositions: { [key: string]: { x: number; y: number } }){
-      let count = 0
-      for(let i = 0; i < 2; i++){
-          for (const player of this.table.getPlayers() ) {
-            setTimeout(() => {
-              const card = this.table.getDeck().draw()
-              console.log(card.getSuit() + card.getRank())
-              const playerPosition = playerPositions[player.getName()]
-              this.dealCardToPlayer(player, card, (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6), playerPosition.y - this.cardHeight / 2 - 2, true);
-            }, 300 * count );
-            count ++
-          }
-          setTimeout(() => {
-            const card = this.table.getDeck().draw()
-            this.dealCardToPlayer(this.table.getHouse(), card, (dealerPosition.x - this.cardWidth / 2 )+ i * (this.cardWidth + 6), dealerPosition.y, i === 0);
-          }, 300 * count );
-          count ++
-      }
-  }*/
-    public firstDealCardToAllPlayers(dealerPosition: { x: number; y: number }, playerPositions: { [key: string]: { x: number; y: number } }) {
-      const timeline = this.scene.tweens.createTimeline();
+  public firstDealCardToAllPlayers(dealerPosition: { x: number; y: number }, playerPositions: { [key: string]: { x: number; y: number } }) {
+    const dealDuration = 300;
+    const delayBetweenCards = 100;
 
-      for (let i = 0; i < 2; i++) {
-          for (const [index, player] of this.table.getPlayers().entries()) {
-              const card = this.table.getDeck().draw();
-              console.log(card.getSuit() + card.getRank());
-              const playerPosition = playerPositions[player.getName()];
+    for (let i = 0; i < 2; i++) {
+        for (const [index, player] of this.table.getPlayers().entries()) {
+            const card = this.table.getDeck().draw();
+            console.log(card.getSuit() + card.getRank());
+            const playerPosition = playerPositions[player.getName()];
 
-              timeline.add({
-                  targets: card,
-                  x: (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6),
-                  y: playerPosition.y - this.cardHeight / 2 - 2,
-                  duration: 300,
-                  onStart: () => {
-                      this.dealCardToPlayer(player, card, (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6), playerPosition.y - this.cardHeight / 2 - 2, true);
-                  },
-                  onComplete: () => {
-                    if(player.calcScore() === 21){
-                      player.setAction("BlackJack");
+            this.scene.tweens.add({
+                targets: card,
+                x: (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6),
+                y: playerPosition.y - this.cardHeight / 2 - 2,
+                duration: dealDuration,
+                delay: (i * (this.table.getPlayers().length + 1) + index) * (dealDuration + delayBetweenCards),
+                onStart: () => {
+                    this.dealCardToPlayer(player, card, (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6), playerPosition.y - this.cardHeight / 2 - 2, true);
+                },
+                onComplete: () => {
+                    if (player.calcScore() === 21) {
+                        player.setAction("BlackJack");
                     }
-                    this.scene.updatePlayerAction(index, player)
-                  }
-              });
-              
-          }
-          
-          const card = this.table.getDeck().draw();
-          let notFinal : boolean = i === 0;
-          timeline.add({
-              targets: card,
-              x: (dealerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6),
-              y: dealerPosition.y,
-              duration: 300,
-              onStart: () => {
-                  this.dealCardToPlayer(this.table.getHouse(), card, (dealerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6), dealerPosition.y, notFinal);
-              },
-              onComplete: () => {
-                  // アニメーションが完了した後の処理（必要に応じて)
-                  if(notFinal){
-                    return null;
-                  }
-                  this.table.actionPhase(this.scene)
-              }
-          });
-      }
+                    this.scene.updatePlayerScore(index, player)
+                    this.scene.updatePlayerAction(index, player);
+                }
+            });
 
-      timeline.play();
+        }
+
+        const card = this.table.getDeck().draw();
+        let notFinal: boolean = i === 0;
+        this.scene.tweens.add({
+            targets: card,
+            x: (dealerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6),
+            y: dealerPosition.y,
+            duration: dealDuration,
+            delay: (i * (this.table.getPlayers().length + 1) + this.table.getPlayers().length) * (dealDuration + delayBetweenCards),
+            onStart: () => {
+                this.dealCardToPlayer(this.table.getHouse(), card, (dealerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6), dealerPosition.y, notFinal);
+            },
+            onComplete: () => {
+                // アニメーションが完了した後の処理（必要に応じて)
+                if (notFinal) {
+                    return null;
+                }
+                this.scene.updateDealerScore(false)
+                this.table.actionPhase(this.scene);
+            }
+        });
+    }
+  }
+  public clearCards(): void {
+    for (const cardImage of this.cards) {
+      cardImage.destroy();
+    }
+    this.cards = [];
   }
 }
