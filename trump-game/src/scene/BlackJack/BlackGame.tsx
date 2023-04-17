@@ -1,7 +1,7 @@
 import { BlackJackPlayer, BlackJackTable } from '../../model/BlackJack/blackjack';
 
 import Phaser from 'phaser';
-import { Card, Deck } from '../../model/General/general';
+import { Card, Deck, Player } from '../../model/General/general';
 import { BetPopup } from '../../components/BlackJack/BetPopUp';
 import { ActionPopup } from '../../components/BlackJack/ActionPopUp';
 import { HelpPopup } from '../../components/BlackJack/HelpPopUp';
@@ -25,7 +25,7 @@ export default class BlackGameScene extends Phaser.Scene {
     private screenHeight : number = 0
     private cardWidth : number = 0
     private cardHeight : number = 0
-    private cardManager: CardManager = new CardManager(this, this.table, this.screenWidth, this.screenHeight)
+    private cardManager: BlackCardManager = new BlackCardManager(this, this.table, this.table.getDeck(), this.screenWidth, this.screenHeight)
     constructor() {
       super({ key: 'BlackGameScene' });
     }
@@ -51,7 +51,7 @@ export default class BlackGameScene extends Phaser.Scene {
       this.cardWidth = this.screenWidth * 0.05
       this.cardHeight = this.cardWidth * 1.6
       //初期値ではcardManagerの画面サイズが違うのでリセット
-      this.cardManager = new CardManager(this, this.table, this.screenWidth, this.screenHeight)
+      this.cardManager = new BlackCardManager(this, this.table, this.table.getDeck(), this.screenWidth, this.screenHeight)
       this.cameras.main.setBackgroundColor(0x008800);
       this.scene.launch('BlackGameSceneController');
       this.createHelpAndHomeButtons();
@@ -84,10 +84,12 @@ export default class BlackGameScene extends Phaser.Scene {
     getPlayerPositions():{ [key: string]: { x: number; y: number } }{
       return this.playerPositions
     }
-    getCardManager() : CardManager{
+    getCardManager() : BlackCardManager{
       return this.cardManager
     }
-
+    getBlackJackTable() : BlackJackTable{
+      return this.table
+    }
     // roundの移行や勝敗の表示などの時に使う
     async createEventDisplay(str : string) : Promise<void> {
       let rectangle = this.add.graphics();
@@ -415,47 +417,36 @@ export default class BlackGameScene extends Phaser.Scene {
         }
     }
 }
+export class CardManager<T extends Phaser.Scene> {
+  protected scene: T;
+  protected deck: Deck;
+  protected cards: Phaser.GameObjects.Image[];
+  protected cardWidth: number;
+  protected cardHeight: number;
+  
 
-export class CardManager {
-  private scene: BlackGameScene;
-  private table: BlackJackTable
-  private cards: Phaser.GameObjects.Image[];
-  private deckPosition = { x: 0, y: 0 };
-  private cardWidth: number;
-  private cardHeight: number;
-
-  constructor(scene: BlackGameScene, table: BlackJackTable, width: number, height: number) {
-    this.scene = scene;
-    this.table = table;
+  constructor(scene: T,deck : Deck, width: number, height: number){
+    this.scene = scene
+    this.deck = deck
     this.cards = [];
-    this.deckPosition.x = width / 2;
-    this.deckPosition.y = height / 2;
     this.cardWidth = width * 0.05
     this.cardHeight = this.cardWidth * 1.6
   }
 
-  public createDeckView(): void {
-      // カードをデッキの位置に裏向きで作成します
-      const cardImage = this.scene.add.image(this.deckPosition.x, this.deckPosition.y, 'back');
-      cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
-      cardImage.setOrigin(0.5, 0.5);
-  }
-
-
-  public dealCard(card: Card, x: number,y: number, flipOver : boolean ,duration: number = 200): Phaser.GameObjects.Image | null {
-    if (this.table.getDeck().getDeck().length <= 0) {
+  public dealCard(card: Card, startX: number, startY: number, goalX: number,goalY: number, flipOver : boolean ,duration: number = 200): Phaser.GameObjects.Image | null {
+    if (this.deck.getDeck().length <= 0) {
       return null
     }
   
     // カードをデッキの位置に裏向きで作成します
-    const cardImage = this.scene.add.image(this.deckPosition.x, this.deckPosition.y, 'back');
+    const cardImage = this.scene.add.image(startX, startY, 'back');
     cardImage.setOrigin(0.5, 0.5);
     cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
     cardImage.setData(card.getSuit() + card.getRank(), card);
     this.cards.push(cardImage);
 
     // カードをプレイヤーの場所までアニメーションさせます
-    this.scene.tweens.add({targets: cardImage, x: x, y: y, duration: duration, ease: 'Linear',});
+    this.scene.tweens.add({targets: cardImage, x: goalX, y: goalY, duration: duration, ease: 'Linear',});
 
     //表の画像に差し替えます. ひっくり返るようなアニメーションは追加してません.
     //flipOverがtrueのときのみ裏返す.
@@ -474,13 +465,39 @@ export class CardManager {
     cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
     return cardImage
   }
-  public dealCardToPlayer(player: BlackJackPlayer,card: Card, positionX : number, positionY : number, flipCard: boolean, duration: number = 200 ): void {
-    const cardImage = this.dealCard(card, positionX, positionY, flipCard);
+  public dealCardToPlayer(player: Player,card: Card, startX: number, startY : number,goalX : number, goalY : number, flipCard: boolean, duration: number = 200 ): void {
+    const cardImage = this.dealCard(card, startX, startY ,goalX, goalY, flipCard);
     if (cardImage) {
       const cardData: Card = cardImage.getData(card.getSuit() + card.getRank());
       player.addHand(cardData);
     }
   }
+  public clearCards(): void {
+    for (const cardImage of this.cards) {
+      cardImage.destroy();
+    }
+    this.cards = [];
+  }
+}
+
+export class BlackCardManager extends CardManager<BlackGameScene> {
+  private deckPosition = { x: 0, y: 0 };
+  private table;
+
+  constructor(scene: BlackGameScene, table: BlackJackTable,deck: Deck, width: number, height: number) {
+    super(scene, deck, width, height)
+    this.table = table
+    this.deckPosition.x = width / 2;
+    this.deckPosition.y = height / 2;
+  }
+
+  public createDeckView(): void {
+      // カードをデッキの位置に裏向きで作成します
+      const cardImage = this.scene.add.image(this.deckPosition.x, this.deckPosition.y, 'back');
+      cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
+      cardImage.setOrigin(0.5, 0.5);
+  }
+
 
   //最初にこれを呼び出せばカードが配られ, 配置されるようにする.
   public firstDealCardToAllPlayers(dealerPosition: { x: number; y: number }, playerPositions: { [key: string]: { x: number; y: number } }) {
@@ -500,7 +517,7 @@ export class CardManager {
                 duration: dealDuration,
                 delay: (i * (this.table.getPlayers().length + 1) + index) * (dealDuration + delayBetweenCards),
                 onStart: () => {
-                    this.dealCardToPlayer(player, card, (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6), playerPosition.y - this.cardHeight / 2 - 2, true);
+                    this.dealCardToPlayer(player, card, this.deckPosition.x, this.deckPosition.y, (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6), playerPosition.y - this.cardHeight / 2 - 2, true);
                 },
                 onComplete: () => {
                     if (player.calcScore() === 21) {
@@ -522,7 +539,7 @@ export class CardManager {
             duration: dealDuration,
             delay: (i * (this.table.getPlayers().length + 1) + this.table.getPlayers().length) * (dealDuration + delayBetweenCards),
             onStart: () => {
-                this.dealCardToPlayer(this.table.getHouse(), card, (dealerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6), dealerPosition.y, notFinal);
+                this.dealCardToPlayer(this.table.getHouse(), card, this.deckPosition.x, this.deckPosition.y,(dealerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6), dealerPosition.y, notFinal);
             },
             onComplete: () => {
                 // アニメーションが完了した後の処理（必要に応じて)
@@ -534,11 +551,5 @@ export class CardManager {
             }
         });
     }
-  }
-  public clearCards(): void {
-    for (const cardImage of this.cards) {
-      cardImage.destroy();
-    }
-    this.cards = [];
   }
 }
