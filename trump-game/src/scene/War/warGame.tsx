@@ -40,8 +40,8 @@ export class WarScene extends Phaser.Scene {
             const screenHeight = this.cameras.main.height;
             const cpuCardBackImage = this.getCpuCardBackImage();
             // プレイヤーのカードをスライドしてフリップ
-            await this.slideCard(cardBackImage, screenWidth / 2 + 50, screenHeight / 2);
-            await this.slideCard(cpuCardBackImage!, screenWidth / 2 - 50, screenHeight / 2);
+            await this.slideCard(cardBackImage, screenWidth / 2 + 100, screenHeight / 2);
+            await this.slideCard(cpuCardBackImage!, screenWidth / 2 - 100, screenHeight / 2);
             await new Promise(resolve => setTimeout(resolve, 500));
             //await new Promise(resolve => setTimeout(resolve, 500));
             await this.flipCard(cardBackImage, card);
@@ -50,7 +50,10 @@ export class WarScene extends Phaser.Scene {
             // ここで playRound を呼び出し、勝者を取得
             const playerCardIndex = this.table.getPlayers()[0].getHand().indexOf(card);
             const winner = this.table.playRound(playerCardIndex);
-        
+            await new Promise(resolve => setTimeout(resolve, 500));
+            if(winner !== "draw"){
+                this.slideCardToJail([cardBackImage, cpuCardBackImage!], winner);
+            }
             // スコアを更新
             this.updateScoreArea();
         
@@ -139,6 +142,19 @@ export class WarScene extends Phaser.Scene {
             onComplete: resolve,
           });
         });
+    }
+    slideCardToJail(cardImages : Phaser.GameObjects.Image[], winner : string): Promise<void>{
+        return new Promise((resolve) => {
+            const screenWidth = this.cameras.main.width;
+            const screenHeight = this.cameras.main.height;
+            this.tweens.add({
+                targets: cardImages,
+                x: winner === "player" ? screenWidth * 0.1 : screenWidth * 0.9,
+                y: winner === "player" ? screenHeight * 0.8 : screenHeight * 0.2,
+                duration: 400,
+                onComplete: resolve,
+            });
+          });
     }
     getCpuCardBackImage(): Phaser.GameObjects.Image | null {
         const screenWidth = this.cameras.main.width;

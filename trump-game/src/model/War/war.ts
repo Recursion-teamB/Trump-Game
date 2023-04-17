@@ -80,11 +80,11 @@ export class WarTable{
     }
     public reflectScore(winner: string): void{
         if(winner === "player"){
-            this.players[0].addScore(this.cards.length);
+            this.players[0].addScore(this.cards.length - 1);
             this.resetCards();
         }
         else if(winner === "cpu"){
-            this.players[1].addScore(this.cards.length);
+            this.players[1].addScore(this.cards.length - 1);
             this.resetCards();
         }
         else{
