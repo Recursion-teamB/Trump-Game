@@ -211,7 +211,8 @@ export class BlackJackTable {
     public betPhase(scene : BlackGameScene, amount : number) : void {
         this.phase = "betting";
         if(this.completeBet()){
-            this.distributeCards(scene);
+            scene.getCardManager().firstDealCardToAllPlayers(scene.getDealerPosition(), scene.getPlayerPositions());
+            
             return;
         }
 
@@ -389,6 +390,7 @@ export class BlackJackTable {
             scene.updatePlayerScore(i, player);
             scene.updatePlayerAction(i, player);
         }
+        scene.getCardManager().clearCards()
         this.house.resetHand();
         this.house.setAction("Waiting")
         scene.updateDealerScore(true);
