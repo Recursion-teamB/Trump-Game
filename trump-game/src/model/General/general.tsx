@@ -39,9 +39,10 @@ export class Deck{
     private deck : Card[] = [];
     private static valueList : string[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
     private static suitList : string[] = ["s", "d", "h", "c"];
-
+    
     constructor(){
         this.deck = this.createDeck();
+        this.shuffle()
     }
 
     //52枚のカードをデッキに入れるメソッド
