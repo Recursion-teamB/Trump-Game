@@ -94,7 +94,7 @@ export class WarTable{
         //勝敗関係なく次の比較を行うため、「現在選んでいるカード」をリセットする
         this.resetAllChosenCards();
     }
-    public playRound(playerCardIndex: number): void {
+    public playRound(playerCardIndex: number): string {
         this.players[0].chooseCard(playerCardIndex);
         const cpuCardIndex = Math.floor(Math.random() * this.players[1].getHand().length);
         this.players[1].chooseCard(cpuCardIndex);
@@ -106,6 +106,7 @@ export class WarTable{
 
         const winner = this.judgeWinner(this.players);
         this.reflectScore(winner);
+        return winner;
     }
 
     public isGameOver(): boolean {
