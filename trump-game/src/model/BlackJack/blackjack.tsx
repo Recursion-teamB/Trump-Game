@@ -1,5 +1,6 @@
 import {Deck, Player} from '../General/general'
 import BlackGameScene from '../../scene/BlackJack/BlackGame'
+import { cp } from 'fs';
 
 export class BlackJackPlayer extends Player{
     private chips : number;
@@ -437,7 +438,7 @@ export class BlackJackTable {
         if(current.getType() === "CPU"){
             await Promise.all([
                 new Promise(resolve => setTimeout(resolve, 1000)),
-                this.cpuAction(current),
+                this.cpuAction(current, scene),
                 scene.updatePlayerScore(this.turnNumber, current),
                 scene.updatePlayerAction(this.turnNumber, current),
                 scene.updateChip(this.turnNumber, current),
@@ -468,7 +469,7 @@ export class BlackJackTable {
     }
 
     // cpuのhitやstandなどのアクションを決定する関数
-    public cpuAction(cpu : BlackJackPlayer) : void {
+    public cpuAction(cpu : BlackJackPlayer, scene: BlackGameScene) : void {
         let score : number = cpu.calcScore()
         // 1ターン目の判定
         if(cpu.getAction() === "" && cpu.getChips() !== 0){
@@ -505,6 +506,10 @@ export class BlackJackTable {
         // 13 <= score < 17 でhouseのアップカードのスコアが7以上ならhit,7未満ならstand
         if(this.house.getHand()[0].getRank() >= 7 || this.house.getHand()[0].getRank() === 1){
             cpu.hit(this.deck);
+            handNum : number = cpu.getHand().length - 1
+            startPosition : {} = scene.getCardManager()
+            goalPosition : {} = scene.getPlayerPositions()[cpu.getName()]
+            scene.getCardManager().dealCardToPlayer(cpu, cpu.getHand()[handNum], startPosition.x, startPosition.y, goal)
             return;
         }
         else{
@@ -520,4 +525,3 @@ export class BlackJackTable {
         return Math.floor(Math.random() * (max - min) + min);
     }
 }
-
