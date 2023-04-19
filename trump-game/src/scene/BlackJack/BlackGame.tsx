@@ -48,7 +48,7 @@ export default class BlackGameScene extends Phaser.Scene {
       this.screenHeight = this.cameras.main.height;
       this.dealerPosition.x = this.screenWidth /2
       this.dealerPosition.y = this.screenHeight * 0.2
-      this.cardWidth = this.screenWidth * 0.05
+      this.cardWidth = this.screenWidth * 0.07
       this.cardHeight = this.cardWidth * 1.6
       //初期値ではcardManagerの画面サイズが違うのでリセット
       this.cardManager = new BlackCardManager(this, this.table, this.table.getDeck(), this.screenWidth, this.screenHeight)
@@ -274,7 +274,7 @@ export default class BlackGameScene extends Phaser.Scene {
     handleHitAction(table : BlackJackTable) {
       const turnNumber = table.getTurnNumber();
       const player = table.getPlayers()[turnNumber];
-      player.hit(table.getDeck());
+      player.hit(table.getDeck(), this);
       this.updatePlayerScore(turnNumber, player);
     }
 
@@ -297,7 +297,7 @@ export default class BlackGameScene extends Phaser.Scene {
         <BetPopup
           playerChips={player.getCost()}
           onBet={(betAmount) => {
-            player.double(table.getDeck(), betAmount);
+            player.double(table.getDeck(), betAmount, this);
             this.handledoubleAction(table);
             this.hideActionPopUp(table);
           }}
@@ -427,6 +427,10 @@ export class BlackCardManager extends CardManager<BlackGameScene> {
     this.table = table
     this.deckPosition.x = width / 2;
     this.deckPosition.y = height / 2;
+  }
+
+  public getDeckPositions() : {x : number, y : number}{
+    return this.deckPosition
   }
 
   public createDeckView(): void {

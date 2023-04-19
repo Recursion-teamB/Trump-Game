@@ -129,6 +129,22 @@ export class CardManager<T extends Phaser.Scene> {
       this.cardHeight = this.cardWidth * 1.6
     }
   
+    public getCardWidth() : number{
+        return this.cardWidth
+    }
+
+    public getCardHeight() : number{
+        return this.cardHeight
+    }
+
+    public getCardImageArr() : Phaser.GameObjects.Image[]{
+        return this.cards
+    }
+
+    public setCardImageArr(num : number, cardImage : Phaser.GameObjects.Image) : void{
+        this.cards[num] = cardImage
+    }
+
     public dealCard(card: Card, startX: number, startY: number, goalX: number,goalY: number, flipOver : boolean ,duration: number = 200): Phaser.GameObjects.Image | null {
       if (this.deck.getDeck().length <= 0) {
         return null

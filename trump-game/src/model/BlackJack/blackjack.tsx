@@ -1,6 +1,6 @@
-import {Deck, Player} from '../General/general'
-import BlackGameScene from '../../scene/BlackJack/BlackGame'
-import { cp } from 'fs';
+import {Card, Deck, Player} from '../General/general'
+import BlackGameScene, { BlackCardManager } from '../../scene/BlackJack/BlackGame'
+import { Scene } from 'phaser';
 
 export class BlackJackPlayer extends Player{
     private chips : number;
@@ -99,12 +99,12 @@ export class BlackJackPlayer extends Player{
 
     //スコアが21未満のときかつactionの値がhitまたはstandのときにコマンド選択可能.
     //actionのデフォルトはhitでhit,stand,double,surrenderによって書き換えられる.
-    public hit(deck : Deck) :void{
-        // if(this.getAction() !== ("" || "hit") || this.calcScore() > 20){
+    public hit(deck : Deck, scene : BlackGameScene) :void{
         if((this.getAction() !==  "" && this.getAction() !== "hit") || this.calcScore() > 20){
             return;
         }
-        this.addHand(deck.draw());
+        const card : Card = deck.draw()
+        this.addHand(card);
         this.setAction('hit');
         if(this.calcScore() === 21){
             this.setAction("BlackJack");
@@ -114,6 +114,8 @@ export class BlackJackPlayer extends Player{
             this.setAction("bust");
         }
 
+        //こっからアニメーション
+        this.callCardAnimation(card, scene)
     }
     public stand() : void{
         if((this.getAction() !==  "" && this.getAction() !== "hit") || this.calcScore() >= 21){
@@ -124,14 +126,15 @@ export class BlackJackPlayer extends Player{
     }
     //ほかのコマンドはコマンド選択画面をおした瞬間に起こるが, double()はdouble選択->掛金選択後に起こる.
     //掛金は0 < betMoney < this.getCost()
-    public double(deck : Deck, betMoney : number) : void{
+    public double(deck : Deck, betMoney : number, scene : BlackGameScene) : void{
         if(this.getAction() !== ("") || this.calcScore() >= 21){
             return;
         }
         if(betMoney > 0 && betMoney <= this.getCost()){
             this.addChips(0 - betMoney)
             this.setCost(this.getCost() + betMoney)
-            this.addHand(deck.draw())
+            const card = deck.draw()
+            this.addHand(card)
             console.log('double');
             if(this.isBust()){
                 this.setAction("bust");
@@ -140,6 +143,7 @@ export class BlackJackPlayer extends Player{
             }else{
                 this.setAction("stand");
             }
+            this.callCardAnimation(card, scene)
         }
     }
     public surrender() :void{
@@ -164,7 +168,31 @@ export class BlackJackPlayer extends Player{
         }
         this.setCost(0);
     }
-
+    public callCardAnimation(card : Card, scene : BlackGameScene){
+        const handNum : number = this.getHand().length - 1;
+        const cardManager : BlackCardManager = scene.getCardManager();
+        const start : {x : number, y : number} = cardManager.getDeckPositions();
+        let position : {x : number, y : number};
+        let goalX : number;
+        let goalY : number;
+        if(this.getName() === "House"){
+            position = scene.getDealerPosition()
+            goalX = position.x - cardManager.getCardWidth() / 2 + handNum * (cardManager.getCardWidth() + 6)
+            goalY = position.y
+            //2枚目をひっくり返す
+            if(this.getHand().length === 2){
+                const playerNum = scene.getBlackJackTable().getPlayers().length
+                console.log(cardManager.getCardImageArr()[playerNum * 2 + 1])
+                //const cardImage = cardManager.getCardImageArr()[playerNum * 2 + 1]
+                console.log(cardManager.flipOverCard(this.getHand()[1], cardManager.getCardImageArr()[playerNum * 2 + 1]))  
+            }
+        }else{
+            position = scene.getPlayerPositions()[this.getName()]
+            goalX = position.x - cardManager.getCardWidth() / 2 + handNum * (cardManager.getCardWidth() + 6)
+            goalY = position.y - cardManager.getCardHeight() / 2 - 2
+        }
+        cardManager.dealCard(card, start.x, start.y, goalX, goalY, true)
+    }
 }
 
 export class BlackJackTable {
@@ -264,7 +292,7 @@ export class BlackJackTable {
             // hitを遅延させる
             await Promise.all([
                 new Promise(resolve => setTimeout(resolve, 1500)),
-                this.house.hit(this.deck)
+                this.house.hit(this.deck, scene)
             ]);
             if (this.house.isBust()) {
                 this.house.setAction("bust");
@@ -475,17 +503,17 @@ export class BlackJackTable {
         if(cpu.getAction() === "" && cpu.getChips() !== 0){
             // スコア11で1ターン目なら確定double
             if(score === 11){
-                cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1));
+                cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1), scene);
                 return;
             }
             // スコア10で1ターン目なら半々でhitかdouble
             else if(score === 10){
                 if(this.getRandomInt(0, 2) === 1){
-                    cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1));
+                    cpu.double(this.deck, this.getRandomInt(1, cpu.getCost()+1), scene);
                     return;
                 }
                 else{
-                    cpu.hit(this.deck);
+                    cpu.hit(this.deck, scene);
                     return;
                 }
             }
@@ -493,7 +521,7 @@ export class BlackJackTable {
 
         // 2ターン目以降でスコア12以下なら確定でhit
         if(score <= 12){
-            cpu.hit(this.deck);
+            cpu.hit(this.deck, scene);
             return;
         }
 
@@ -505,11 +533,7 @@ export class BlackJackTable {
 
         // 13 <= score < 17 でhouseのアップカードのスコアが7以上ならhit,7未満ならstand
         if(this.house.getHand()[0].getRank() >= 7 || this.house.getHand()[0].getRank() === 1){
-            cpu.hit(this.deck);
-            handNum : number = cpu.getHand().length - 1
-            startPosition : {} = scene.getCardManager()
-            goalPosition : {} = scene.getPlayerPositions()[cpu.getName()]
-            scene.getCardManager().dealCardToPlayer(cpu, cpu.getHand()[handNum], startPosition.x, startPosition.y, goal)
+            cpu.hit(this.deck, scene);
             return;
         }
         else{
@@ -525,3 +549,4 @@ export class BlackJackTable {
         return Math.floor(Math.random() * (max - min) + min);
     }
 }
+
