@@ -6,6 +6,7 @@ import { BetPopup } from '../../components/BlackJack/BetPopUp';
 import { ActionPopup } from '../../components/BlackJack/ActionPopUp';
 import { HelpPopup } from '../../components/BlackJack/HelpPopUp';
 import { Ranking } from '../../components/BlackJack/ranking';
+import { BackLobby } from '../../components/BlackJack/BackLobby';
 import ReactDOM from 'react-dom';
 
 export default class BlackGameScene extends Phaser.Scene {
@@ -17,6 +18,7 @@ export default class BlackGameScene extends Phaser.Scene {
     private helpPopupContainer: HTMLElement | null = null;
     private player: BlackJackPlayer = new BlackJackPlayer("You", "Player");
     private table: BlackJackTable = new BlackJackTable(this.player);
+    private imageObject: {[key: string]: Phaser.GameObjects.Image} = {};
     
 
     private dealerPosition: {x: number; y : number} = {x: 0, y: 0};
@@ -26,14 +28,15 @@ export default class BlackGameScene extends Phaser.Scene {
     private cardWidth : number = 0
     private cardHeight : number = 0
     private cardManager: CardManager = new CardManager(this, this.table, this.screenWidth, this.screenHeight)
+
     constructor() {
       super({ key: 'BlackGameScene' });
     }
 
     preload() {
-      this.load.image('back', 'assets/back.jpg');
+      this.load.image('card-back', 'assets/back.jpg');
       this.load.image('help', 'assets/help-icon.png');
-      //this.load.image('back_home', 'assets/buttons/back_home.png');
+      this.load.image('back_home', 'assets/return-icon.jpg');
       const suits = Deck.getSuitList();
       for (let i = 1; i <= 13; i++) {
         suits.forEach(suit => {
@@ -117,7 +120,15 @@ export default class BlackGameScene extends Phaser.Scene {
       helpButton.on('pointerdown', () => {
         this.showHelpPopup();
       })
+
       const backHomeButton = this.add.image(150, 50, 'back_home').setInteractive();
+      if(Math.max(backHomeButton.width, backHomeButton.height) > maxScale){
+        let scale = maxScale / Math.max(backHomeButton.width, backHomeButton.height)
+        backHomeButton.setScale(scale);
+      }
+      backHomeButton.on('pointerdown', () => {
+        this.showBackLobbyPopup();
+      })
     }
 
     updateDealerScore(open : boolean){
@@ -144,28 +155,92 @@ export default class BlackGameScene extends Phaser.Scene {
         <Ranking
           items={ranking}
           onContinue={() => {
-            this.handleContinue();
+            this.handleResetStart(this.gameEventPopupContainer);
+            if(this.gameEventPopupContainer){
+              this.gameEventPopupContainer.remove();
+            }
+            if(this.helpPopupContainer){
+              this.helpPopupContainer.remove();
+            }
           }}
           onEnd={() => {
-            this.handleEnd();
+            this.handleEnd(this.gameEventPopupContainer);
+            if(this.gameEventPopupContainer){
+              this.gameEventPopupContainer.remove();
+            }
+            if(this.helpPopupContainer){
+              this.helpPopupContainer.remove();
+            }
           }}
         />,
         this.gameEventPopupContainer
       );
     }
 
-    handleContinue(){
+    handleResetStart(container : HTMLElement | null){
       console.log("continue");
+      if (container) {
+        ReactDOM.unmountComponentAtNode(container);
+      }
+      this.table = new BlackJackTable(new BlackJackPlayer('You', 'Player'));
+      this.scene.restart();
     };
 
-    handleEnd(){
+    handleEnd(container: HTMLElement | null){
       console.log("End");
+      if (container) {
+        ReactDOM.unmountComponentAtNode(container);
+      }
+      this.scene.start('LobbyScene');
+    }
+
+    showBackLobbyPopup(){
+      this.scene.pause();
+      if (!this.helpPopupContainer) {
+        return;
+      }
+      ReactDOM.render(
+        <BackLobby
+          onBack={() => {
+            this.handleEnd(this.helpPopupContainer);
+            if (this.gameEventPopupContainer) {
+              ReactDOM.unmountComponentAtNode(this.gameEventPopupContainer);
+              this.gameEventPopupContainer.remove();
+            }
+            if (this.helpPopupContainer) {
+              this.helpPopupContainer.remove();
+            }
+          }}
+          onRestart={() => {
+            this.handleContinue();
+          }}
+          onReset={() => {
+            this.handleResetStart(this.helpPopupContainer);
+            if (this.gameEventPopupContainer) {
+              ReactDOM.unmountComponentAtNode(this.gameEventPopupContainer);
+              this.gameEventPopupContainer.remove();
+            }
+            if (this.helpPopupContainer) {
+              this.helpPopupContainer.remove();
+            }
+          }}
+          />,
+          this.helpPopupContainer
+      );
+    }
+
+    handleContinue() {
+      if (this.helpPopupContainer) {
+        ReactDOM.unmountComponentAtNode(this.helpPopupContainer);
+      }
+      this.scene.resume();
     }
 
     showHelpPopup() {
       if (!this.helpPopupContainer) {
         return;
       }
+      this.scene.pause();
       ReactDOM.render(
         <HelpPopup
           onClose={() => {
@@ -180,6 +255,7 @@ export default class BlackGameScene extends Phaser.Scene {
       if (this.helpPopupContainer) {
         ReactDOM.unmountComponentAtNode(this.helpPopupContainer);
       }
+      this.scene.resume();
     }
 
     showBetPopup(table : BlackJackTable) {
