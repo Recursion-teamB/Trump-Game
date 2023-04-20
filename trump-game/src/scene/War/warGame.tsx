@@ -53,6 +53,8 @@ export class WarScene extends Phaser.Scene {
         const playerCardIndex = this.table.getPlayers()[0].getHand().indexOf(card);
         const winner = this.table.playRound(playerCardIndex);
         await new Promise(resolve => setTimeout(resolve, 500));
+        const judgement = winner === "draw" ? "draw" : `${winner} win!`;
+        await this.createEventDisplay(judgement);
         if(winner !== "draw"){
           this.slideCardToJail([cardBackImage, cpuCardBackImage!], winner);
         }
@@ -181,5 +183,21 @@ export class WarScene extends Phaser.Scene {
         }
       
         return null;
+    }
+    async createEventDisplay(str : string) : Promise<void> {
+      let rectangle = this.add.graphics();
+      rectangle.fillStyle(0x000000, 0.7);
+      rectangle.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
+
+      // テキストを作成して中央に配置する
+      let text = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, str, {
+        font: "60px Arial",
+      });
+      text.setOrigin(0.5);
+      text.setDepth(1);
+
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      rectangle.destroy();
+      text.destroy();
     }      
 }
