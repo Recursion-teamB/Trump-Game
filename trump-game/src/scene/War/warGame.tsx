@@ -150,7 +150,7 @@ export class WarScene extends Phaser.Scene {
             x: x,
             y: y,
             duration: 400,
-            onComplete: resolve,
+            onComplete: () => resolve(),
           });
         });
     }
@@ -163,7 +163,7 @@ export class WarScene extends Phaser.Scene {
                 x: winner === "player" ? screenWidth * 0.1 : screenWidth * 0.9,
                 y: winner === "player" ? screenHeight * 0.8 : screenHeight * 0.2,
                 duration: 400,
-                onComplete: resolve,
+                onComplete: () => resolve(),
             });
           });
     }
