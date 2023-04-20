@@ -7,6 +7,7 @@ export class WarScene extends Phaser.Scene {
     private table: WarTable = new WarTable(this.player);
     private playerPositions: { [key: string]: { x: number; y: number } } = {};
     private playerScoreTexts: Phaser.GameObjects.Text[] = [];
+    private isProcessing: boolean = false;
     constructor(){
         super('WarScene');
     }
@@ -32,39 +33,39 @@ export class WarScene extends Phaser.Scene {
 
     }
     createPlayerCard(card: Card, x: number, y: number) {
-        const cardBackImage = this.add.image(x, y, 'back');
-        cardBackImage.setScale(0.2);
-        cardBackImage.setInteractive();
-        cardBackImage.on('pointerdown', async () => {
-            const screenWidth = this.cameras.main.width;
-            const screenHeight = this.cameras.main.height;
-            const cpuCardBackImage = this.getCpuCardBackImage();
-            // プレイヤーのカードをスライドしてフリップ
-            await this.slideCard(cardBackImage, screenWidth / 2 + 100, screenHeight / 2);
-            await this.slideCard(cpuCardBackImage!, screenWidth / 2 - 100, screenHeight / 2);
-            await new Promise(resolve => setTimeout(resolve, 500));
-            //await new Promise(resolve => setTimeout(resolve, 500));
-            await this.flipCard(cardBackImage, card);
-            await this.flipCard(cpuCardBackImage!, this.table.getPlayers()[1].getHand()[0]);
-        
-            // ここで playRound を呼び出し、勝者を取得
-            const playerCardIndex = this.table.getPlayers()[0].getHand().indexOf(card);
-            const winner = this.table.playRound(playerCardIndex);
-            await new Promise(resolve => setTimeout(resolve, 500));
-            if(winner !== "draw"){
-                this.slideCardToJail([cardBackImage, cpuCardBackImage!], winner);
-            }
-            // スコアを更新
-            this.updateScoreArea();
-        
-            // ゲームオーバーチェック
-            if (this.table.isGameOver()) {
-                // ゲーム終了処理（アラートやシーン遷移など）
-                alert(this.table.getGameResult());
-            }
-        });
-      
-        return cardBackImage;
+      const cardBackImage = this.add.image(x, y, 'back');
+      cardBackImage.setScale(0.2);
+      cardBackImage.setInteractive();
+      cardBackImage.on('pointerdown', async () => {
+        //連続クリックによるイベント発火を防ぐ
+        if (this.isProcessing) return ;
+        this.isProcessing = true;
+        const screenWidth = this.cameras.main.width;
+        const screenHeight = this.cameras.main.height;
+        const cpuCardBackImage = this.getCpuCardBackImage();
+        // プレイヤーのカードをスライドしてフリップ
+        await this.slideCard(cardBackImage, screenWidth / 2 + 100, screenHeight / 2);
+        await this.slideCard(cpuCardBackImage!, screenWidth / 2 - 100, screenHeight / 2);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await this.flipCard(cardBackImage, card);
+        await this.flipCard(cpuCardBackImage!, this.table.getPlayers()[1].getHand()[0]);
+        // ここで playRound を呼び出し、勝者を取得
+        const playerCardIndex = this.table.getPlayers()[0].getHand().indexOf(card);
+        const winner = this.table.playRound(playerCardIndex);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if(winner !== "draw"){
+          this.slideCardToJail([cardBackImage, cpuCardBackImage!], winner);
+        }
+        // スコアを更新
+        this.updateScoreArea();
+        // ゲームオーバーチェック
+        if (this.table.isGameOver()) {
+          // ゲーム終了処理（アラートやシーン遷移など）
+          alert(this.table.getGameResult()); 
+        }
+        this.isProcessing = false;
+      });
+      return cardBackImage;
     }
 
       
@@ -82,6 +83,7 @@ export class WarScene extends Phaser.Scene {
         const player = this.table.getPlayers()[playerIndex];
         const yPosition = isPlayer ? screenHeight * 0.75 : screenHeight * 0.25;
         const scoreYPosition = isPlayer ? screenHeight * 0.9 : screenHeight * 0.05;
+        const nameYPosition = isPlayer ? screenHeight * 0.85 : screenHeight * 0.1;
       
         this.playerPositions[playerType] = {
           x: screenWidth / 4,
@@ -102,6 +104,15 @@ export class WarScene extends Phaser.Scene {
           { fontSize: '20px', color: '#FFFFFF' }
         );
         this.playerScoreTexts.push(scoreText);
+
+        const name = this.add.text(
+          screenWidth / 2,
+          nameYPosition,
+          playerType,
+          { fontSize: '20px', color: '#FFFFFF' }
+        );
+
+
     }
       
     
