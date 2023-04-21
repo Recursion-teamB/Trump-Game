@@ -36,7 +36,7 @@ export class Card{
 }
 
 export class Deck{
-    private deck : Card[] = [];
+    protected deck : Card[] = [];
     private static valueList : string[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
     private static suitList : string[] = ["s", "d", "h", "c"];
     
@@ -154,6 +154,7 @@ export class CardManager<T extends Phaser.Scene> {
       const cardImage = this.scene.add.image(startX, startY, 'card-back');
       cardImage.setOrigin(0.5, 0.5);
       cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
+      console.log(this.cardWidth, this.cardHeight)
       cardImage.setData(card.getSuit() + card.getRank(), card);
       this.cards.push(cardImage);
   
