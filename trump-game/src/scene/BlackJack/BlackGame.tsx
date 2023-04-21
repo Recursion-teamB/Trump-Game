@@ -34,7 +34,7 @@ export default class BlackGameScene extends Phaser.Scene {
     }
 
     preload() {
-      this.load.image('card-back', 'assets/back.jpg');
+      this.load.image('back', 'assets/back.jpg');
       this.load.image('help', 'assets/help-icon.png');
       this.load.image('back_home', 'assets/return-icon.jpg');
       const suits = Deck.getSuitList();
@@ -47,6 +47,9 @@ export default class BlackGameScene extends Phaser.Scene {
 
     async create() {
       // Phaserの設定
+      this.player = new BlackJackPlayer("You", "Player");
+      this.table = new BlackJackTable(this.player);
+
       this.screenWidth = this.cameras.main.width;
       this.screenHeight = this.cameras.main.height;
       this.dealerPosition.x = this.screenWidth /2

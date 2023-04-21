@@ -20,7 +20,7 @@ export const ActionPopup: React.FC<ActionPopupProps> = ({
       position: 'absolute',
       width: '50%',
       height: '50%',
-      top: '25%',
+      top: '10%',
       right: '0%',
       // left: '25%',
       display: 'flex',
