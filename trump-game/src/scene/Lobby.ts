@@ -5,8 +5,8 @@ export default class LobbyScene extends Phaser.Scene {
 
     preload()
     {
-        this.load.image('back', 'assets/lobbyImg/playing-cards-background.jpg')
-        this.load.image('blackjack', 'assets/lobbyImg/blackjack-icon.jpg');
+        this.load.image('back', './assets/lobbyImg/playing-cards-background.jpg')
+        this.load.image('blackjack', './assets/lobbyImg/blackjack-icon.jpg');
     }
 
     create()
