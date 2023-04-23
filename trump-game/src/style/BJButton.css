@@ -1,0 +1,23 @@
+.button {
+    width: 150px;
+    display: inline-block;
+    padding: 12px 24px;
+    background-image: linear-gradient(to bottom, #ebc806, #b69f21);
+    background-color: #ebc806;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+    border-radius: 30px;
+    box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+    transition: all 0.2s ease-in-out;
+}
+
+.button:hover {
+    background-image: linear-gradient(to bottom, #5983e4, #3660c1);
+    background-color: #5983e4;
+    transform: translateY(-2px);
+    box-shadow: 3px 3px 4px rgba(0,0,0,0.4);
+}

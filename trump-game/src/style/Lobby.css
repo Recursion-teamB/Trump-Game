@@ -1,0 +1,98 @@
+.lobby {
+    background-image: url('../public/lobbyImg/playing-cards-background.jpg');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    max-height: 100%;
+    background-color: #283f4d;
+    color: white;
+    font-family: 'Helvetica Neue', sans-serif;
+    padding: auto;
+}
+
+.title {
+    -webkit-text-stroke: 3px #30D5C8;
+    font-weight: bold;
+    font-size: 5rem;
+    margin-bottom: 3rem;
+}
+
+.button-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+}
+
+.button {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 7rem;
+    border: none;
+    border-radius: 1rem;
+    font-size: 1.5rem;
+    color: white;
+    background-color: #9a9788;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    overflow: hidden;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+    margin-left: 2rem;
+    margin-right: 2rem;
+    width: calc(30% - 20px);
+}
+
+@media screen and (max-width: 1320px) {
+    .button {
+        margin: 1rem;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .title {
+        padding-top: 3rem;
+        margin: 1rem;
+    }
+    .button {
+        width: 100%;
+    }
+}
+
+.button img {
+    width: 26%;
+    max-height: 100%;
+    object-fit: contain;
+    padding: 0.5rem;
+    background-color: white;
+    border-radius: 1rem;
+    transition: transform 0.2s ease-in-out;
+}
+
+.button p {
+    width: 37%;
+    color: black;
+    margin-bottom: 0;
+    font-weight: bold;
+    font-size: 2rem;
+    -webkit-text-stroke: 1px #fff;
+}
+
+.button:hover {
+    background-color: #000;
+}
+
+.button:hover img {
+    transform: scale(1.1);
+}
+
+.button:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 153, 255, 0.5);
+}
