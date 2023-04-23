@@ -1,4 +1,4 @@
-import {Deck, Player} from '../General/general'
+import {Card, Deck, Player} from '../General/general'
 import BlackGameScene from '../../scene/BlackJack/BlackGame'
 
 export class BlackJackPlayer extends Player{
@@ -254,22 +254,30 @@ export class BlackJackTable {
     }
 
     // ディーラーフェイズ houseの手札のスコアが16以下ならhitしループ、 17以上ならフェイズ終了
-    public async dealerPhase(scene : BlackGameScene): Promise<void> {
+    public async dealerPhase(scene: BlackGameScene): Promise<void> {
         this.phase = "dealer phase";
         scene.updateDealerScore(true);
         this.house.setAction('');
         // renderDealerPhase() ディーラーフェイズの画面出力
+      
+        // ディーラーのカードをフリップする処理を追加
+        const dealerCardImage = scene.getDealerCardImage();
+        if (dealerCardImage) {
+          const dealerCard = this.house.getHand()[0];
+          scene.getCardManager().flipOverCard(dealerCard, dealerCardImage);
+        }
+      
         while (this.house.calcScore() <= 16) {
-            // hitを遅延させる
-            await Promise.all([
-                new Promise(resolve => setTimeout(resolve, 1500)),
-                this.house.hit(this.deck)
-            ]);
-            if (this.house.isBust()) {
-                this.house.setAction("bust");
-            }
-            scene.updateDealerAction();
-            scene.updateDealerScore(true);
+          // hitを遅延させる
+          await Promise.all([
+            new Promise(resolve => setTimeout(resolve, 1500)),
+            this.house.hit(this.deck)
+          ]);
+          if (this.house.isBust()) {
+            this.house.setAction("bust");
+          }
+          scene.updateDealerAction();
+          scene.updateDealerScore(true);
         }
         console.log("dealer complete");
         this.judgePerRound(scene);
@@ -412,7 +420,6 @@ export class BlackJackTable {
     }
 
     // プレイヤーが行動するフェイズ
-    // public async actionPhase(scene: BlackGameScene) : Promise<void>{
     public async actionPhase(scene: BlackGameScene) : Promise<void>{
         this.phase = 'action';
         console.log(this.players[this.turnNumber].getName() + ' : ' + this.players[this.turnNumber].getType() +  " : " + this.players[this.turnNumber].getAction());
