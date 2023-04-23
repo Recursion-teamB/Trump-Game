@@ -36,13 +36,21 @@ export class Card{
 }
 
 export class Deck{
-    protected deck : Card[] = [];
+    private deck : Card[] = [];
     private static valueList : string[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
     private static suitList : string[] = ["s", "d", "h", "c"];
-    
-    constructor(){
-        this.deck = this.createDeck();
-        this.shuffle()
+
+    constructor(mode : string){
+        if(mode === "default"){
+            this.deck = this.createDeck();
+        }
+        else if(mode === "black"){
+            this.deck = this.createBlackDeck();
+        }
+        else if(mode === "red"){
+            this.deck = this.createRedDeck();
+        }
+        this.shuffle();
     }
 
     //52枚のカードをデッキに入れるメソッド
@@ -53,8 +61,35 @@ export class Deck{
                 tempDeck.push(new Card(suit, value));
             }
         }
-        return tempDeck;    
+        return tempDeck;
     }
+
+    // クラブとスペードのみの黒いカードのデッキを作る
+    public createBlackDeck() : Card[]{
+        let tempDeck : Card[] = [];
+        for(let suit of Deck.suitList){
+            if(suit === "s" || suit === "c"){
+                for(let value of Deck.valueList){
+                    tempDeck.push(new Card(suit, value));
+                }
+            }
+        }
+        return tempDeck;
+    }
+
+    // ハートとダイヤのみの赤いカードのデッキを作る
+    public createRedDeck() : Card[]{
+        let tempDeck : Card[] = [];
+        for(let suit of Deck.suitList){
+            if(suit === "h" || suit === "d"){
+                for(let value of Deck.valueList){
+                    tempDeck.push(new Card(suit, value));
+                }
+            }
+        }
+        return tempDeck;
+    }
+
     //デッキの一番後ろからカードを1枚引く
     public draw() : Card{
         let drawnCard : Card  = this.deck[this.deck.length - 1];
@@ -78,6 +113,11 @@ export class Deck{
     }
     public getDeck() : Card[]{
         return this.deck;
+    }
+
+    public isEmpty() : boolean{
+        if(this.deck.length === 0) return true;
+        return false;
     }
 }
 
@@ -106,6 +146,12 @@ export class Player{
     }
     public resetHand() : void {
         this.hand = [];
+    }
+    public isEmptyHand(){
+        if(this.hand.length === 0){
+            return true;
+        }
+        return false;
     }
     //テストのみで使用すること
     public setHand(cardsForTest : Card[]) : void{
@@ -145,7 +191,7 @@ export class CardManager<T extends Phaser.Scene> {
         this.cards[num] = cardImage
     }
 
-    public dealCard(card: Card, startX: number, startY: number, goalX: number,goalY: number, flipOver : boolean ,duration: number = 200): Phaser.GameObjects.Image | null {
+    public dealCard(card: Card, startX: number, startY: number, goalX: number,goalY: number, flipOver : boolean, duration: number = 200): Phaser.GameObjects.Image | null {
       if (this.deck.getDeck().length <= 0) {
         return null
       }
@@ -193,3 +239,12 @@ export class CardManager<T extends Phaser.Scene> {
     }
   }
   
+
+export class Position {
+    public x : number;
+    public y : number;
+    constructor(x : number, y : number){
+        this.x = x;
+        this.y = y;
+    }
+}
