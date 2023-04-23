@@ -1,7 +1,7 @@
 import { BlackJackPlayer, BlackJackTable } from '../../model/BlackJack/blackjack';
 
 import Phaser from 'phaser';
-import { Card, Deck, Player,CardManager } from '../../model/General/general';
+import { Deck, CardManager } from '../../model/General/general';
 import { BetPopup } from '../../components/BlackJack/BetPopUp';
 import { ActionPopup } from '../../components/BlackJack/ActionPopUp';
 import { HelpPopup } from '../../components/BlackJack/HelpPopUp';
@@ -360,7 +360,7 @@ export default class BlackGameScene extends Phaser.Scene {
     }
 
     // doubleボタンの後の処理
-    handledoubleAction(table : BlackJackTable) {
+    handleDoubleAction(table : BlackJackTable) {
       const turnNumber = table.getTurnNumber();
       const player = table.getPlayers()[turnNumber];
       console.log('カードの枚数' + player.getHand().length);
@@ -379,7 +379,7 @@ export default class BlackGameScene extends Phaser.Scene {
           playerChips={player.getCost()}
           onBet={(betAmount) => {
             player.double(table.getDeck(), betAmount, this);
-            this.handledoubleAction(table);
+            this.handleDoubleAction(table);
             this.hideActionPopUp(table);
           }}
           text='追加の掛け金を入力してください。すでにかけた金額と同額まで追加で掛けることができます'
