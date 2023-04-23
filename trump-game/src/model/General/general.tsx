@@ -112,3 +112,83 @@ export class Player{
         this.hand = cardsForTest;
     }
 }
+
+export class CardManager<T extends Phaser.Scene> {
+    protected scene: T;
+    protected deck: Deck;
+    protected cards: Phaser.GameObjects.Image[];
+    protected cardWidth: number;
+    protected cardHeight: number;
+    
+  
+    constructor(scene: T,deck : Deck, width: number, height: number){
+      this.scene = scene
+      this.deck = deck
+      this.cards = [];
+      this.cardWidth = width * 0.05
+      this.cardHeight = this.cardWidth * 1.6
+    }
+  
+    public getCardWidth() : number{
+        return this.cardWidth
+    }
+
+    public getCardHeight() : number{
+        return this.cardHeight
+    }
+
+    public getCardImageArr() : Phaser.GameObjects.Image[]{
+        return this.cards
+    }
+
+    public setCardImageArr(num : number, cardImage : Phaser.GameObjects.Image) : void{
+        this.cards[num] = cardImage
+    }
+
+    public dealCard(card: Card, startX: number, startY: number, goalX: number,goalY: number, flipOver : boolean ,duration: number = 200): Phaser.GameObjects.Image | null {
+      if (this.deck.getDeck().length <= 0) {
+        return null
+      }
+    
+      // カードをデッキの位置に裏向きで作成します
+      const cardImage = this.scene.add.image(startX, startY, 'card-back');
+      cardImage.setOrigin(0.5, 0.5);
+      cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
+      cardImage.setData(card.getSuit() + card.getRank(), card);
+      this.cards.push(cardImage);
+  
+      // カードをプレイヤーの場所までアニメーションさせます
+      this.scene.tweens.add({targets: cardImage, x: goalX, y: goalY, duration: duration, ease: 'Linear',});
+  
+      //表の画像に差し替えます. ひっくり返るようなアニメーションは追加してません.
+      //flipOverがtrueのときのみ裏返す.
+      if(flipOver){
+        setTimeout(() => {
+          this.flipOverCard(card, cardImage)
+        }, duration + 50 );
+      }
+      
+      return cardImage;
+    }
+  
+    public flipOverCard(card: Card, cardImage: Phaser.GameObjects.Image): Phaser.GameObjects.Image{
+      const cardTexture = `${card.getSuit()}${card.getRank()}`;
+      cardImage.setTexture(cardTexture);
+      cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
+      return cardImage
+    }
+    public dealCardToPlayer(player: Player,card: Card, startX: number, startY : number,goalX : number, goalY : number, flipCard: boolean, duration: number = 200 ): void {
+      const cardImage = this.dealCard(card, startX, startY ,goalX, goalY, flipCard);
+      if (cardImage) {
+        const cardData: Card = cardImage.getData(card.getSuit() + card.getRank());
+        player.addHand(cardData);
+      }
+    }
+    public clearCards(): void {
+      for (const cardImage of this.cards) {
+        cardImage.destroy();
+      }
+      this.cards = [];
+    }
+  }
+  
