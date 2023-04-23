@@ -48,8 +48,13 @@ export default class BlackGameScene extends Phaser.Scene {
       this.screenHeight = this.cameras.main.height;
       this.dealerPosition.x = this.screenWidth /2
       this.dealerPosition.y = this.screenHeight * 0.2
-      this.cardWidth = this.screenWidth * 0.07
-      this.cardHeight = this.cardWidth * 1.6
+      this.cardHeight = this.screenHeight * 0.3
+      this.cardWidth = this.cardWidth / 1.6
+
+      console.log(this.screenWidth)
+      console.log(this.screenHeight)
+      console.log(this.cardWidth)
+      console.log(this.cardHeight)
       //初期値ではcardManagerの画面サイズが違うのでリセット
       this.cardManager = new BlackCardManager(this, this.table, this.table.getDeck(), this.screenWidth, this.screenHeight)
       this.cameras.main.setBackgroundColor(0x008800);
@@ -454,12 +459,12 @@ export class BlackCardManager extends CardManager<BlackGameScene> {
 
             this.scene.tweens.add({
                 targets: card,
-                x: (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6),
+                x: (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth / 4 + 6),
                 y: playerPosition.y - this.cardHeight / 2 - 2,
                 duration: dealDuration,
                 delay: (i * (this.table.getPlayers().length + 1) + index) * (dealDuration + delayBetweenCards),
                 onStart: () => {
-                    this.dealCardToPlayer(player, card, this.deckPosition.x, this.deckPosition.y, (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6), playerPosition.y - this.cardHeight / 2 - 2, true);
+                    this.dealCardToPlayer(player, card, this.deckPosition.x, this.deckPosition.y, (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth / 4 + 6), playerPosition.y - this.cardHeight / 2 - 2, true);
                 },
                 onComplete: () => {
                     if (player.calcScore() === 21) {
@@ -476,12 +481,12 @@ export class BlackCardManager extends CardManager<BlackGameScene> {
         let notFinal: boolean = i === 0;
         this.scene.tweens.add({
             targets: card,
-            x: (dealerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6),
+            x: (dealerPosition.x - this.cardWidth / 2) + i * (this.cardWidth / 4 + 6),
             y: dealerPosition.y,
             duration: dealDuration,
             delay: (i * (this.table.getPlayers().length + 1) + this.table.getPlayers().length) * (dealDuration + delayBetweenCards),
             onStart: () => {
-                this.dealCardToPlayer(this.table.getHouse(), card, this.deckPosition.x, this.deckPosition.y,(dealerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6), dealerPosition.y, notFinal);
+                this.dealCardToPlayer(this.table.getHouse(), card, this.deckPosition.x, this.deckPosition.y,(dealerPosition.x - this.cardWidth / 2) + i * (this.cardWidth / 4 + 6), dealerPosition.y, notFinal);
             },
             onComplete: () => {
                 // アニメーションが完了した後の処理（必要に応じて)

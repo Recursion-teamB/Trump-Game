@@ -1,4 +1,4 @@
-import {Card, Deck, Player} from '../General/general'
+import {Card, CardManager, Deck, Player} from '../General/general'
 import BlackGameScene, { BlackCardManager } from '../../scene/BlackJack/BlackGame'
 import { Scene } from 'phaser';
 
@@ -177,21 +177,23 @@ export class BlackJackPlayer extends Player{
         let goalY : number;
         if(this.getName() === "House"){
             position = scene.getDealerPosition()
-            goalX = position.x - cardManager.getCardWidth() / 2 + handNum * (cardManager.getCardWidth() + 6)
+            goalX = position.x - cardManager.getCardWidth() / 2 + handNum * (cardManager.getCardWidth() / 4 + 6)
             goalY = position.y
             //2枚目をひっくり返す
-            if(this.getHand().length === 2){
-                const playerNum = scene.getBlackJackTable().getPlayers().length
-                console.log(cardManager.getCardImageArr()[playerNum * 2 + 1])
-                //const cardImage = cardManager.getCardImageArr()[playerNum * 2 + 1]
-                console.log(cardManager.flipOverCard(this.getHand()[1], cardManager.getCardImageArr()[playerNum * 2 + 1]))  
+            if(this.getHand().length === 3){
+                this.flipDealerCard(scene, cardManager)
             }
         }else{
             position = scene.getPlayerPositions()[this.getName()]
-            goalX = position.x - cardManager.getCardWidth() / 2 + handNum * (cardManager.getCardWidth() + 6)
+            goalX = position.x - cardManager.getCardWidth() / 2 + handNum * (cardManager.getCardWidth() / 4 + 6)
             goalY = position.y - cardManager.getCardHeight() / 2 - 2
         }
         cardManager.dealCard(card, start.x, start.y, goalX, goalY, true)
+    }
+    public flipDealerCard(scene: BlackGameScene, cardManager: BlackCardManager){
+        const playerNum = scene.getBlackJackTable().getPlayers().length
+        const cardImage = cardManager.getCardImageArr()[playerNum * 2 + 1]
+        cardManager.setCardImageArr(playerNum * 2 + 1, cardManager.flipOverCard(this.getHand()[1], cardImage))
     }
 }
 
@@ -287,6 +289,10 @@ export class BlackJackTable {
         this.phase = "dealer phase";
         scene.updateDealerScore(true);
         this.house.setAction('');
+        if(this.house.calcScore() > 16){
+            this.house.flipDealerCard(scene, scene.getCardManager())
+        }
+
         // renderDealerPhase() ディーラーフェイズの画面出力
         while (this.house.calcScore() <= 16) {
             // hitを遅延させる
