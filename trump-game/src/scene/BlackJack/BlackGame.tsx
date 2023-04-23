@@ -516,7 +516,7 @@ export class BlackCardManager extends CardManager<BlackGameScene> {
 
   public createDeckView(): void {
       // カードをデッキの位置に裏向きで作成します
-      const cardImage = this.scene.add.image(this.deckPosition.x, this.deckPosition.y, 'back');
+      const cardImage = this.scene.add.image(this.deckPosition.x, this.deckPosition.y, 'card-back');
       cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
       cardImage.setOrigin(0.5, 0.5);
   }
