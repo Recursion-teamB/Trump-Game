@@ -33,7 +33,7 @@ export class WarPlayer extends Player{
 export class WarTable{
     private players: WarPlayer[];
     //デッキ自体はWarゲーム内では見えないが、カードを配るためにロジック側で用意する
-    private deck: Deck = new Deck();
+    private deck: Deck = new Deck("default");
     //盤面に出されたカード。得点可能なカードの数となる
     private cards : Card[] = [];
     constructor(player: WarPlayer){

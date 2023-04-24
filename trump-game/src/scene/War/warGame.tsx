@@ -11,17 +11,7 @@ export class WarScene extends Phaser.Scene {
     constructor(){
         super('WarScene');
     }
-    preload() {
-        this.load.image('back', 'assets/back.jpg');
-        this.load.image('help', 'assets/help-icon.png');
-        //this.load.image('back_home', 'assets/buttons/back_home.png');
-        const suits = Deck.getSuitList();
-        for (let i = 1; i <= 13; i++) {
-            suits.forEach(suit => {
-            this.load.image(`${suit}${i}`, `assets/card_img/${suit}${i}.png`);
-            });
-        }
-    }
+    preload() {}
     create(){
         const screenWidth = this.cameras.main.width;
         const screenHeight = this.cameras.main.height;
