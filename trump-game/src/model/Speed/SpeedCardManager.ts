@@ -112,7 +112,7 @@ export class SpeedCardManager extends CardManager<SpeedGameScene>{
                 this.scene.getFieldCard()[fieldIndex].visible = false;
                 // カード移動のアニメーションが完了した時点でカードが重ねられるか判定する.trueなら続行
                 if(table.isOnCard(this.player.getHand()[handIndex], table.getFieldCard()[fieldIndex])){
-                    table.moveCardHandToField(fieldIndex, handIndex, this.player, this, this.scene);
+                    // table.moveCardHandToField(fieldIndex, handIndex, this.player, this, this.scene);
                 }
             }
         })

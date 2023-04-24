@@ -1,8 +1,6 @@
 import { Card, Deck } from '../General/general'
 import { SpeedPlayer } from './SpeedPlayer'
-import { SpeedCardManager } from './SpeedCardManager';
 import { SpeedGameScene } from '../../scene/Speed/SpeedGame'
-import { SpeedControl } from './Control';
 
 export class SpeedTable {
     private phase : string = 'initial'
@@ -45,35 +43,45 @@ export class SpeedTable {
     }
 
     // ゲーム開始時または重ねられるカードがない場合に台札を更新する関数
-    public async updateFieldCard(scene : SpeedGameScene, playerManager : SpeedCardManager, cpuManager : SpeedCardManager, control : SpeedControl) : Promise<void>{
-        console.log("check");
-        scene.createDrag(playerManager);
+    public async updateFieldCard(scene : SpeedGameScene) : Promise<void>{
+        // scene.createDrag();
         for(let i = 0; i < 2; ++i){
             const player : SpeedPlayer = this.players[i];
+
             // deckが空ではないとき、deckから台札へ
             if(!player.getDeck().isEmpty()){
                 this.fieldCard[i] = player.getDeck().draw();
                 if(i === 0){
-                    playerManager.moveDeckToField(this.fieldCard[i]);
+                    scene.moveDeckToField(this.fieldCard[i], this.players[i]);
                 }
                 else{
-                    cpuManager.moveDeckToField(this.fieldCard[i]);
+                    scene.moveDeckToField(this.fieldCard[i], this.players[i]);
                 }
             }
             // deckが空の場合の処理
             else{
                 const hand = player.getHand();
                 const handLength = hand.length;
-                let popCard = hand.pop();
+                let popCard;
+                let index = 0;
+                for(let i = 0; i < handLength; ++i){
+                    let card = hand[i];
+                    if(card.getSuit() !== "null"){
+                        popCard = card;
+                        hand[i] = new Card("null", "null")
+                        break;
+                    }
+                    ++index;
+                }
 
                 if(popCard !== undefined){
                     this.fieldCard[i] = popCard;
                 }
                 if(i === 0){
-                    playerManager.moveHandToField(this.fieldCard[i], handLength, 0);
+                    scene.moveHandToField(this.fieldCard[i], index, i, this.players[i]);
                 }
                 else{
-                    cpuManager.moveHandToField(this.fieldCard[i], handLength, 1);
+                    scene.moveHandToField(this.fieldCard[i], index, i, this.players[i])
                 }
             }
         }
@@ -82,14 +90,15 @@ export class SpeedTable {
         if(!this.isContinue()){
             console.log('re')
             await scene.createEventDisplay("Ready", 1000);
-            this.updateFieldCard(scene, playerManager, cpuManager, control);
+            this.updateFieldCard(scene);
         }
         // 重ねられるカードがある場合
-        // else {
-        //     this.phase = "game";
-        //     console.log('cpu move')
-        //     this.players[1].cpuBehavior(this, scene, cpuManager);
-        // }
+        else {
+            this.phase = "game";
+            // control.hasTurn();
+            console.log('cpu move')
+            this.players[1].cpuBehavior(this, scene);
+        }
 
     }
 
@@ -117,72 +126,88 @@ export class SpeedTable {
         return false;
     }
 
-    /*
-    // cpuの手札から移動可能カードを見つけて移動アニメーションを起動するまで
-    public moveCpuCard(scene : SpeedGameScene) : void{
-        let cpu : SpeedPlayer = this.players[1];
-        // 移動できるカードがあるか判定無ければreturn.あれば次の処理へ
-        if(!cpu.hasOnTopCard(this)){
-            return;
-        }
-        let moveIndex : number[] = cpu.getOnTopCardIndexAndField(this);
-
-        scene
-
-        // 移動のアニメーション おそらく起動するのに移動先の台札と移動させる手札の入力が必要なはずなのでmoveIndexを使って入れる
-    }
-    */
-
     // カードを手札から台札へ移動する裏の処理を実行する関数。ゲームの再開時ではなく、playの流れの中で使う。
-    public moveCardHandToField(fieldIndex : number, cardIndex : number, player : SpeedPlayer, manager : SpeedCardManager, scene : SpeedGameScene) : void{
+    public async moveCardHandToField(fieldIndex : number, cardIndex : number, player : SpeedPlayer, scene : SpeedGameScene) : Promise<void>{
         // fieldの書き換え
         this.fieldCard[fieldIndex] = player.getHand()[cardIndex];
-        let old : Phaser.GameObjects.Image = scene.getFieldCard()[fieldIndex];
+        scene.getFieldCard()[fieldIndex].destroy();
+
         if(player.getType() === "CPU"){
             scene.getFieldCard()[fieldIndex] = scene.getCpuHand()[cardIndex];
         }
         else{
             scene.getFieldCard()[fieldIndex] = scene.getPlayerHand()[cardIndex];
         }
-        scene.getFieldCard()[fieldIndex].setDepth(3);
-        old.destroy();
-        const deck : Deck = player.getDeck();
+
+        scene.setFieldDepth();
 
         // handへのdeckからの追加
+        const deck : Deck = player.getDeck();
         if(!deck.isEmpty()){
             let card : Card = deck.draw();
             player.getHand()[cardIndex] = card;
-            manager.moveDeckToHand(card, cardIndex);
+            if(player.getType() === "CPU"){
+                scene.moveCpuDeckToHand(card, cardIndex, 300);
+            }
+            else{
+                scene.movePlayerDeckToHand(card, cardIndex, 300);
+                console.log(player.getHand());
+            }
         }
         // deckがなければfieldへ行ったカードのある場所にnull cardを入れる
         // 此処の処理は要検討 cardを入れずhandを縮小するのもあり
         else{
             player.getHand()[cardIndex] = new Card('null', 'null');
         }
-        if(player.getType() === "CPU") this.canCpuAction = true;
 
         // この行動によって勝利条件を満たしたかを判定する。勝利していた場合、そのプレイヤーのtypeによって別の処理をする。
+        // 手札が一枚しかなくそれをfieldにセットする場合の処理
         if(player.isComplete()){
             if(player.getType() === "CPU"){
                 // プレイヤーが負けた画面の表示 and gameのstop
+                window.alert("YOU LOSE")
+
             }
             else{
                 // プレイヤーが勝った画面表示 and gameのstop
+                window.alert("YOU WIN")
             }
         }
         else{
-            if(!this.isContinue){
-                this.updateFieldCard(scene, )
+            if(!this.isContinue()){
+                // どちらかの手札が残り一枚だった場合の処理
+                if(this.isSettled()) return;
+
+                console.log("round change")
+                await scene.createEventDisplay("Ready", 1000);
+                this.updateFieldCard(scene);
             }
-            if(this.canCpuAction) this.players[1].cpuBehavior(this, scene, manager);
+            if(this.canCpuAction) this.players[1].cpuBehavior(this, scene);
         }
     }
 
-    // cpu手札から台札にカードを移動する関数
-    /*
-    cpuの手札から台札に移動するカードを見つける関数
-    この関数がカードを見つければカードを移動させるviewが起動する
-    viewのアニメーションが完了して時点でthis.isOnCardを起動してtrueなら裏の処理としてカードを移動させる
-    手札に移動可能カードがあるか判定 -> true -> 移動させるカードを見つける -> 移動アニメーション -> アニメーション終了時にthis.isOnCard()を起動その移動が有効か判定(アニメーションの完了までにプレイヤーが場札を上書きしている可能性があるため) -> true -> 裏の移動処理をする、viewの場札も変更 -> cpu待機状態へ -> この流れの最初に戻る
-    */
+    public isSettled() : boolean{
+        let player = this.players[0];
+        let cpu = this.players[1];
+
+        // まだ決着しない場合
+        if(player.getDeckLength() !== 0 && cpu.getDeckLength() !== 0){
+            return false;
+        }
+        if(player.countValid() >= 2 && cpu.countValid() >= 2){
+            return false;
+        }
+
+        // 決着がつく場合
+        if(player.countValid() <= 1 && cpu.countValid() <= 1){
+            alert("DRAW");
+        }
+        else if(player.countValid() <= 1){
+            alert("WIN");
+        }
+        else{
+            alert("LOSE");
+        }
+        return true;
+    }
 }

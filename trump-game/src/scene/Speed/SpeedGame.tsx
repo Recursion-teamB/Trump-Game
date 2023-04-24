@@ -1,9 +1,6 @@
-// import { SpeedPlayer, SpeedTable , SpeedCpuPlayer } from "../../model/Speed/speed";
-import { SpeedCardManager } from "../../model/Speed/SpeedCardManager";
 import { SpeedTable } from "../../model/Speed/SpeedTable";
 import { SpeedPlayer } from "../../model/Speed/SpeedPlayer";
-import { Deck, Position } from '../../model/General/general';
-import { SpeedControl } from "../../model/Speed/Control";
+import { Card, Deck, Position } from '../../model/General/general';
 
 export class SpeedGameScene extends Phaser.Scene {
     private player: SpeedPlayer = new SpeedPlayer("You", "player");
@@ -13,15 +10,16 @@ export class SpeedGameScene extends Phaser.Scene {
     private screenHeight : number = 0;
     private cardWidth : number = 0;
     private cardHeight : number = 0;
-    private playerHands : Phaser.GameObjects.Image[] = [];
-    private cpuHands : Phaser.GameObjects.Image[] = [];
+    private playerHands : Phaser.GameObjects.Image[] = new Array(4);
+    private cpuHands : Phaser.GameObjects.Image[] = new Array(4);
     private fieldCard : Phaser.GameObjects.Image[] = new Array(2);
     private playerCardPositions : Position[] = new Array(4);
     private cpuCardPositions : Position[] = new Array(4);
-    private playerDeckPosition : Position = {x : 0, y : 0};
-    private cpuDeckPosition : Position = {x: 0, y : 0};
+    private playerDeckPosition : Position = new Position(0,0);
+    private cpuDeckPosition : Position = new Position(0,0);
     private fieldPositions : Position[] = new Array(2);
-    //private cardManager: SpeedCardManager = new SpeedCardManager(this, this.table, this.table.getDeck(), this.screenWidth, this.screenHeight)
+    private click : number = -1;
+
 
     constructor() {
         super({ key: 'SpeedGame' });
@@ -64,13 +62,10 @@ export class SpeedGameScene extends Phaser.Scene {
 
         //カードの配置を決定します.
         this.decidePosition()
-        // const deck : Deck = new Deck('default')
-        // const decks : Deck[]= [new Deck('black'), new Deck('red')]
 
         this.player = new SpeedPlayer("You","Player")
         this.cpu = new SpeedPlayer("CPU", "CPU")
-        const playerCardManager : SpeedCardManager = new SpeedCardManager(this,this.player, this.player.getDeck(),this.screenWidth , this.screenHeight, this.playerDeckPosition, this.playerCardPositions, this.fieldPositions)
-        const cpuCardManager : SpeedCardManager = new SpeedCardManager(this, this.cpu, this.cpu.getDeck(), this.screenWidth , this.screenHeight, this.cpuDeckPosition, this.cpuCardPositions, this.fieldPositions)
+
         this.table.setPlayers([this.player, this.cpu]);
 
         //プレイヤーの名前の表示
@@ -80,66 +75,73 @@ export class SpeedGameScene extends Phaser.Scene {
         this.createPlayerDeckView()
         this.createCpuDeckView()
 
-        //手札の追加
-        playerCardManager.firstDeal()
-        cpuCardManager.firstDeal()
+        // 手札の追加
+        this.firstDeal()
+
 
         await this.createEventDisplay("Ready", 2000);
         await this.createEventDisplay("Start", 800);
 
-        let control = new SpeedControl(this, this.table, cpuCardManager, playerCardManager);
-        control.hasTurn();
 
-        // this.table.updateFieldCard(this, playerCardManager, cpuCardManager);
+        this.table.updateFieldCard(this)
     }
 
     update() {
 
     }
 
-    createDrag(manager : SpeedCardManager){
-        console.log(this.playerHands);
-        for(let i = 0; i < 4; ++i){
-            const card : Phaser.GameObjects.Image = this.playerHands[i];
-            this.input.setDraggable(card);
-            this.input.on('drag', (pointer : any, gameObject : any, dragX : any, dragY : any) =>
-            {
+    playerClick(){
 
-            gameObject.x = dragX;
-            gameObject.y = dragY;
+    }
 
-            });
+    addDrag(card : Phaser.GameObjects.Image, handIndex : number){
+        card.setInteractive();
+        this.input.setDraggable(card);
+        let startPosition = new Position(card.x, card.y);
+        card.on('drag', (pointer : any, dragX : any, dragY : any) =>
+        {
+            card.x = dragX;
+            card.y = dragY;
+        })
+        let scene : SpeedGameScene = this;
+        card.on('dragend', function (pointer : any){
+            console.log("x : " + card.x + " y :" + card.y)
+            let player = scene.table.getPlayers()[0];
+            let playerCard = player.getHand()[handIndex];
 
-            let scene : SpeedGameScene = this;
-            this.input.on('dragend', function (pointer : any, gameObject : any) {
-                let player = scene.getTable().getPlayers()[0]
-                let playerCard = player.getHand()[i];
-                // ドラッグしたカードがフィールドのカードと重なっているか判定する
-                let index = scene.isFieldOverLap(new Position(card.x+card.displayWidth/2, card.y+card.displayHeight/2));
-                if (index !== -1) {
-                    let fieldCard = scene.getTable().getFieldCard()[index]
-                    // この移動が有効か判定
-                    if (scene.table.isOnCard(playerCard, fieldCard)) {
-                        gameObject.x = scene.fieldPositions[index].x;
-                        gameObject.y = scene.fieldPositions[index].y;
-                        scene.table.moveCardHandToField(index, i, player, manager, scene);
-                    } else {
-                        gameObject.x = gameObject.input.dragStartX;
-                        gameObject.y = gameObject.input.dragStartY;
-                    }
-                } else {
-                    gameObject.x = gameObject.input.dragStartX;
-                    gameObject.y = gameObject.input.dragStartY;
+            let index = scene.isFieldOverLap(new Position(card.x, card.y));
+
+            if (index !== -1) {
+                let fieldCard = scene.getTable().getFieldCard()[index]
+                // この移動が有効か判定
+                if (scene.table.isOnCard(playerCard, fieldCard)) {
+                    console.log("有効");
+                    card.x = scene.fieldPositions[index].x;
+                    card.y = scene.fieldPositions[index].y;
+                    card.depth = 3;
+                    card.disableInteractive();
+                    scene.table.moveCardHandToField(index, handIndex, player, scene);
                 }
-            });
-        }
+                else if(index === 0 || index === 1) {
+                    card.x = startPosition.x;
+                    card.y = startPosition.y;
+                }
+                else{
+                    alert("不正な処理");
+                }
+            }
+            else {
+                card.x = startPosition.x;
+                card.y = startPosition.y;
+            }
+        })
     }
 
     // オブジェクトの重なりを判定する関数
     isOverLap(position1 : Position, position2 : Position) : boolean{
         console.log("field " + position1.x + "." + position1.y);
         console.log("card " + position2.x + "." + position2.y);
-        if(Math.max(Math.abs(position1.x - position2.x), Math.abs(position1.y - position2.y)) < 500){
+        if(Math.max(Math.abs(position1.x - position2.x), Math.abs(position1.y - position2.y)) < 100){
             return true;
         }
         return false;
@@ -147,17 +149,17 @@ export class SpeedGameScene extends Phaser.Scene {
 
     // フィールドカードにカードが重なっているか判定する
     isFieldOverLap(cardPosition : Position) : number{
-        
         for(let i = 0; i < 2; ++i){
             let field = this.fieldPositions[i];
             if(this.isOverLap(field, cardPosition)) return i;
         }
+        console.log("no kasanari");
         return -1;
     }
 
     // 真ん中に文字を表示して消す関数
     async createEventDisplay(str : string, lateTime : number) : Promise<void> {
-        let rectangle = this.add.graphics().setDepth(1);
+        let rectangle = this.add.graphics().setDepth(9);
         rectangle.fillStyle(0x000000, 0.7);
         rectangle.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
 
@@ -166,7 +168,7 @@ export class SpeedGameScene extends Phaser.Scene {
             font: "60px Arial",
         });
         text.setOrigin(0.5);
-        text.setDepth(1);
+        text.setDepth(10);
 
         await new Promise(resolve => setTimeout(resolve, lateTime));
         rectangle.destroy();
@@ -216,8 +218,6 @@ export class SpeedGameScene extends Phaser.Scene {
         this.fieldPositions[0].y = fieldHeight;
         this.fieldPositions[1].x = this.screenWidth * 3 / 5;
         this.fieldPositions[1].y = fieldHeight;
-
-        console.log("field 1 x: " + this.fieldPositions[0].x + " y: " + this.fieldPositions[0].y + '\n' + "field 2 x: " + this.fieldPositions[1].x + " y: " + this.fieldPositions[1].y)
     }
 
     // プレイヤーのdeckを描画する
@@ -234,6 +234,158 @@ export class SpeedGameScene extends Phaser.Scene {
         const cardImage = this.add.image(this.cpuDeckPosition.x, this.cpuDeckPosition.y, 'back');
         cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
         cardImage.setOrigin(0.5, 0.5);
+    }
+
+    // 初期のカードを配る
+    public firstDeal() : void {
+        const handLength = 4;
+        let cpu = this.table.getPlayers()[1];
+        let player = this.table.getPlayers()[0];
+        for(let i : number = 0; i < handLength; ++i){
+
+            let cpuCard = cpu.getDeck().draw();
+            let playerCard = player.getDeck().draw();
+            this.moveCpuDeckToHand(cpuCard, i, i*400);
+            this.movePlayerDeckToHand(playerCard, i, i*400);
+            cpu.addHand(cpuCard);
+            player.addHand(playerCard);
+        }
+        console.log(player.getHand());
+    }
+
+    // cpuのデッキからhandにカードを移動する
+    public moveCpuDeckToHand(card : Card, handIndex : number, delayTime : number) : void{
+        let backCard = this.add.image(this.cpuDeckPosition.x, this.cpuDeckPosition.y, 'back').setDisplaySize(this.cardWidth, this.cardHeight).setDepth(4);// .setOrigin(0.5, 0.5);
+
+        this.tweens.add({
+            targets: backCard,
+            x: this.cpuCardPositions[handIndex].x,
+            y: this.cpuCardPositions[handIndex].y,
+            duration: 300,
+            delay: delayTime,
+            onComplete: () => {
+                this.flipCard(backCard, card);
+            }
+        });
+        this.cpuHands[handIndex] = backCard;
+    }
+
+    // プレイヤーのデッキからhandにカードを移動する
+    public movePlayerDeckToHand(card : Card, handIndex : number, delayTime : number) : void{
+        const backCard = this.add.image(this.playerDeckPosition.x, this.playerDeckPosition.y, 'back').setDisplaySize(this.cardWidth, this.cardHeight).setInteractive().setDepth(4);// .setOrigin(0.5, 0.5);
+
+        backCard.input.hitArea = new Phaser.Geom.Rectangle(0, 0, backCard.width*2, backCard.height*2);
+
+        this.tweens.add({
+            targets: backCard,
+            x: this.playerCardPositions[handIndex].x,
+            y: this.playerCardPositions[handIndex].y,
+            duration: 300,
+            delay: delayTime,
+            onComplete: () => {
+                this.flipCard(backCard, card);
+                this.addDrag(backCard, handIndex);
+            }
+        });
+        this.playerHands[handIndex] = backCard;
+        backCard.on('pointerdown', () => {
+            this.click = handIndex;
+            console.log("click");
+        })
+    }
+
+    // カードを表に裏返す
+    public flipCard(cardImage: Phaser.GameObjects.Image, card: Card): void {
+        this.tweens.add({
+            targets: cardImage,
+            scaleX: 0,
+            duration: 100,
+            onComplete: () => {
+            cardImage.setTexture(card.getImg()).setDisplaySize(this.cardWidth, this.cardHeight);// .setOrigin(0.5, 0.5);
+            },
+        });
+    }
+
+    // デッキから台札へカードを移動する関数、基本的にゲーム再開時に使用される。
+    public moveDeckToField(card : Card, player : SpeedPlayer){
+
+        let index = 0;
+        if(player.getType() === "CPU") index = 1;
+        let deck = index === 0? this.playerDeckPosition : this.cpuDeckPosition
+
+        const backCard = this.add.image(deck.x, deck.y, 'back').setDisplaySize(this.cardWidth, this.cardHeight).setDepth(3);
+
+        this.tweens.add({
+            targets: backCard,
+            x: this.fieldPositions[index].x,
+            y: this.fieldPositions[index].y,
+            duration: 300,
+            delay: 100,
+            onComplete: () => {
+                this.flipCard(backCard, card);
+            }
+        })
+        this.getFieldCard()[index] = backCard;
+    }
+
+    // cpuのhandから台札へ移動するアニメーション
+    public moveCpuHand(fieldCard : Card, handIndex : number, fieldIndex : number){
+        let handImages : Phaser.GameObjects.Image[] = this.getCpuHand();
+        let cpu : SpeedPlayer = this.table.getPlayers()[1];
+        let cardImage : Phaser.GameObjects.Image = handImages[handIndex]
+        let startPosition : Position = new Position(cardImage.x, cardImage.y);
+
+        this.tweens.add({
+            targets: cardImage,
+            x: this.fieldPositions[fieldIndex].x,
+            y: this.fieldPositions[fieldIndex].y,
+            ease: 'Linear',
+            duration: 400,
+            delay: 1000,
+            repeat: 0,
+            yoyo: false,
+            onComplete: () => {
+
+                // アニメーション終了後移動が有効であったか判定してその結果によって処理を変える
+                // 有効ならそのまま続行、無効ならカードの位置を戻して、次へ
+                console.log("同時か？")
+                this.table.setCpuAction(true);
+                fieldCard = this.table.getFieldCard()[fieldIndex]
+                if(this.table.isOnCard(cpu.getHand()[handIndex], fieldCard)){
+                    console.log("まだわからん")
+                    this.table.moveCardHandToField(fieldIndex, handIndex, cpu, this);
+                }
+                else{
+                    console.log("同時だった")
+                    console.log("戻ってるね")
+                    // this.getFieldCard()[fieldIndex].visible = true;
+                    cardImage.x = startPosition.x;
+                    cardImage.y = startPosition.y;
+                    cpu.cpuBehavior(this.table, this);
+                }
+            }
+        })
+    }
+
+    public moveHandToField(card : Card, handIndex : number, fieldIndex : number, player : SpeedPlayer){
+        let handImages = player.getType() === "CPU" ? this.getCpuHand(): this.getPlayerHand();
+        let handImage = handImages[handIndex]
+
+        this.tweens.add({
+            targets: handImage,
+            x: this.fieldPositions[fieldIndex].x,
+            y: this.fieldPositions[fieldIndex].y,
+            ease: 'Linear',
+            duration: 2000,
+            repeat: 0,
+            yoyo: false,
+        })
+    }
+
+    public setFieldDepth(){
+        for(let card of this.fieldCard){
+            card.depth = 3;
+        }
     }
 }
 
