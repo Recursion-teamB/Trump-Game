@@ -1,6 +1,8 @@
 import { SpeedTable } from "../../model/Speed/SpeedTable";
 import { SpeedPlayer } from "../../model/Speed/SpeedPlayer";
 import { Card, Position } from '../../model/General/general';
+import ReactDOM from 'react-dom';
+import { ResultPopup } from "../../components/Speed/SpeedPopUp";
 
 export class SpeedGameScene extends Phaser.Scene {
     private player: SpeedPlayer = new SpeedPlayer("You", "player");
@@ -19,7 +21,7 @@ export class SpeedGameScene extends Phaser.Scene {
     private cpuDeckPosition : Position = new Position(0,0);
     private fieldPositions : Position[] = new Array(2);
     private click : number = -1;
-
+    private resultPopupContainer : HTMLElement | null = null;
 
     constructor() {
         super({ key: 'SpeedGameScene' });
@@ -59,7 +61,8 @@ export class SpeedGameScene extends Phaser.Scene {
         this.screenHeight = this.cameras.main.height
         this.cardWidth = this.screenWidth * 0.05
         this.cardHeight = this.cardWidth * 1.6
-
+        this.resultPopupContainer = document.createElement('div');
+        document.body.appendChild(this.resultPopupContainer);
         //カードの配置を決定します.
         this.decidePosition()
 
@@ -136,7 +139,35 @@ export class SpeedGameScene extends Phaser.Scene {
             }
         })
     }
+    showResultPopUp(text : string){
+        this.scene.pause();
+        if (!this.resultPopupContainer) {
+          return;
+        }
+        ReactDOM.render(
+          <ResultPopup
+            text={text}
+            quit={() => {
+              console.log("quit")
+              this.hideDescription()
+              this.scene.stop(this)
+              this.scene.start("LobbyScene")    
+            }}
+            restart={() => {
+                this.hideDescription()
+                this.scene.restart(this);
+            }}
+            />,
+            this.resultPopupContainer
+        );
+      }
 
+      hideDescription() : void{
+        if (this.resultPopupContainer) {
+          ReactDOM.unmountComponentAtNode(this.resultPopupContainer);
+        }
+        this.scene.resume();
+      }
     // オブジェクトの重なりを判定する関数
     isOverLap(position1 : Position, position2 : Position) : boolean{
         console.log("field " + position1.x + "." + position1.y);
