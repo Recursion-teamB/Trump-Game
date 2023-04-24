@@ -274,7 +274,7 @@ export class SpeedGameScene extends Phaser.Scene {
     public movePlayerDeckToHand(card : Card, handIndex : number, delayTime : number) : void{
         const backCard = this.add.image(this.playerDeckPosition.x, this.playerDeckPosition.y, 'back').setDisplaySize(this.cardWidth, this.cardHeight).setInteractive().setDepth(4);// .setOrigin(0.5, 0.5);
 
-        backCard.input.hitArea = new Phaser.Geom.Rectangle(0, 0, backCard.width*2, backCard.height*2);
+        // backCard.input.hitArea = new Phaser.Geom.Rectangle(0, 0, backCard.width*2, backCard.height*2);
 
         this.tweens.add({
             targets: backCard,
