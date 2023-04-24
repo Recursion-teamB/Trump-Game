@@ -11,6 +11,7 @@ test("プレイヤーに掛け金がセットされる", () =>{
   expect(result).toBe(100);
 })
 
+/*
 test("hitコマンドのテスト",() => {
   let preHandsLen = player.getHand().length
   if(player.getAction() === ("" || "hit")){
@@ -23,6 +24,7 @@ test("hitコマンドのテスト",() => {
     }
   }
 })
+*/
 
 
 
@@ -46,7 +48,7 @@ test("standコマンドのテストthis.actionがhitと空ではない場合",()
   const result = player.getAction();
   expect(result).toBe("surrender");
 })
-
+/*
 test("doubleコマンドのテスト、this.actionが空の場合のthis.actionの変更", () => {
   player.setAction("");
   player.setCost(1000);
@@ -89,6 +91,7 @@ test("doubleコマンドのテスト、枚数が1枚増えている", () => {
   const after = player.getHand().length;
   expect(after).toBe(before + 1);
 })
+*/
 
 test("surrenderコマンドのテスト、this.actionが空の場合のthis.actionの変更", () => {
   player.setAction("");

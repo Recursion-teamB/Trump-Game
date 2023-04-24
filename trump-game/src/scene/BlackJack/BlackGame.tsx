@@ -1,11 +1,12 @@
 import { BlackJackPlayer, BlackJackTable } from '../../model/BlackJack/blackjack';
 
 import Phaser from 'phaser';
-import { Card, Deck } from '../../model/General/general';
+import { Card, Deck, Player,CardManager } from '../../model/General/general';
 import { BetPopup } from '../../components/BlackJack/BetPopUp';
 import { ActionPopup } from '../../components/BlackJack/ActionPopUp';
 import { HelpPopup } from '../../components/BlackJack/HelpPopUp';
 import { Ranking } from '../../components/BlackJack/ranking';
+import { BackLobby } from '../../components/BlackJack/BackLobby';
 import ReactDOM from 'react-dom';
 
 export default class BlackGameScene extends Phaser.Scene {
@@ -17,6 +18,7 @@ export default class BlackGameScene extends Phaser.Scene {
     private helpPopupContainer: HTMLElement | null = null;
     private player: BlackJackPlayer = new BlackJackPlayer("You", "Player");
     private table: BlackJackTable = new BlackJackTable(this.player);
+    private imageObject: {[key: string]: Phaser.GameObjects.Image} = {};
     
 
     private dealerPosition: {x: number; y : number} = {x: 0, y: 0};
@@ -25,15 +27,16 @@ export default class BlackGameScene extends Phaser.Scene {
     private screenHeight : number = 0
     private cardWidth : number = 0
     private cardHeight : number = 0
-    private cardManager: CardManager = new CardManager(this, this.table, this.screenWidth, this.screenHeight)
+    private cardManager: BlackCardManager = new BlackCardManager(this, this.table, this.table.getDeck(), this.screenWidth, this.screenHeight)
+
     constructor() {
       super({ key: 'BlackGameScene' });
     }
 
     preload() {
-      this.load.image('back', 'assets/back.jpg');
+      this.load.image('card-back', 'assets/back.jpg');
       this.load.image('help', 'assets/help-icon.png');
-      //this.load.image('back_home', 'assets/buttons/back_home.png');
+      this.load.image('back_home', 'assets/return-icon.jpg');
       const suits = Deck.getSuitList();
       for (let i = 1; i <= 13; i++) {
         suits.forEach(suit => {
@@ -48,10 +51,15 @@ export default class BlackGameScene extends Phaser.Scene {
       this.screenHeight = this.cameras.main.height;
       this.dealerPosition.x = this.screenWidth /2
       this.dealerPosition.y = this.screenHeight * 0.2
-      this.cardWidth = this.screenWidth * 0.05
-      this.cardHeight = this.cardWidth * 1.6
+      this.cardHeight = this.screenHeight * 0.3
+      this.cardWidth = this.cardWidth / 1.6
+
+      console.log(this.screenWidth)
+      console.log(this.screenHeight)
+      console.log(this.cardWidth)
+      console.log(this.cardHeight)
       //初期値ではcardManagerの画面サイズが違うのでリセット
-      this.cardManager = new CardManager(this, this.table, this.screenWidth, this.screenHeight)
+      this.cardManager = new BlackCardManager(this, this.table, this.table.getDeck(), this.screenWidth, this.screenHeight)
       this.cameras.main.setBackgroundColor(0x008800);
       this.scene.launch('BlackGameSceneController');
       this.createHelpAndHomeButtons();
@@ -84,10 +92,12 @@ export default class BlackGameScene extends Phaser.Scene {
     getPlayerPositions():{ [key: string]: { x: number; y: number } }{
       return this.playerPositions
     }
-    getCardManager() : CardManager{
+    getCardManager() : BlackCardManager{
       return this.cardManager
     }
-
+    getBlackJackTable() : BlackJackTable{
+      return this.table
+    }
     // roundの移行や勝敗の表示などの時に使う
     async createEventDisplay(str : string) : Promise<void> {
       let rectangle = this.add.graphics();
@@ -117,7 +127,15 @@ export default class BlackGameScene extends Phaser.Scene {
       helpButton.on('pointerdown', () => {
         this.showHelpPopup();
       })
+
       const backHomeButton = this.add.image(150, 50, 'back_home').setInteractive();
+      if(Math.max(backHomeButton.width, backHomeButton.height) > maxScale){
+        let scale = maxScale / Math.max(backHomeButton.width, backHomeButton.height)
+        backHomeButton.setScale(scale);
+      }
+      backHomeButton.on('pointerdown', () => {
+        this.showBackLobbyPopup();
+      })
     }
 
     updateDealerScore(open : boolean){
@@ -144,28 +162,92 @@ export default class BlackGameScene extends Phaser.Scene {
         <Ranking
           items={ranking}
           onContinue={() => {
-            this.handleContinue();
+            this.handleResetStart(this.gameEventPopupContainer);
+            if(this.gameEventPopupContainer){
+              this.gameEventPopupContainer.remove();
+            }
+            if(this.helpPopupContainer){
+              this.helpPopupContainer.remove();
+            }
           }}
           onEnd={() => {
-            this.handleEnd();
+            this.handleEnd(this.gameEventPopupContainer);
+            if(this.gameEventPopupContainer){
+              this.gameEventPopupContainer.remove();
+            }
+            if(this.helpPopupContainer){
+              this.helpPopupContainer.remove();
+            }
           }}
         />,
         this.gameEventPopupContainer
       );
     }
 
-    handleContinue(){
+    handleResetStart(container : HTMLElement | null){
       console.log("continue");
+      if (container) {
+        ReactDOM.unmountComponentAtNode(container);
+      }
+      this.table = new BlackJackTable(new BlackJackPlayer('You', 'Player'));
+      this.scene.restart();
     };
 
-    handleEnd(){
+    handleEnd(container: HTMLElement | null){
       console.log("End");
+      if (container) {
+        ReactDOM.unmountComponentAtNode(container);
+      }
+      this.scene.start('LobbyScene');
+    }
+
+    showBackLobbyPopup(){
+      this.scene.pause();
+      if (!this.helpPopupContainer) {
+        return;
+      }
+      ReactDOM.render(
+        <BackLobby
+          onBack={() => {
+            this.handleEnd(this.helpPopupContainer);
+            if (this.gameEventPopupContainer) {
+              ReactDOM.unmountComponentAtNode(this.gameEventPopupContainer);
+              this.gameEventPopupContainer.remove();
+            }
+            if (this.helpPopupContainer) {
+              this.helpPopupContainer.remove();
+            }
+          }}
+          onRestart={() => {
+            this.handleContinue();
+          }}
+          onReset={() => {
+            this.handleResetStart(this.helpPopupContainer);
+            if (this.gameEventPopupContainer) {
+              ReactDOM.unmountComponentAtNode(this.gameEventPopupContainer);
+              this.gameEventPopupContainer.remove();
+            }
+            if (this.helpPopupContainer) {
+              this.helpPopupContainer.remove();
+            }
+          }}
+          />,
+          this.helpPopupContainer
+      );
+    }
+
+    handleContinue() {
+      if (this.helpPopupContainer) {
+        ReactDOM.unmountComponentAtNode(this.helpPopupContainer);
+      }
+      this.scene.resume();
     }
 
     showHelpPopup() {
       if (!this.helpPopupContainer) {
         return;
       }
+      this.scene.pause();
       ReactDOM.render(
         <HelpPopup
           onClose={() => {
@@ -180,6 +262,7 @@ export default class BlackGameScene extends Phaser.Scene {
       if (this.helpPopupContainer) {
         ReactDOM.unmountComponentAtNode(this.helpPopupContainer);
       }
+      this.scene.resume();
     }
 
     showBetPopup(table : BlackJackTable) {
@@ -272,7 +355,7 @@ export default class BlackGameScene extends Phaser.Scene {
     handleHitAction(table : BlackJackTable) {
       const turnNumber = table.getTurnNumber();
       const player = table.getPlayers()[turnNumber];
-      player.hit(table.getDeck());
+      player.hit(table.getDeck(), this);
       this.updatePlayerScore(turnNumber, player);
     }
 
@@ -295,7 +378,7 @@ export default class BlackGameScene extends Phaser.Scene {
         <BetPopup
           playerChips={player.getCost()}
           onBet={(betAmount) => {
-            player.double(table.getDeck(), betAmount);
+            player.double(table.getDeck(), betAmount, this);
             this.handledoubleAction(table);
             this.hideActionPopUp(table);
           }}
@@ -416,71 +499,28 @@ export default class BlackGameScene extends Phaser.Scene {
     }
 }
 
-export class CardManager {
-  private scene: BlackGameScene;
-  private table: BlackJackTable
-  private cards: Phaser.GameObjects.Image[];
+export class BlackCardManager extends CardManager<BlackGameScene> {
   private deckPosition = { x: 0, y: 0 };
-  private cardWidth: number;
-  private cardHeight: number;
+  private table;
 
-  constructor(scene: BlackGameScene, table: BlackJackTable, width: number, height: number) {
-    this.scene = scene;
-    this.table = table;
-    this.cards = [];
+  constructor(scene: BlackGameScene, table: BlackJackTable,deck: Deck, width: number, height: number) {
+    super(scene, deck, width, height)
+    this.table = table
     this.deckPosition.x = width / 2;
     this.deckPosition.y = height / 2;
-    this.cardWidth = width * 0.05
-    this.cardHeight = this.cardWidth * 1.6
+  }
+
+  public getDeckPositions() : {x : number, y : number}{
+    return this.deckPosition
   }
 
   public createDeckView(): void {
       // カードをデッキの位置に裏向きで作成します
-      const cardImage = this.scene.add.image(this.deckPosition.x, this.deckPosition.y, 'back');
+      const cardImage = this.scene.add.image(this.deckPosition.x, this.deckPosition.y, 'card-back');
       cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
       cardImage.setOrigin(0.5, 0.5);
   }
 
-
-  public dealCard(card: Card, x: number,y: number, flipOver : boolean ,duration: number = 200): Phaser.GameObjects.Image | null {
-    if (this.table.getDeck().getDeck().length <= 0) {
-      return null
-    }
-  
-    // カードをデッキの位置に裏向きで作成します
-    const cardImage = this.scene.add.image(this.deckPosition.x, this.deckPosition.y, 'back');
-    cardImage.setOrigin(0.5, 0.5);
-    cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
-    cardImage.setData(card.getSuit() + card.getRank(), card);
-    this.cards.push(cardImage);
-
-    // カードをプレイヤーの場所までアニメーションさせます
-    this.scene.tweens.add({targets: cardImage, x: x, y: y, duration: duration, ease: 'Linear',});
-
-    //表の画像に差し替えます. ひっくり返るようなアニメーションは追加してません.
-    //flipOverがtrueのときのみ裏返す.
-    if(flipOver){
-      setTimeout(() => {
-        this.flipOverCard(card, cardImage)
-      }, duration + 50 );
-    }
-    
-    return cardImage;
-  }
-
-  public flipOverCard(card: Card, cardImage: Phaser.GameObjects.Image): Phaser.GameObjects.Image{
-    const cardTexture = `${card.getSuit()}${card.getRank()}`;
-    cardImage.setTexture(cardTexture);
-    cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
-    return cardImage
-  }
-  public dealCardToPlayer(player: BlackJackPlayer,card: Card, positionX : number, positionY : number, flipCard: boolean, duration: number = 200 ): void {
-    const cardImage = this.dealCard(card, positionX, positionY, flipCard);
-    if (cardImage) {
-      const cardData: Card = cardImage.getData(card.getSuit() + card.getRank());
-      player.addHand(cardData);
-    }
-  }
 
   //最初にこれを呼び出せばカードが配られ, 配置されるようにする.
   public firstDealCardToAllPlayers(dealerPosition: { x: number; y: number }, playerPositions: { [key: string]: { x: number; y: number } }) {
@@ -495,12 +535,12 @@ export class CardManager {
 
             this.scene.tweens.add({
                 targets: card,
-                x: (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6),
+                x: (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth / 4 + 6),
                 y: playerPosition.y - this.cardHeight / 2 - 2,
                 duration: dealDuration,
                 delay: (i * (this.table.getPlayers().length + 1) + index) * (dealDuration + delayBetweenCards),
                 onStart: () => {
-                    this.dealCardToPlayer(player, card, (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6), playerPosition.y - this.cardHeight / 2 - 2, true);
+                    this.dealCardToPlayer(player, card, this.deckPosition.x, this.deckPosition.y, (playerPosition.x - this.cardWidth / 2) + i * (this.cardWidth / 4 + 6), playerPosition.y - this.cardHeight / 2 - 2, true);
                 },
                 onComplete: () => {
                     if (player.calcScore() === 21) {
@@ -517,12 +557,12 @@ export class CardManager {
         let notFinal: boolean = i === 0;
         this.scene.tweens.add({
             targets: card,
-            x: (dealerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6),
+            x: (dealerPosition.x - this.cardWidth / 2) + i * (this.cardWidth / 4 + 6),
             y: dealerPosition.y,
             duration: dealDuration,
             delay: (i * (this.table.getPlayers().length + 1) + this.table.getPlayers().length) * (dealDuration + delayBetweenCards),
             onStart: () => {
-                this.dealCardToPlayer(this.table.getHouse(), card, (dealerPosition.x - this.cardWidth / 2) + i * (this.cardWidth + 6), dealerPosition.y, notFinal);
+                this.dealCardToPlayer(this.table.getHouse(), card, this.deckPosition.x, this.deckPosition.y,(dealerPosition.x - this.cardWidth / 2) + i * (this.cardWidth / 4 + 6), dealerPosition.y, notFinal);
             },
             onComplete: () => {
                 // アニメーションが完了した後の処理（必要に応じて)
@@ -534,11 +574,5 @@ export class CardManager {
             }
         });
     }
-  }
-  public clearCards(): void {
-    for (const cardImage of this.cards) {
-      cardImage.destroy();
-    }
-    this.cards = [];
   }
 }
