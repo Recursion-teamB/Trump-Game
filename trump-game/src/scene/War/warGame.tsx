@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import { WarPlayer, WarTable } from "../../model/War/war";
 import { Deck, Card } from "../../model/General/general";
+import ReactDOM from 'react-dom';
+import { ResultPopup } from "../../components/Speed/SpeedPopUp";
 
 export class WarScene extends Phaser.Scene {
     private player: WarPlayer = new WarPlayer("You", "Player");
@@ -8,6 +10,7 @@ export class WarScene extends Phaser.Scene {
     private playerPositions: { [key: string]: { x: number; y: number } } = {};
     private playerScoreTexts: Phaser.GameObjects.Text[] = [];
     private isProcessing: boolean = false;
+    private resultPopupContainer : HTMLElement | null = null;
     constructor(){
         super('WarScene');
     }
@@ -16,11 +19,12 @@ export class WarScene extends Phaser.Scene {
         const screenWidth = this.cameras.main.width;
         const screenHeight = this.cameras.main.height;
         this.cameras.main.setBackgroundColor(0x008800);
+        this.resultPopupContainer = document.createElement('div');
+        document.body.appendChild(this.resultPopupContainer);
         this.table.distributeCards();
         this.createSection('player');
         this.createSection('cpu');
         this.updateScoreArea();
-
     }
     createPlayerCard(card: Card, x: number, y: number) {
       const cardBackImage = this.add.image(x, y, 'back');
@@ -51,7 +55,7 @@ export class WarScene extends Phaser.Scene {
         // ゲームオーバーチェック
         if (this.table.isGameOver()) {
           // ゲーム終了処理（アラートやシーン遷移など）
-          alert(this.table.getGameResult()); 
+          this.showResultPopUp("It's a Draw") 
         }
         this.isProcessing = false;
       });
@@ -172,4 +176,33 @@ export class WarScene extends Phaser.Scene {
       
         return null;
     }      
+    showResultPopUp(text : string){
+      this.scene.pause();
+      if (!this.resultPopupContainer) {
+        return;
+      }
+      ReactDOM.render(
+        <ResultPopup
+          text={text}
+          quit={() => {
+            console.log("quit")
+            this.hideDescription()
+            this.scene.stop(this)
+            this.scene.start("LobbyScene")    
+          }}
+          restart={() => {
+              this.hideDescription()
+              this.scene.restart(this);
+          }}
+          />,
+          this.resultPopupContainer
+      );
+    }
+
+    hideDescription() : void{
+      if (this.resultPopupContainer) {
+        ReactDOM.unmountComponentAtNode(this.resultPopupContainer);
+      }
+      this.scene.resume();
+    }
 }
