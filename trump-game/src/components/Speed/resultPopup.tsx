@@ -26,7 +26,7 @@ export const ResultPopup: React.FC<ResultPopupProps> = ({ text, restart, quit })
         <div
           style={{
             fontSize: '64px',
-            color: '#ffffff',
+            color: '#000000',
             fontWeight: 'bold',
             marginBottom: '1rem',
           }}
