@@ -1,10 +1,8 @@
 import { SpeedGameScene } from '../../scene/Speed/SpeedGame';
-import { SpeedCardManager } from './SpeedCardManager';
 import { Deck, Player } from '../General/general'
 import { SpeedTable } from './SpeedTable';
 
 export class SpeedPlayer extends Player {
-    private deckLength : number;
     private deck : Deck;
     constructor(name : string, type : string){
         super(name, type);
@@ -15,7 +13,6 @@ export class SpeedPlayer extends Player {
             this.deck = new Deck('black');
         }
         this.deck.shuffle();
-        this.deckLength = this.deck.getDeck().length;
         }
 
     // ゲッター
@@ -23,12 +20,9 @@ export class SpeedPlayer extends Player {
         return this.deck;
     }
     public getDeckLength() : number{
-        return this.deckLength;
+        return this.deck.getDeck().length;
     }
 
-    public updateDeckLength() : void{
-        this.deckLength = this.deck.getDeck().length;
-    }
 
     // 場札に重ねられるカードがあるかを判定する重ねられるカードがあればtrue無ければfalse
     public hasOnTopCard(table : SpeedTable) : boolean{
@@ -57,8 +51,24 @@ export class SpeedPlayer extends Player {
         return [];
     }
 
+    public countValid() : number{
+        let count = 0;
+        for(let card of this.hand){
+            if(card.getSuit() !== "null") ++count;
+        }
+        return count;
+    }
+
+    // 有効な手札があるか判定、手札の長さを保ちたいので追加できない場合nullを入れたCardを追加しているがそれを除いた時に手札があるのか検査する。
+    public isNoValid() : boolean{
+        for(let card of this.hand){
+            if(card.getSuit() !== "null") return false;
+        }
+        return true;
+    }
+
     public isComplete() : boolean{
-        if(this.isEmptyHand() && this.deck.isEmpty()){
+        if(this.isNoValid() && this.deck.isEmpty()){
             return true;
         }
         return false;
@@ -66,18 +76,19 @@ export class SpeedPlayer extends Player {
 
     // cpuの動きを実装する関数
     // cpuの手札から移動可能カードを見つけて移動アニメーションを起動するまで
-    public async cpuBehavior(table : SpeedTable, scene : SpeedGameScene, manager : SpeedCardManager) : Promise<void>{
+    public async cpuBehavior(table : SpeedTable, scene : SpeedGameScene) : Promise<void>{
         // cpuのactionが別に呼び出されていないか判定falseなら呼び出されているので中断。
         if(!table.getCpuAction()) return;
+        table.setCpuAction(false);
         await new Promise((resolve) => setTimeout(resolve, 500));
         // 移動できるカードがあるか判定、無ければreturn、あれば次の処理へ
         if(this.hasOnTopCard(table)){
-            table.setCpuAction(false);
             let index : number[] = this.getOnTopCardIndexAndField(table);
-            manager.moveCpuHand(this.hand[index[0]], index[1], index[0]);
+            scene.moveCpuHand(table.getFieldCard()[index[0]], index[1], index[0]);
         }
         else{
             console.log("none");
+            table.setCpuAction(true);
             return;
         }
     }
