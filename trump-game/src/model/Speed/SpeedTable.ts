@@ -58,17 +58,17 @@ export class SpeedTable {
                     scene.moveDeckToField(this.fieldCard[i], this.players[i]);
                 }
             }
-            // deckが空の場合の処理
+            // deckが空の場合の処理handからfieldへ
             else{
                 const hand = player.getHand();
                 const handLength = hand.length;
                 let popCard;
                 let index = 0;
-                for(let i = 0; i < handLength; ++i){
-                    let card = hand[i];
+                for(let j = 0; j < handLength; ++j){
+                    let card = hand[j];
                     if(card.getSuit() !== "null"){
                         popCard = card;
-                        hand[i] = new Card("null", "null")
+                        hand[j] = new Card("null", "null")
                         break;
                     }
                     ++index;
@@ -78,17 +78,19 @@ export class SpeedTable {
                     this.fieldCard[i] = popCard;
                 }
                 if(i === 0){
-                    scene.moveHandToField(this.fieldCard[i], index, i, this.players[i]);
+                    scene.moveHandToField(this.fieldCard[i], index, i, this.players[i], 300);
                 }
                 else{
-                    scene.moveHandToField(this.fieldCard[i], index, i, this.players[i])
+                    scene.moveHandToField(this.fieldCard[i], index, i, this.players[i], 300)
                 }
+                scene.setFieldDepth();
             }
         }
 
         // 今回の台札のアップデートでゲームが進められるのか判定(2人の参加者のhandにfieldに重ねられるカードがあるか？)、参加者双方のhandに重ねられるカードがなければもう一度この関数を呼び出す。
         if(!this.isContinue()){
-            console.log('re')
+            console.log('re');
+            if(this.isSettled()) return;
             await scene.createEventDisplay("Ready", 1000);
             this.updateFieldCard(scene);
         }
@@ -105,6 +107,7 @@ export class SpeedTable {
     // cardとfieldが重ねられるか判定。重ねられればtrue出来なければfalse
     public isOnCard(card : Card, field : Card) : boolean{
         // console.log(field);
+        if(card.getSuit() === "null" || field.getSuit() === "null") return false;
         let num : number = card.getRank();
         let target : number = field.getRank();
 
@@ -155,7 +158,6 @@ export class SpeedTable {
             }
         }
         // deckがなければfieldへ行ったカードのある場所にnull cardを入れる
-        // 此処の処理は要検討 cardを入れずhandを縮小するのもあり
         else{
             player.getHand()[cardIndex] = new Card('null', 'null');
         }
