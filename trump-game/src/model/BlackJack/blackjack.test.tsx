@@ -3,7 +3,7 @@ import {BlackJackPlayer, BlackJackTable} from './blackjack';
 
 let player : BlackJackPlayer = new BlackJackPlayer("jack", "player");
 let table : BlackJackTable = new BlackJackTable(player);
-let deck : Deck = new Deck();
+let deck : Deck = new Deck('default');
 
 test("プレイヤーに掛け金がセットされる", () =>{
   player.setCost(100);

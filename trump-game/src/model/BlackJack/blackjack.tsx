@@ -203,7 +203,7 @@ export class BlackJackTable {
     private turnNumber : number = 0;
     private phase : string = "initial";
     protected players : BlackJackPlayer[];
-    private deck : Deck = new Deck();
+    private deck : Deck = new Deck('default');
 
     constructor(player: BlackJackPlayer){
         this.players = [player, new BlackJackPlayer("CPU1", "CPU"), new BlackJackPlayer("CPU2", "CPU")];
@@ -431,7 +431,7 @@ export class BlackJackTable {
         scene.updateDealerScore(true);
         scene.updateDealerAction();
         this.turnNumber = 0;
-        this.deck = new Deck();
+        this.deck = new Deck('default');
         this.deck.shuffle();
     }
 
