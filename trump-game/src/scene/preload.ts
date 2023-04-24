@@ -7,6 +7,7 @@ export default class preloadScene extends Phaser.Scene {
 
     preload(){
         this.load.image('lobby-background', 'assets/lobbyImg/playing-cards-background.jpg');
+        this.load.image('blackjack', 'assets/lobbyImg/blackjack-icon.jpg')
         this.load.image('help', 'assets/help-icon.png');
         this.load.image('back', 'assets/back.jpg');
         this.load.image('back_home', 'assets/return-icon.jpg');
@@ -23,6 +24,4 @@ export default class preloadScene extends Phaser.Scene {
         // this.scene.start('SpeedGameScene')
         this.scene.stop('preloadScene');
     }
-
-    
 }
