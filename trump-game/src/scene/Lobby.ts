@@ -55,7 +55,7 @@ export default class LobbyScene extends Phaser.Scene {
                 break;
             case 2:
                 button.on('pointerdown', () => {
-                    this.newSceneStart('SpeedScene');
+                    this.newSceneStart('SpeedGameScene');
                 })
                 break;
         }

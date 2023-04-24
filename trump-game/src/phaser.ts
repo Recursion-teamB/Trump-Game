@@ -18,7 +18,7 @@ const config: Phaser.Types.Core.GameConfig = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
         fullscreenTarget: 'phaser-game'
     },
-    scene: [preloadScene, LobbyScene, SpeedGameScene, BlackLevelScene, BlackGameScene],
+    scene: [preloadScene, LobbyScene, WarScene, SpeedGameScene, BlackLevelScene, BlackGameScene],
 }
 
 const phaserGame = new Phaser.Game(config);
