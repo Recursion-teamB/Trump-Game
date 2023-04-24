@@ -333,7 +333,7 @@ export class SpeedGameScene extends Phaser.Scene {
         let handImages : Phaser.GameObjects.Image[] = this.getCpuHand();
         let cpu : SpeedPlayer = this.table.getPlayers()[1];
         let cardImage : Phaser.GameObjects.Image = handImages[handIndex]
-        let startPosition : Position = new Position(cardImage.x, cardImage.y);
+        let startPosition : Position = this.cpuCardPositions[handIndex];
 
         this.tweens.add({
             targets: cardImage,
@@ -367,19 +367,23 @@ export class SpeedGameScene extends Phaser.Scene {
         })
     }
 
-    public moveHandToField(card : Card, handIndex : number, fieldIndex : number, player : SpeedPlayer){
+    // 再開時deckがなければ使用される
+    public moveHandToField(card : Card, handIndex : number, fieldIndex : number, player : SpeedPlayer, duration : number){
         let handImages = player.getType() === "CPU" ? this.getCpuHand(): this.getPlayerHand();
         let handImage = handImages[handIndex]
+        let index = player.getType() === "CPU" ? 1: 0;
 
         this.tweens.add({
             targets: handImage,
             x: this.fieldPositions[fieldIndex].x,
             y: this.fieldPositions[fieldIndex].y,
             ease: 'Linear',
-            duration: 2000,
+            duration: duration,
             repeat: 0,
             yoyo: false,
         })
+
+        this.fieldCard[index] = handImage;
     }
 
     public setFieldDepth(){
