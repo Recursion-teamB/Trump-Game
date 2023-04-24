@@ -1,8 +1,8 @@
 import { SpeedTable } from "../../model/Speed/SpeedTable";
 import { SpeedPlayer } from "../../model/Speed/SpeedPlayer";
-import { Card, Deck, Position } from '../../model/General/general';
 import ReactDOM from 'react-dom';
 import { ResultPopup } from "../../components/Speed/resultPopup";
+import { Card, Position } from '../../model/General/general';
 
 export class SpeedGameScene extends Phaser.Scene {
     private player: SpeedPlayer = new SpeedPlayer("You", "player");
@@ -26,19 +26,19 @@ export class SpeedGameScene extends Phaser.Scene {
 
 
     constructor() {
-        super({ key: 'SpeedGame' });
+        super({ key: 'SpeedGameScene' });
     }
 
     preload() {
-        this.load.image('back', 'assets/back.jpg');
-        this.load.image('help', 'assets/help-icon.png');
-        //this.load.image('back_home', 'assets/buttons/back_home.png');
-        const suits = Deck.getSuitList();
-        for (let i = 1; i <= 13; i++) {
-            suits.forEach(suit => {
-                this.load.image(`${suit}${i}`, `assets/card_img/${suit}${i}.png`);
-            });
-        }
+        // this.load.image('back', 'assets/back.jpg');
+        // this.load.image('help', 'assets/help-icon.png');
+        // //this.load.image('back_home', 'assets/back_home.png');
+        // const suits = Deck.getSuitList();
+        // for (let i = 1; i <= 13; i++) {
+        //     suits.forEach(suit => {
+        //         this.load.image(`${suit}${i}`, `assets/card_img/${suit}${i}.png`);
+        //     });
+        // }
     }
 
 
@@ -306,8 +306,8 @@ export class SpeedGameScene extends Phaser.Scene {
     // プレイヤーのデッキからhandにカードを移動する
     public movePlayerDeckToHand(card : Card, handIndex : number, delayTime : number) : void{
         const backCard = this.add.image(this.playerDeckPosition.x, this.playerDeckPosition.y, 'back').setDisplaySize(this.cardWidth, this.cardHeight).setInteractive().setDepth(4);// .setOrigin(0.5, 0.5);
-        
-        //backCard.input.hitArea = new Phaser.Geom.Rectangle(0, 0, backCard.width*2, backCard.height*2);
+
+        // backCard.input.hitArea = new Phaser.Geom.Rectangle(0, 0, backCard.width*2, backCard.height*2);
 
         this.tweens.add({
             targets: backCard,
@@ -366,7 +366,7 @@ export class SpeedGameScene extends Phaser.Scene {
         let handImages : Phaser.GameObjects.Image[] = this.getCpuHand();
         let cpu : SpeedPlayer = this.table.getPlayers()[1];
         let cardImage : Phaser.GameObjects.Image = handImages[handIndex]
-        let startPosition : Position = new Position(cardImage.x, cardImage.y);
+        let startPosition : Position = this.cpuCardPositions[handIndex];
 
         this.tweens.add({
             targets: cardImage,
@@ -400,19 +400,23 @@ export class SpeedGameScene extends Phaser.Scene {
         })
     }
 
-    public moveHandToField(card : Card, handIndex : number, fieldIndex : number, player : SpeedPlayer){
+    // 再開時deckがなければ使用される
+    public moveHandToField(card : Card, handIndex : number, fieldIndex : number, player : SpeedPlayer, duration : number){
         let handImages = player.getType() === "CPU" ? this.getCpuHand(): this.getPlayerHand();
         let handImage = handImages[handIndex]
+        let index = player.getType() === "CPU" ? 1: 0;
 
         this.tweens.add({
             targets: handImage,
             x: this.fieldPositions[fieldIndex].x,
             y: this.fieldPositions[fieldIndex].y,
             ease: 'Linear',
-            duration: 2000,
+            duration: duration,
             repeat: 0,
             yoyo: false,
         })
+
+        this.fieldCard[index] = handImage;
     }
 
     public setFieldDepth(){

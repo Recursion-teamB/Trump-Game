@@ -197,7 +197,7 @@ export class CardManager<T extends Phaser.Scene> {
       }
     
       // カードをデッキの位置に裏向きで作成します
-      const cardImage = this.scene.add.image(startX, startY, 'back');
+      const cardImage = this.scene.add.image(startX, startY, 'card-back');
       cardImage.setOrigin(0.5, 0.5);
       cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
       console.log(this.cardWidth, this.cardHeight)
