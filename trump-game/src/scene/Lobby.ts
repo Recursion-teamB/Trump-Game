@@ -5,13 +5,13 @@ export default class LobbyScene extends Phaser.Scene {
 
     preload()
     {
-        this.load.image('back', 'assets/lobbyImg/playing-cards-background.jpg')
+        this.load.image('background', 'assets/lobbyImg/playing-cards-background.jpg')
         this.load.image('blackjack', 'assets/lobbyImg/blackjack-icon.jpg');
     }
 
     create()
     {
-        this.add.image(this.cameras.main.centerX, this.cameras.main.centerY, 'back').setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+        this.add.image(this.cameras.main.centerX, this.cameras.main.centerY, 'background').setDisplaySize(this.cameras.main.width, this.cameras.main.height);
         let buttonWidth = 150;
         let buttonHeight = 150;
         let x = (this.cameras.main.width - (buttonWidth * 3)) / 2 + buttonWidth / 2;
@@ -29,7 +29,7 @@ export default class LobbyScene extends Phaser.Scene {
             button.on('pointerdown', () => {
                 this.scene.start('BlackLevelScene');
                 this.scene.stop('LobbyScene');
-                this.textures.remove('back');
+                this.textures.remove('background');
             })
 
             x += 150;

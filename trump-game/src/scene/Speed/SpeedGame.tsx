@@ -1,6 +1,8 @@
 import { SpeedTable } from "../../model/Speed/SpeedTable";
 import { SpeedPlayer } from "../../model/Speed/SpeedPlayer";
 import { Card, Deck, Position } from '../../model/General/general';
+import ReactDOM from 'react-dom';
+import { ResultPopup } from "../../components/Speed/resultPopup";
 
 export class SpeedGameScene extends Phaser.Scene {
     private player: SpeedPlayer = new SpeedPlayer("You", "player");
@@ -19,6 +21,8 @@ export class SpeedGameScene extends Phaser.Scene {
     private cpuDeckPosition : Position = new Position(0,0);
     private fieldPositions : Position[] = new Array(2);
     private click : number = -1;
+
+    private resultPopupContainer : HTMLElement | null = null;
 
 
     constructor() {
@@ -84,6 +88,7 @@ export class SpeedGameScene extends Phaser.Scene {
 
 
         this.table.updateFieldCard(this)
+        this.showResultPopUp("You Win")
     }
 
     update() {
@@ -95,6 +100,8 @@ export class SpeedGameScene extends Phaser.Scene {
     }
 
     addDrag(card : Phaser.GameObjects.Image, handIndex : number){
+        this.resultPopupContainer = document.createElement('div');
+        document.body.appendChild(this.resultPopupContainer);
         card.setInteractive();
         this.input.setDraggable(card);
         let startPosition = new Position(card.x, card.y);
@@ -235,7 +242,35 @@ export class SpeedGameScene extends Phaser.Scene {
         cardImage.setDisplaySize(this.cardWidth, this.cardHeight);
         cardImage.setOrigin(0.5, 0.5);
     }
+    showResultPopUp(text : string){
+        this.scene.pause();
+        if (!this.resultPopupContainer) {
+          return;
+        }
+        ReactDOM.render(
+          <ResultPopup
+            text={text}
+            quit={() => {
+              console.log("quit")
+              this.hideDescription()
+              this.scene.stop(this)
+              this.scene.start("LobbyScene")    
+            }}
+            restart={() => {
+                this.hideDescription()
+                this.scene.restart(this);
+            }}
+            />,
+            this.resultPopupContainer
+        );
+      }
 
+      hideDescription() : void{
+        if (this.resultPopupContainer) {
+          ReactDOM.unmountComponentAtNode(this.resultPopupContainer);
+        }
+        this.scene.resume();
+      }
     // 初期のカードを配る
     public firstDeal() : void {
         const handLength = 4;
@@ -273,7 +308,7 @@ export class SpeedGameScene extends Phaser.Scene {
     // プレイヤーのデッキからhandにカードを移動する
     public movePlayerDeckToHand(card : Card, handIndex : number, delayTime : number) : void{
         const backCard = this.add.image(this.playerDeckPosition.x, this.playerDeckPosition.y, 'back').setDisplaySize(this.cardWidth, this.cardHeight).setInteractive().setDepth(4);// .setOrigin(0.5, 0.5);
-
+        
         backCard.input.hitArea = new Phaser.Geom.Rectangle(0, 0, backCard.width*2, backCard.height*2);
 
         this.tweens.add({
