@@ -45,7 +45,7 @@ export default class LobbyScene extends Phaser.Scene {
         switch (index) {
             case 0:
                 button.on('pointerdown', () => {
-                    this.newSceneStart('WarScene');
+                    this.newSceneStart('WarLevelScene');
                 })
                 break;
             case 1:
@@ -55,7 +55,7 @@ export default class LobbyScene extends Phaser.Scene {
                 break;
             case 2:
                 button.on('pointerdown', () => {
-                    this.newSceneStart('SpeedGameScene');
+                    this.newSceneStart('SpeedLevelScene');
                 })
                 break;
         }

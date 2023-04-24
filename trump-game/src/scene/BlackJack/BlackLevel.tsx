@@ -53,7 +53,7 @@ export default class BlackLevelScene extends Phaser.Scene{
     }
     //タイトルの追加
     createTitleText() {
-        const titleText = this.add.text(this.centerX, this.heightPosition(0.1), 'ブラックジャック', { fontSize: '32px', color: '#fff' });
+        const titleText = this.add.text(this.centerX, this.heightPosition(0.1), 'ブラックジャック -black jack-', { fontSize: '32px', color: '#fff' });
         titleText.setOrigin(0.5, 0.5);
     }
 
@@ -121,13 +121,23 @@ export default class BlackLevelScene extends Phaser.Scene{
         graphics.lineStyle(4, 0xffffff, 1);
         graphics.strokeRect(ruleFrameX, ruleFrameY, ruleWidth, ruleHight);
         const blackjackRuleText = [
-            "ブラックジャックでは、カードの合計値が21となるような手札を持つこと、",
-            "またはその制限を超えない範囲でできるだけそれに近い手札を持つことが目標とされます。",
-            "ディーラーと対戦し、21に近づけるためにもう1枚カードをもらう(ヒット）か、",
-            "持っているカードをそのままにするスタンド）かのどちらかを21を超えない範囲で",
-            "最も高い手札の価値を持つプレイヤーがゲームに勝利します。",
+            "ゲームの目的は、手持ちのカードの合計点数が21に近い、または21に等しいようにすることです。",
+            "ディーラーは、プレイヤーに2枚のカードを配ります。自分にも2枚のカードを配り、1枚は表向き、",
+            "1枚は裏向きにします。",
+            "プレイヤーは、自分の手札の合計点数が21に近づけるために、カードを引くことができます。",
+            "ただし、手札の合計点数が21を超えると、バーストとなり、そのプレイヤーは負けになります。",
+            "ディーラーは、自分の手札が17点以上になるまでカードを引きます。17点以上になったら、",
+            "カードを引かないで止まります。",
+            "カードの点数は、2から10まではそのままの数、絵札は10、エースは1または11として数えます。",
+            "プレイヤーが最初の2枚のカードで21点を取った場合、これを「ブラックジャック」と呼び、",
+            "プレイヤーは自動的に勝利します。",
+            "ディーラーとプレイヤーが同点の場合は、引き分けになります。それ以外の場合は、",
+            "カードの合計点数が高い方が勝利します。",
+            "このゲームの操作",
+            "ベットするためのポップアップが表示されたら。掛け金を設定する。",
+            "その後表示されるボタンをクリックしてアクションを選択してください。",
           ].join("\n");
-        const fontSize = Math.min(20, Math.max(8, Math.floor(this.cameras.main.width / 60)));
+        const fontSize = Math.min(15.5, Math.max(8, Math.floor(this.cameras.main.width / 60)));
         const rulesText = this.add.text(ruleFrameX + 10, ruleFrameY + 10, blackjackRuleText, { fontSize: `${fontSize}px`, color: '#fff',align: 'left', wordWrap: { width: ruleWidth - 20 } });
         //const rulesText = this.add.text(ruleFrameX + 10, ruleFrameY + 10, blackjackRuleText, { fontSize: '16px', color: '#fff', wordWrap: { width: ruleWidth - 20 } });
     }
