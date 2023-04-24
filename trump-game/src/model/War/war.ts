@@ -65,6 +65,8 @@ export class WarTable{
     }
 
     public judgeWinner(players : WarPlayer[]): string{
+        console.log("player:" + players[0].getChosenCard()?.getRank());
+        console.log("cpu:" + players[1].getChosenCard()?.getRank());
         if(players[0].getChosenCard() === null || players[1].getChosenCard() === null){
             throw new Error("Player has not chosen card yet");
         }
@@ -96,7 +98,7 @@ export class WarTable{
     }
     public playRound(playerCardIndex: number): string {
         this.players[0].chooseCard(playerCardIndex);
-        const cpuCardIndex = Math.floor(Math.random() * this.players[1].getHand().length);
+        const cpuCardIndex = 0;
         this.players[1].chooseCard(cpuCardIndex);
 
         for (const player of this.players) {
