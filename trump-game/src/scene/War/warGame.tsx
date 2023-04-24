@@ -48,6 +48,11 @@ export class WarScene extends Phaser.Scene {
         if(winner !== "draw"){
           this.slideCardToJail([cardBackImage, cpuCardBackImage!], winner);
         }
+        else {
+          // If it's a draw, make both cards invisible.
+          cardBackImage.visible = false;
+          cpuCardBackImage!.visible = false;
+        }
         // スコアを更新
         this.updateScoreArea();
         // ゲームオーバーチェック
