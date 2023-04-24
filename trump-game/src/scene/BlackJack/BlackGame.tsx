@@ -33,11 +33,13 @@ export default class BlackGameScene extends Phaser.Scene {
       super({ key: 'BlackGameScene' });
     }
 
-
     preload() {}
 
     async create() {
       // Phaserの設定
+      this.player = new BlackJackPlayer("You", "Player");
+      this.table = new BlackJackTable(this.player);
+
       this.screenWidth = this.cameras.main.width;
       this.screenHeight = this.cameras.main.height;
       this.dealerPosition.x = this.screenWidth /2
