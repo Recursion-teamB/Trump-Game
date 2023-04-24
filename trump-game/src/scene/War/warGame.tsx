@@ -65,7 +65,9 @@ export class WarScene extends Phaser.Scene {
         // ゲームオーバーチェック
         if (this.table.isGameOver()) {
           // ゲーム終了処理（アラートやシーン遷移など）
-          this.showResultPopUp("It's a Draw") 
+          setTimeout(() => {
+            this.showResultPopUp(this.table.getGameResult()) 
+        }, 2000);
         }
         this.isProcessing = false;
       });
