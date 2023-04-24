@@ -19,8 +19,8 @@ export const ActionPopup: React.FC<ActionPopupProps> = ({
     style={{
       position: 'absolute',
       width: '50%',
-      height: '35%',
-      top: '25%',
+      height: '50%',
+      top: '10%',
       right: '0%',
       // left: '25%',
       display: 'flex',
