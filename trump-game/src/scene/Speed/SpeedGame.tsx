@@ -1,6 +1,6 @@
 import { SpeedTable } from "../../model/Speed/SpeedTable";
 import { SpeedPlayer } from "../../model/Speed/SpeedPlayer";
-import { Card, Deck, Position } from '../../model/General/general';
+import { Card, Position } from '../../model/General/general';
 
 export class SpeedGameScene extends Phaser.Scene {
     private player: SpeedPlayer = new SpeedPlayer("You", "player");
@@ -22,19 +22,19 @@ export class SpeedGameScene extends Phaser.Scene {
 
 
     constructor() {
-        super({ key: 'SpeedGame' });
+        super({ key: 'SpeedGameScene' });
     }
 
     preload() {
-        this.load.image('back', 'assets/back.jpg');
-        this.load.image('help', 'assets/help-icon.png');
-        //this.load.image('back_home', 'assets/buttons/back_home.png');
-        const suits = Deck.getSuitList();
-        for (let i = 1; i <= 13; i++) {
-            suits.forEach(suit => {
-                this.load.image(`${suit}${i}`, `assets/card_img/${suit}${i}.png`);
-            });
-        }
+        // this.load.image('back', 'assets/back.jpg');
+        // this.load.image('help', 'assets/help-icon.png');
+        // //this.load.image('back_home', 'assets/back_home.png');
+        // const suits = Deck.getSuitList();
+        // for (let i = 1; i <= 13; i++) {
+        //     suits.forEach(suit => {
+        //         this.load.image(`${suit}${i}`, `assets/card_img/${suit}${i}.png`);
+        //     });
+        // }
     }
 
 

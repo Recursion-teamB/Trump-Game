@@ -33,17 +33,8 @@ export default class BlackGameScene extends Phaser.Scene {
       super({ key: 'BlackGameScene' });
     }
 
-    preload() {
-      this.load.image('card-back', 'assets/back.jpg');
-      this.load.image('help', 'assets/help-icon.png');
-      this.load.image('back_home', 'assets/return-icon.jpg');
-      const suits = Deck.getSuitList();
-      for (let i = 1; i <= 13; i++) {
-        suits.forEach(suit => {
-          this.load.image(`${suit}${i}`, `assets/card_img/${suit}${i}.png`);
-        });
-      }
-    }
+
+    preload() {}
 
     async create() {
       // Phaserの設定
