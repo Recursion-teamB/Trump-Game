@@ -36,6 +36,8 @@ export class WarTable{
     private deck: Deck = new Deck();
     //盤面に出されたカード。得点可能なカードの数となる
     private cards : Card[] = [];
+    //最終的な勝者を格納する
+    private winner: string = "";
     constructor(player: WarPlayer){
         this.players = [player, new WarPlayer("CPU", "CPU")];
         this.deck.shuffle();
@@ -118,14 +120,22 @@ export class WarTable{
     public getGameResult(): string {
         const playerScore = this.players[0].getScore();
         const cpuScore = this.players[1].getScore();
-
         if (playerScore > cpuScore) {
+            this.setWinner("Player");
             return "Player wins!";
         } else if (playerScore < cpuScore) {
+            this.setWinner("CPU");
             return "CPU wins!";
         } else {
+            this.setWinner("Draw");
             return "It's a draw!";
         }
+    }
+    public getWinner(): string{
+        return this.winner;
+    }
+    public setWinner(winner: string): void{
+        this.winner = winner;
     }
 }
 
