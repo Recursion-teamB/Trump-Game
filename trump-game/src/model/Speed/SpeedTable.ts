@@ -90,7 +90,7 @@ export class SpeedTable {
         // 今回の台札のアップデートでゲームが進められるのか判定(2人の参加者のhandにfieldに重ねられるカードがあるか？)、参加者双方のhandに重ねられるカードがなければもう一度この関数を呼び出す。
         if(!this.isContinue()){
             console.log('re');
-            if(this.isSettled()) return;
+            if(this.isSettled(scene)) return;
             await scene.createEventDisplay("Ready", 1000);
             this.updateFieldCard(scene);
         }
@@ -167,18 +167,18 @@ export class SpeedTable {
         if(player.isComplete()){
             if(player.getType() === "CPU"){
                 // プレイヤーが負けた画面の表示 and gameのstop
-                window.alert("YOU LOSE")
+                scene.showResultPopUp("YOU LOSE")
 
             }
             else{
                 // プレイヤーが勝った画面表示 and gameのstop
-                window.alert("YOU WIN")
+                scene.showResultPopUp("YOU WIN")
             }
         }
         else{
             if(!this.isContinue()){
                 // どちらかの手札が残り一枚だった場合の処理
-                if(this.isSettled()) return;
+                if(this.isSettled(scene)) return;
 
                 console.log("round change")
                 await scene.createEventDisplay("Ready", 1000);
@@ -188,7 +188,7 @@ export class SpeedTable {
         }
     }
 
-    public isSettled() : boolean{
+    public isSettled(scene: SpeedGameScene) : boolean{
         let player = this.players[0];
         let cpu = this.players[1];
 
@@ -202,13 +202,13 @@ export class SpeedTable {
 
         // 決着がつく場合
         if(player.countValid() <= 1 && cpu.countValid() <= 1){
-            alert("DRAW");
+            scene.showResultPopUp("YOU DRAW")
         }
         else if(player.countValid() <= 1){
-            alert("WIN");
+            scene.showResultPopUp("YOU WIN")
         }
         else{
-            alert("LOSE");
+            scene.showResultPopUp("YOU LOSE")
         }
         return true;
     }
