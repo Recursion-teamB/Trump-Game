@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { WarPlayer, WarTable } from "../../model/War/war";
 import { Deck, Card } from "../../model/General/general";
 import ReactDOM from 'react-dom';
-import { ResultPopup } from "../../components/Speed/SpeedPopUp";
+import { ResultPopup } from "../../components/War/WarPopUp";
 
 export class WarScene extends Phaser.Scene {
     private player: WarPlayer = new WarPlayer("You", "Player");
@@ -16,6 +16,9 @@ export class WarScene extends Phaser.Scene {
     }
     preload() {}
     create(){
+        this.playerScoreTexts = []
+        this.player = new WarPlayer("You", "Player");
+        this.table = new WarTable(this.player);
         const screenWidth = this.cameras.main.width;
         const screenHeight = this.cameras.main.height;
         this.cameras.main.setBackgroundColor(0x008800);
@@ -215,6 +218,7 @@ export class WarScene extends Phaser.Scene {
           }}
           restart={() => {
               this.hideDescription()
+              console.log("restart")
               this.scene.restart(this);
           }}
           />,
