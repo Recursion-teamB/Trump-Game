@@ -8,6 +8,7 @@
 
 # 使い方
 - 以下URLから各ゲームのボタンをクリックした後Startボタンを押すとゲームを開始することができます
+https://trump-game.vercel.app/
 
 # 使用技術
 - Frontend
